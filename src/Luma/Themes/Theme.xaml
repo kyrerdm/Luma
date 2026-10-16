@@ -1,0 +1,189 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Luma.Controls">
+  <SolidColorBrush x:Key="BackgroundBrush" Color="#151517" />
+  <SolidColorBrush x:Key="SurfaceBrush" Color="#1E1E21" />
+  <SolidColorBrush x:Key="BorderBrush" Color="#303033" />
+  <SolidColorBrush x:Key="TextBrush" Color="#F2F2F3" />
+  <SolidColorBrush x:Key="MutedBrush" Color="#9C9CA4" />
+  <SolidColorBrush x:Key="AccentBrush" Color="#81B7DB" />
+  <Style TargetType="Window">
+    <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style x:Key="MutedText" TargetType="TextBlock">
+    <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="LineHeight" Value="19" />
+  </Style>
+  <Style x:Key="Icon" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style TargetType="Button">
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="#252528" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="18,11" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.76" /></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.55" /></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.4" /></Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="Foreground" Value="#171320" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style x:Key="Toggle" TargetType="CheckBox">
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="Track" Width="42" Height="24" CornerRadius="12" Background="#37373D" BorderBrush="#55555D" BorderThickness="1">
+            <Ellipse x:Name="Knob" Width="16" Height="16" Fill="#C2C5D2" HorizontalAlignment="Left" Margin="3,0" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True"><Setter TargetName="Track" Property="Background" Value="{DynamicResource AccentBrush}" /><Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource AccentBrush}" /><Setter TargetName="Knob" Property="Fill" Value="#1B2025" /><Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right" /></Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Track" Property="BorderBrush" Value="White" /></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Track" Property="Opacity" Value="0.4" /></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="SliderRepeat" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="{TemplateBinding Background}" Height="5" CornerRadius="2.5" /></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="Slider">
+    <Setter Property="Minimum" Value="0" />
+    <Setter Property="Maximum" Value="100" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="IsMoveToPointEnabled" Value="True" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Slider">
+          <Grid VerticalAlignment="Center" Background="Transparent">
+            <Track x:Name="PART_Track">
+              <Track.DecreaseRepeatButton><RepeatButton Style="{StaticResource SliderRepeat}" Background="{DynamicResource AccentBrush}" Command="Slider.DecreaseLarge" /></Track.DecreaseRepeatButton>
+              <Track.Thumb><Thumb Width="15" Height="24"><Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Ellipse x:Name="Dot" Width="13" Height="13" Fill="{DynamicResource AccentBrush}" /></Grid><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Dot" Property="Fill" Value="White" /></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Dot" Property="Stroke" Value="White" /><Setter TargetName="Dot" Property="StrokeThickness" Value="2" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+              <Track.IncreaseRepeatButton><RepeatButton Style="{StaticResource SliderRepeat}" Background="#3B3B40" Command="Slider.IncreaseLarge" /></Track.IncreaseRepeatButton>
+            </Track>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="ComboBox">
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="#252528" />
+    <Setter Property="BorderBrush" Value="#3D3D43" />
+    <Setter Property="Padding" Value="12,9" />
+    <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#181820" /><Setter Property="Padding" Value="12,8" /></Style></Setter.Value></Setter>
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid>
+      <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" ClickMode="Press"><ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#252528" BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}" BorderThickness="1" CornerRadius="8"><TextBlock Text="&#xE70D;" FontFamily="Segoe Fluent Icons" Foreground="#AAA5BA" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="10" /></Border></ControlTemplate></ToggleButton.Template></ToggleButton>
+      <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" Margin="12,9,32,9" IsHitTestVisible="False" />
+      <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade"><Border Background="#EEEDEF" CornerRadius="8" Padding="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"><ScrollViewer><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" /></ScrollViewer></Border></Popup>
+    </Grid><ControlTemplate.Triggers><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ScrollBar">
+    <Setter Property="Width" Value="10" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar">
+      <Grid Background="Transparent" Width="10" Margin="0,5">
+        <Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="Vertical">
+          <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False" /></Track.DecreaseRepeatButton>
+          <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="#4A465A" Width="4" CornerRadius="2" Margin="0,2" /></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+          <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False" /></Track.IncreaseRepeatButton>
+        </Track>
+      </Grid>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="QuietButton" TargetType="Button">
+    <Setter Property="Width" Value="28" /><Setter Property="Height" Value="28" />
+    <Setter Property="Foreground" Value="#DADADD" /><Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" /><Setter Property="Padding" Value="0" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+      <Border x:Name="Hover" CornerRadius="6" Background="{TemplateBinding Background}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+      <ControlTemplate.Triggers>
+        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Hover" Property="Background" Value="#15FFFFFF" /></Trigger>
+        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Hover" Property="Opacity" Value="0.55" /></Trigger>
+        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Hover" Property="Opacity" Value="0.3" /></Trigger>
+        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Hover" Property="Background" Value="#30FFFFFF" /></Trigger>
+      </ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="PlayButton" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+    <Setter Property="Width" Value="34" /><Setter Property="Height" Value="34" /><Setter Property="Background" Value="#18FFFFFF" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+      <Border x:Name="Circle" Background="{TemplateBinding Background}" CornerRadius="17" RenderTransformOrigin="0.5,0.5"><Border.RenderTransform><ScaleTransform /></Border.RenderTransform><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+      <ControlTemplate.Triggers>
+        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Circle" Property="Background" Value="#28FFFFFF" /></Trigger>
+        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Circle" Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="0.9" ScaleY="0.9" /></Setter.Value></Setter></Trigger>
+        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Circle" Property="Opacity" Value="0.3" /></Trigger>
+        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Circle" Property="BorderBrush" Value="{DynamicResource AccentBrush}" /><Setter TargetName="Circle" Property="BorderThickness" Value="1" /></Trigger>
+      </ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="FineTrackButton" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Height="3" CornerRadius="1.5" Background="{TemplateBinding Background}" /></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="FluidSlider" TargetType="controls:SmoothSlider">
+    <Setter Property="Minimum" Value="0" /><Setter Property="Maximum" Value="100" /><Setter Property="Height" Value="28" /><Setter Property="IsMoveToPointEnabled" Value="True" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="controls:SmoothSlider">
+      <Grid Background="Transparent" VerticalAlignment="Center">
+        <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{Binding DisplayValue, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}">
+          <Track.DecreaseRepeatButton><RepeatButton Style="{StaticResource FineTrackButton}" Background="{DynamicResource AccentBrush}" Command="Slider.DecreaseLarge" /></Track.DecreaseRepeatButton>
+          <Track.Thumb><Thumb Width="12" Height="26"><Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Ellipse Width="11" Height="11" Fill="{DynamicResource AccentBrush}" /></Grid></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+          <Track.IncreaseRepeatButton><RepeatButton Style="{StaticResource FineTrackButton}" Background="#666669" Command="Slider.IncreaseLarge" /></Track.IncreaseRepeatButton>
+        </Track>
+      </Grid>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="TimelineSlider" TargetType="controls:SmoothSlider" BasedOn="{StaticResource FluidSlider}">
+    <Setter Property="Height" Value="18" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="controls:SmoothSlider">
+      <Grid Background="Transparent">
+        <Border Height="3" CornerRadius="1.5" Background="#48FFFFFF" VerticalAlignment="Center" />
+        <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{Binding DisplayValue, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}">
+          <Track.DecreaseRepeatButton><RepeatButton Style="{StaticResource FineTrackButton}" Background="{DynamicResource AccentBrush}" Command="Slider.DecreaseLarge" /></Track.DecreaseRepeatButton>
+          <Track.Thumb><Thumb x:Name="SeekThumb" Width="8" Height="18"><Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Border Height="3" Background="{DynamicResource AccentBrush}" VerticalAlignment="Center" /><Ellipse x:Name="SeekDot" Width="7" Height="7" Fill="{DynamicResource AccentBrush}" Opacity="0" /></Grid><ControlTemplate.Triggers><DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=controls:SmoothSlider}}" Value="True"><Setter TargetName="SeekDot" Property="Opacity" Value="1" /></DataTrigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="SeekDot" Property="Opacity" Value="1" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+          <Track.IncreaseRepeatButton><RepeatButton Style="{StaticResource FineTrackButton}" Background="Transparent" Command="Slider.IncreaseLarge" /></Track.IncreaseRepeatButton>
+        </Track>
+      </Grid>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ToolTip">
+    <Setter Property="Foreground" Value="#E3E3E7" /><Setter Property="FontSize" Value="11" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToolTip"><Border Background="#333336" BorderBrush="#515156" BorderThickness="1" CornerRadius="6" Padding="9,6"><ContentPresenter /></Border></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ContextMenu">
+    <Setter Property="Foreground" Value="#E3E3E7" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContextMenu"><Border Background="#29292C" BorderBrush="#48484F" BorderThickness="1" CornerRadius="8" Padding="4"><StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" /></Border></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="MenuItem">
+    <Setter Property="Foreground" Value="#E3E3E7" /><Setter Property="FontSize" Value="12" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem"><Border x:Name="MenuHover" Background="Transparent" CornerRadius="5" Padding="8,8"><Grid><TextBlock x:Name="Check" Text="&#xE73E;" FontFamily="Segoe Fluent Icons" FontSize="10" Visibility="Hidden" VerticalAlignment="Center" /><ContentPresenter ContentSource="Header" Margin="22,0,20,0" /></Grid></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="MenuHover" Property="Background" Value="#404045" /></Trigger><Trigger Property="IsChecked" Value="True"><Setter TargetName="Check" Property="Visibility" Value="Visible" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="Separator"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Background="#424247" Margin="8,4" /></ControlTemplate></Setter.Value></Setter></Style>
+</ResourceDictionary>

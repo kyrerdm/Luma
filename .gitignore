@@ -1,0 +1,7 @@
+.tools/
+.local/
+artifacts/
+**/bin/
+**/obj/
+.vs/
+*.user

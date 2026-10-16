@@ -1,0 +1,11 @@
+Microsoft.Windows.SDK.NET projections
+From Microsoft.Windows.SDK.NET.Ref 10.0.22621.57
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Windows SDK license (as declared in the Microsoft NuGet package):
+https://aka.ms/WinSDKLicenseURL
+
+Project information:
+https://aka.ms/WinSDKProjectURL
+
+The included C#/WinRT runtime's MIT license is in WINRT-LICENSE.txt.

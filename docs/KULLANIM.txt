@@ -1,0 +1,56 @@
+Luma 0.2 — Windows 11
+
+BAŞLARKEN
+Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
+ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
+Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
+
+Ses açma, kısma ve sessize alma tuşlarına basarak göstergeyi kullanın.
+Ses panelindeki kaydırıcı ve ses simgesi de sistem sesini kontrol eder.
+Caps Lock, Num Lock ve Scroll Lock değişince küçük bir bildirim görünür.
+
+MEDYA KARTI
+Windows'a medya bilgisi sunan bir oynatıcı açıkken ses şeridinin altında
+parça adı, sanatçı, kapak ve oynatma kontrolleri görünür. Oynat/duraklat,
+önceki/sonraki ve zaman çizelgesi oyuncunun desteklediği ölçüde çalışır.
+Desteklenmeyen kontroller pasif görünür. Medya yoksa boş kart gösterilmez.
+
+Pin simgesi göstergeyi açık tutar. Tekrar basarak otomatik gizlemeye dönün.
+Ses şeridinde fare tekerleğiyle de sesi değiştirebilirsiniz.
+Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
+
+TERCİHLER
+Ayarlar ekranından konumu, süreyi, ses adımını, rengi ve animasyonları değiştirin.
+Değişiklikler otomatik kaydedilir. Gösterge fare imlecinin bulunduğu
+monitörde açılır; üzerine geldiğinizde kaybolmadan bekler.
+
+Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
+Tepsi simgesine çift tıklayın: Ayarları aç.
+Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
+
+İsterseniz Windows ile başlat seçeneğini açabilirsiniz. Uygulama klasörünü
+taşımadan veya silmeden önce bu seçeneği kapatın.
+
+ÖNİZLEME
+Göstergeyi dene düğmesindeki parça ve kapak örnektir; bu moddaki ses,
+oynatma ve zaman çizelgesi kontrolleri gerçek sesi veya oynatıcıyı değiştirmez.
+
+SÜRÜM DEĞİŞTİRİRKEN
+Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.
+Windows ile başlat kullanıyorsanız yeni sürümde kapatıp tekrar açarak yolu
+güncelleyin. Mevcut görünüm tercihleriniz korunur.
+
+SINIRLAR
+Parlaklık ve açık tema henüz yoktur. Bazı üreticilerin özel Fn yazılımları
+farklı davranabilir; bunlarda Windows paneli de görünebilir.
+
+Ayarlar: %LOCALAPPDATA%\LumaFlyouts\settings.json
+Klavye kaydı veya telemetri yoktur. İnternet bağlantısı gerekmez.
+
+Bu uygulama ModernFlyouts fikrinden ilham alan bağımsız bir projedir.
+ModernFlyouts'un kodunu veya görsel varlıklarını içermez.
+
+Paket .NET çalışma zamanını içerir. İlgili lisans ve bildirimler
+beraberindeki DOTNET ve WINDOWS-DESKTOP dosyalarındadır.
+Windows SDK ve C#/WinRT bilgileri WINDOWS-SDK-NOTICE.txt ve
+WINRT-LICENSE.txt dosyalarındadır.
