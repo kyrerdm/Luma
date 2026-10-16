@@ -42,10 +42,10 @@ internal static partial class Diagnostics
         Directory.CreateDirectory(store.DirectoryPath);
         File.WriteAllText(store.FilePath, "{broken-json");
         Check("Corrupt settings recover", store.Load().VolumeKeys);
-        var settings = new AppSettings { VolumeStep = 4, Position = "TopLeft", DurationSeconds = 3.5, Animations = false, ShowMedia = false, ArtworkBackground = false, Accent = "Lilac", FlyoutScale = 1.25, TargetDisplay = "panel-b" };
+        var settings = new AppSettings { VolumeStep = 4, Position = "TopLeft", DurationSeconds = 3.5, Animations = false, ShowMedia = false, ArtworkBackground = false, ObserveBrightness = false, Accent = "Lilac", FlyoutScale = 1.25, TargetDisplay = "panel-b" };
         store.Save(settings);
         var loaded = store.Load();
-        Check("Settings survive restart", loaded.VolumeStep == 4 && loaded.Position == "TopLeft" && loaded.DurationSeconds == 3.5 && !loaded.ShowMedia && !loaded.ArtworkBackground && loaded.Accent == "Lilac" && loaded.FlyoutScale == 1.25 && loaded.TargetDisplay == "panel-b");
+        Check("Settings survive restart", loaded.VolumeStep == 4 && loaded.Position == "TopLeft" && loaded.DurationSeconds == 3.5 && !loaded.ShowMedia && !loaded.ArtworkBackground && !loaded.ObserveBrightness && loaded.Accent == "Lilac" && loaded.FlyoutScale == 1.25 && loaded.TargetDisplay == "panel-b");
         var displays = new[] { new DisplayInfo("panel-a", "display-a", "A", "A", new System.Drawing.Rectangle(0, 0, 1920, 1080), true), new DisplayInfo("panel-b", "display-b", "B", "B", new System.Drawing.Rectangle(-1920, 0, 1920, 1080), false) };
         Check("Monitor selection and disconnect fallback", MonitorCatalog.SelectTarget("panel-b", displays)?.Id == "panel-b" && MonitorCatalog.SelectTarget("Primary", displays)?.Id == "panel-a" && MonitorCatalog.SelectTarget("missing-display", displays)?.Id == "panel-a" && MonitorCatalog.SelectTarget("Cursor", displays) is null);
         Check("Connected Windows monitors enumerate", MonitorCatalog.Current.Length > 0 && MonitorCatalog.Current.Any(d => d.Primary));
@@ -91,6 +91,7 @@ internal static partial class Diagnostics
             Check("Windows session identities survive a refresh", !sameApps || before.Select(s => s.Id).Order().SequenceEqual(after.Select(s => s.Id).Order()), $"Available sessions: {after.Count}; unchanged app list: {sameApps}");
         }
         await VerifyMediaSourcesAsync(directory, (name, passed) => Check(name, passed));
+        await VerifyBrightnessAsync(directory, Check);
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };
@@ -100,7 +101,8 @@ internal static partial class Diagnostics
         var flyout = new FlyoutWindow(previewSettings);
         flyout.Prepare();
         var saved = 0;
-        var window = new SettingsWindow(previewSettings, () => saved++, () => flyout.ShowPreview(sample)) { AllowClose = true };
+        var window = new SettingsWindow(previewSettings, () => saved++) { AllowClose = true };
+        window.SetBrightness(new(true, 65, "sample", Array.Empty<int>(), "Dahili ekran · örnek görünüm"));
         window.Show();
         flyout.ShowVolume(new(true, 40, false, "Preview"), true);
         await Task.Delay(400);
@@ -306,7 +308,7 @@ internal static partial class Diagnostics
                     }
                 Check("Tray highlight follows the selected accent", accentPixels >= 3);
             }
-            foreach (var index in new[] { 1, 3 })
+            foreach (var index in new[] { 1 })
             {
                 trayMenu.Items[index].Select();
                 using var bitmap = new System.Drawing.Bitmap(trayMenu.Width, trayMenu.Height);

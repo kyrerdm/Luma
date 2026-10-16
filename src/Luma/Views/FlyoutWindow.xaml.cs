@@ -26,6 +26,7 @@ public partial class FlyoutWindow : Window
     private bool updating;
     private bool preview;
     private bool volumeMode;
+    private bool brightnessMode;
     private bool pinned;
     private bool restorePinnedVolume;
     private bool mediaExpanded;
@@ -37,12 +38,14 @@ public partial class FlyoutWindow : Window
     private ImageSource? paintedArtwork;
     private long inputTimestamp;
     private AudioState audioState;
+    private BrightnessState brightnessState = BrightnessState.Unavailable();
     private MediaState media = MediaState.Empty;
     private MediaState[] previewSources = Array.Empty<MediaState>();
     private bool selectingSource;
     private string? pendingSourceId;
     private bool Motion => settings.Animations && SystemParameters.ClientAreaAnimation;
     public event Action<int>? VolumeRequested;
+    public event Action<int>? BrightnessRequested;
     public event Action? MuteRequested;
     public event Action? SettingsRequested;
     public event Action<string, MediaCommand>? MediaRequested;
@@ -76,6 +79,11 @@ public partial class FlyoutWindow : Window
         SizeChanged += (_, _) => PlaceCore();
         PreviewMouseWheel += (_, e) =>
         {
+            if (brightnessMode && brightnessState.Available && BrightnessCard.IsMouseOver)
+            {
+                RequestBrightness(brightnessState.Value + (e.Delta > 0 ? 5 : -5));
+                e.Handled = true; RestartTimer(); return;
+            }
             if (!volumeMode || !audioState.Available || !VolumeCard.IsMouseOver) return;
             var value = Math.Clamp(audioState.Volume + (e.Delta > 0 ? settings.VolumeStep : -settings.VolumeStep), 0, 100);
             if (preview) { audioState = audioState with { Volume = value }; PaintVolume(); }
@@ -120,12 +128,13 @@ public partial class FlyoutWindow : Window
     {
         restorePinnedVolume = false;
         if (preview != isPreview) { SourceMenu.IsOpen = false; media = MediaState.Empty; previewSources = Array.Empty<MediaState>(); selectingSource = false; }
-        preview = isPreview; volumeMode = true; audioState = state;
-        VolumeCard.Visibility = Visibility.Visible; LockCard.Visibility = Visibility.Collapsed;
+        preview = isPreview; volumeMode = true; brightnessMode = false; audioState = state;
+        PinMenu.IsEnabled = true;
+        VolumeCard.Visibility = Visibility.Visible; LockCard.Visibility = BrightnessCard.Visibility = Visibility.Collapsed;
         PaintVolume(); UpdateMediaLayout(!IsVisible); Reveal();
     }
 
-    public void ShowPreview(MediaState sample)
+    internal void ShowPreview(MediaState sample)
     {
         ShowVolume(new(true, 40, false, "Önizleme · sistem sesi değişmez"), true);
         previewSources = new[] { sample, sample with { SessionId = sample.SessionId + "-alt", Title = "Afterglow", AppName = "Önizleme 2", IsPlaying = false, Position = TimeSpan.FromSeconds(32), End = TimeSpan.FromSeconds(180) } };
@@ -135,8 +144,53 @@ public partial class FlyoutWindow : Window
 
     public void RefreshVolume(AudioState state)
     {
-        if (!IsVisible || !volumeMode || preview) return;
-        audioState = state; PaintVolume();
+        if (preview) return;
+        audioState = state;
+        if (IsVisible && volumeMode) PaintVolume();
+    }
+
+    internal void ShowBrightness(BrightnessState state, bool isPreview = false)
+    {
+        SourceMenu.IsOpen = false;
+        if (volumeMode) restorePinnedVolume = pinned && IsVisible;
+        volumeMode = false; brightnessMode = true; brightnessState = state;
+        PinMenu.IsEnabled = false;
+        // Preserve a pinned volume card's preview mode for its later return.
+        brightnessPreview = isPreview;
+        VolumeCard.Visibility = LockCard.Visibility = Visibility.Collapsed;
+        BrightnessCard.Visibility = Visibility.Visible;
+        PaintBrightness(); UpdateMediaLayout(!IsVisible); Reveal();
+    }
+
+    private bool brightnessPreview;
+    internal void RefreshBrightness(BrightnessState state)
+    {
+        if (!brightnessMode || brightnessPreview) return;
+        brightnessState = state; PaintBrightness();
+    }
+
+    private void PaintBrightness()
+    {
+        updating = true;
+        BrightnessSlider.MotionEnabled = Motion;
+        BrightnessSlider.IsEnabled = brightnessState.Available;
+        BrightnessSlider.Value = brightnessState.Value;
+        BrightnessValueText.Text = brightnessState.Available ? brightnessState.Value.ToString() : "—";
+        BrightnessCard.ToolTip = brightnessPreview ? "Önizleme · ekran parlaklığı değişmez" : brightnessState.Status;
+        updating = false;
+    }
+
+    private void RequestBrightness(int value)
+    {
+        value = brightnessState.Snap(value);
+        if (brightnessPreview) { brightnessState = brightnessState with { Value = value }; PaintBrightness(); }
+        else BrightnessRequested?.Invoke(value);
+    }
+
+    private void Brightness_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (updating || !brightnessMode || !brightnessState.Available) return;
+        RequestBrightness((int)Math.Round(e.NewValue)); RestartTimer();
     }
 
     private void PaintVolume()
@@ -170,6 +224,7 @@ public partial class FlyoutWindow : Window
     public void ApplyPreferences()
     {
         VolumeSlider.MotionEnabled = Motion;
+        BrightnessSlider.MotionEnabled = Motion;
         TimelineSlider.MotionEnabled = false;
         ArtworkBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
         UpdateMediaLayout(!IsVisible);
@@ -249,7 +304,9 @@ public partial class FlyoutWindow : Window
         SourceMenu.IsOpen = false;
         if (volumeMode) restorePinnedVolume = pinned && IsVisible;
         volumeMode = false;
-        VolumeCard.Visibility = Visibility.Collapsed; LockCard.Visibility = Visibility.Visible;
+        brightnessMode = false;
+        PinMenu.IsEnabled = false;
+        VolumeCard.Visibility = BrightnessCard.Visibility = Visibility.Collapsed; LockCard.Visibility = Visibility.Visible;
         StatusText.Text = name; LockStateText.Text = enabled ? "Açık" : "Kapalı";
         LockIcon.Text = enabled ? "\uE72E" : "\uE785";
         UpdateMediaLayout(!IsVisible); Reveal();
@@ -264,7 +321,7 @@ public partial class FlyoutWindow : Window
         PlaceOnActiveMonitor();
         if (entering && Motion)
         {
-            AnimateCard(volumeMode ? VolumeCard : LockCard, 0);
+            AnimateCard(volumeMode ? VolumeCard : brightnessMode ? BrightnessCard : LockCard, 0);
             if (mediaExpanded) AnimateCard(MediaCard, 25);
         }
         if (mediaExpanded) timelineTimer.Start(); else timelineTimer.Stop();

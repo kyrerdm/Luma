@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Luma.Themes;
 
-internal enum TrayAction { Settings, Preview, Exit }
+internal enum TrayAction { Settings, Exit }
 
 // The tray is a separate WinForms popup; its metrics and renderer are explicit.
 internal sealed class DarkTrayMenu : ContextMenuStrip
@@ -159,7 +159,7 @@ internal sealed class DarkTrayMenu : ContextMenuStrip
             const TextFormatFlags textFlags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding;
             TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont, text, color, textFlags);
             if (e.Item.Tag is not TrayAction action) return;
-            var glyph = action switch { TrayAction.Settings => "\uE713", TrayAction.Preview => "\uE768", _ => "\uE8BB" };
+            var glyph = action == TrayAction.Settings ? "\uE713" : "\uE8BB";
             var glyphColor = e.Item.Selected && e.Item.Enabled ? accent() : Color.FromArgb(168, 169, 181);
             var glyphBounds = new Rectangle((int)Math.Round(14 * scale), 0, (int)Math.Round(20 * scale), e.Item.Height);
             TextRenderer.DrawText(e.Graphics, glyph, glyphFont, glyphBounds, glyphColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);

@@ -15,19 +15,20 @@ public partial class SettingsWindow : Window
 {
     private readonly AppSettings settings;
     private readonly Action save;
-    private readonly Action preview;
     private bool ready;
+    private bool updatingBrightness;
+    public event Action<int>? BrightnessRequested;
     public bool AllowClose { get; set; }
 
-    public SettingsWindow(AppSettings settings, Action save, Action preview)
+    public SettingsWindow(AppSettings settings, Action save)
     {
         this.settings = settings;
         this.save = save;
-        this.preview = preview;
         InitializeComponent();
         VolumeToggle.IsChecked = settings.VolumeKeys;
         LocksToggle.IsChecked = settings.LockKeys;
         ObserveToggle.IsChecked = settings.ObserveVolume;
+        BrightnessToggle.IsChecked = settings.ObserveBrightness;
         AnimationsToggle.IsChecked = settings.Animations;
         MediaToggle.IsChecked = settings.ShowMedia;
         ArtworkToggle.IsChecked = settings.ArtworkBackground;
@@ -62,12 +63,30 @@ public partial class SettingsWindow : Window
         StatusDot.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString(healthy ? "#9BD6AD" : "#E2B676"));
     }
 
+    internal void SetBrightness(BrightnessState state, bool writeFailed = false)
+    {
+        updatingBrightness = true;
+        DisplayBrightnessSlider.IsEnabled = state.Available;
+        DisplayBrightnessSlider.Value = state.Value;
+        DisplayBrightnessText.Text = state.Available ? $"%{state.Value}" : "—";
+        BrightnessStatusText.Text = writeFailed ? "Parlaklık değiştirilemedi. Ekran bağlantısını kontrol edip tekrar dene." : state.Status;
+        updatingBrightness = false;
+    }
+
+    private void DisplayBrightness_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!ready || updatingBrightness || !DisplayBrightnessSlider.IsEnabled) return;
+        DisplayBrightnessText.Text = $"%{e.NewValue:0}";
+        BrightnessRequested?.Invoke((int)Math.Round(e.NewValue));
+    }
+
     private void Preference_Changed(object sender, RoutedEventArgs e)
     {
         if (!ready) return;
         settings.VolumeKeys = VolumeToggle.IsChecked == true;
         settings.LockKeys = LocksToggle.IsChecked == true;
         settings.ObserveVolume = ObserveToggle.IsChecked == true;
+        settings.ObserveBrightness = BrightnessToggle.IsChecked == true;
         settings.Animations = AnimationsToggle.IsChecked == true;
         settings.ShowMedia = MediaToggle.IsChecked == true;
         settings.ArtworkBackground = ArtworkToggle.IsChecked == true;
@@ -147,7 +166,6 @@ public partial class SettingsWindow : Window
             FeedbackText.Text = "Başlangıç ayarı değiştirilemedi: " + ex.Message;
         }
     }
-    private void Preview_Click(object sender, RoutedEventArgs e) => preview();
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Close_Click(object sender, RoutedEventArgs e) => Hide();
     protected override void OnClosing(CancelEventArgs e) { if (!AllowClose) { e.Cancel = true; Hide(); } base.OnClosing(e); }

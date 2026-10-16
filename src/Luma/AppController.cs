@@ -18,6 +18,7 @@ public sealed class AppController : IDisposable
     private readonly SettingsStore store;
     private readonly AppSettings settings;
     private readonly BackgroundAudioService audio;
+    private readonly BackgroundBrightnessService brightness;
     private readonly MediaService media;
     private readonly KeyboardService? keyboard;
     private readonly FlyoutWindow flyout;
@@ -27,25 +28,33 @@ public sealed class AppController : IDisposable
     private readonly string? hookError;
     private AudioState lastState = new(false, 0, false, "Ses aygıtı bekleniyor");
     private long pendingAudioSequence;
+    private long pendingBrightnessSequence;
+    private BrightnessState lastBrightness = BrightnessState.Unavailable("Parlaklık desteği kontrol ediliyor…");
     private bool disposed;
     internal Task<AudioState> AudioReady => audio.Ready;
+    internal Task<BrightnessState> BrightnessReady => brightness.Ready;
     internal FlyoutWindow DiagnosticFlyout => flyout;
     internal SettingsWindow DiagnosticSettings => window;
     internal Forms.ContextMenuStrip DiagnosticTrayMenu => tray.ContextMenuStrip!;
     internal Task FlushAudioAsync() => audio.FlushAsync();
+    internal Task FlushBrightnessAsync() => brightness.FlushAsync();
 
     public AppController(string dataDirectory) : this(dataDirectory, null) { }
 
-    internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory)
+    internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory, Func<IBrightnessDevice>? brightnessFactory = null)
     {
         store = new(dataDirectory);
         settings = store.Load();
         Palette.Apply(settings.Accent);
         flyout = new(settings);
-        window = new(settings, SaveSettings, Preview);
+        window = new(settings, SaveSettings);
         flyout.Prepare();
         audio = new(Application.Current.Dispatcher, audioFactory);
         audio.Changed += OnAudioChanged;
+        brightness = new(Application.Current.Dispatcher, brightnessFactory);
+        brightness.Changed += OnBrightnessChanged;
+        flyout.BrightnessRequested += SetBrightness;
+        window.BrightnessRequested += SetBrightness;
         media = new(Application.Current.Dispatcher);
         media.Changed += flyout.UpdateMedia;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
@@ -75,8 +84,6 @@ public sealed class AppController : IDisposable
             return Color.FromArgb(color.R, color.G, color.B);
         });
         menu.AddAction(TrayAction.Settings, "Luma ayarları", (_, _) => ShowSettings());
-        menu.AddAction(TrayAction.Preview, "Göstergeyi dene", (_, _) => Preview());
-        menu.Items.Add(new Forms.ToolStripSeparator());
         menu.AddAction(TrayAction.Exit, "Çıkış", (_, _) => Application.Current.Shutdown());
         tray = new Forms.NotifyIcon { Text = "Luma · ses ve klavye göstergeleri", Icon = trayIcon, ContextMenuStrip = menu, Visible = true };
         tray.MouseClick += OnTrayMouseClick;
@@ -93,7 +100,6 @@ public sealed class AppController : IDisposable
     {
         if (e.Button == Forms.MouseButtons.Left) ShowSettings();
     }
-    private void Preview() => flyout.ShowPreview(PreviewData.Media());
     private void SaveSettings() { store.Save(settings); Palette.Apply(settings.Accent); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); }
     private void ApplyPreferences()
     {
@@ -137,6 +143,26 @@ public sealed class AppController : IDisposable
         else flyout.RefreshVolume(current);
     }
 
+    private void SetBrightness(int value)
+    {
+        if (!lastBrightness.Available) return;
+        lastBrightness = lastBrightness with { Value = lastBrightness.Snap(value) };
+        pendingBrightnessSequence = brightness.SetBrightness(lastBrightness.Value);
+        window.SetBrightness(lastBrightness);
+        flyout.ShowBrightness(lastBrightness);
+    }
+
+    private void OnBrightnessChanged(BrightnessUpdate update)
+    {
+        if (disposed || update.Sequence < pendingBrightnessSequence) return;
+        var current = update.State;
+        var changed = current.Available && lastBrightness.Available && current.InstanceId == lastBrightness.InstanceId && current.Value != lastBrightness.Value;
+        lastBrightness = current;
+        window.SetBrightness(current, update.WriteFailed);
+        if (changed && settings.ObserveBrightness) flyout.ShowBrightness(current);
+        else flyout.RefreshBrightness(current);
+    }
+
     public void Dispose()
     {
         if (disposed) return;
@@ -149,5 +175,6 @@ public sealed class AppController : IDisposable
         flyout.Close();
         window.AllowClose = true; window.Close();
         audio.Dispose();
+        brightness.Dispose();
     }
 }

@@ -1,4 +1,4 @@
-param([switch]$Published)
+param([switch]$Published, [switch]$NativeBrightness)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $projectInfo = [xml](Get-Content -LiteralPath (Join-Path $projectRoot 'src\Luma\Luma.csproj') -Raw)
@@ -12,7 +12,11 @@ foreach ($name in @('failure.txt', 'progress.log', 'results.json')) {
     if (Test-Path -LiteralPath $oldReport) { Remove-Item -LiteralPath $oldReport }
 }
 $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR = Join-Path $projectRoot '.tools\bundle'
-$process = Start-Process -FilePath $executable -ArgumentList @('--self-test', ('"' + $reportDirectory + '"')) -PassThru -WindowStyle Hidden
+$previousBrightnessTest = [Environment]::GetEnvironmentVariable('LUMA_VERIFY_BRIGHTNESS_WRITE', 'Process')
+try {
+    $env:LUMA_VERIFY_BRIGHTNESS_WRITE = if ($NativeBrightness) { '1' } else { $null }
+    $process = Start-Process -FilePath $executable -ArgumentList @('--self-test', ('"' + $reportDirectory + '"')) -PassThru -WindowStyle Hidden
+} finally { [Environment]::SetEnvironmentVariable('LUMA_VERIFY_BRIGHTNESS_WRITE', $previousBrightnessTest, 'Process') }
 if (-not $process.WaitForExit(60000)) { $process.Kill(); throw 'Verification timed out.' }
 if ($process.ExitCode -ne 0) {
     if (Test-Path -LiteralPath (Join-Path $reportDirectory 'failure.txt')) { Get-Content -LiteralPath (Join-Path $reportDirectory 'failure.txt') }

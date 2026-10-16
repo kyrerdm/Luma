@@ -13,6 +13,14 @@
           <TextBlock x:Name="ValueText" Grid.Column="2" Text="62" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </Grid>
       </Border>
+      <Border x:Name="BrightnessCard" Height="56" Visibility="Collapsed" CornerRadius="10" Background="#EE232325" BorderBrush="#1EFFFFFF" BorderThickness="1" Padding="12,0" RenderTransformOrigin="0.5,0.5">
+        <Border.Effect><DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.18" /></Border.Effect>
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /><ColumnDefinition Width="38" /></Grid.ColumnDefinitions>
+          <TextBlock Style="{StaticResource Icon}" Text="&#xE706;" FontSize="19" ToolTip="Dahili ekran parlaklığı" />
+          <controls:SmoothSlider x:Name="BrightnessSlider" Grid.Column="1" Style="{StaticResource FluidSlider}" Margin="12,0,10,0" Value="65" SmallChange="5" LargeChange="10" VerticalAlignment="Center" ValueChanged="Brightness_Changed" AutomationProperties.Name="Dahili ekran parlaklığı" />
+          <TextBlock x:Name="BrightnessValueText" Grid.Column="2" Text="65" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
       <Border x:Name="LockCard" Height="56" Visibility="Collapsed" CornerRadius="10" Background="#EE232325" BorderBrush="#1EFFFFFF" BorderThickness="1" Padding="18,0">
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
           <TextBlock x:Name="LockIcon" Text="&#xE72E;" Style="{StaticResource Icon}" FontSize="16" HorizontalAlignment="Left" />

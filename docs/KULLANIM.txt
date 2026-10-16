@@ -1,4 +1,4 @@
-Luma 0.4.1 — Windows 11
+Luma 0.5.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -51,17 +51,26 @@ Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
 Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsiniz.
 Tepsi simgesine bir kez sol tıklayın: Ayarları aç.
 Sağ tık menüsü de koyu temayı ve seçtiğiniz vurgu rengini kullanır.
-Menüde ayarlar, önizleme ve çıkış simgeleri ayrı bir sütunda hizalanır.
-Luma'nın ışık dalgası simgesi tepside, uygulama dosyasında ve başlıkta görünür.
+Menüde yalnızca ayarlar ve çıkış bulunur.
+Luma'nın mavi–mor ışıltı simgesi tepside, uygulama dosyasında ve başlıkta görünür.
 Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
 
 İsterseniz Windows ile başlat seçeneğini açabilirsiniz. Uygulama klasörünü
 taşımadan veya silmeden önce bu seçeneği kapatın.
 
-ÖNİZLEME
-Göstergeyi dene düğmesindeki parça ve kapak örnektir; bu moddaki ses,
-oynatma, kaynak seçimi ve zaman çizelgesi kontrolleri gerçek sesi veya
-oynatıcıyı değiştirmez.
+EKRAN PARLAKLIĞI
+Desteklenen laptoplarda Fn tuşları veya Windows'tan parlaklığı değiştirince
+Luma'nın güneş simgeli şeridi görünür. Kaydırıcı ve fare tekerleğiyle dahili
+ekranın parlaklığını değiştirebilirsiniz. Ayarlarda Ekran parlaklığı
+bölümündeki Dahili ekran kaydırıcısı da aynı ekranı kontrol eder.
+Parlaklık göstergesi tercihi yalnızca otomatik bildirimi açıp kapatır.
+Sabitlenmiş ses/medya kartı parlaklık bildirimi bitince geri gelir.
+Destek bulunmazsa ayarlardaki kaydırıcı pasif görünür. Harici monitörler
+için DDC/CI desteği yoktur. Gösterilecek ekran tercihi, Luma panelinin
+konumunu belirler; parlaklığın hedefi dahili ekran olarak kalır.
+Windows veya üreticiye ait parlaklık paneli de görünebilir.
+
+Ayarlar içindeki örnek kart görsel amaçlıdır. Deneme düğmesi kaldırıldı.
 
 SÜRÜM DEĞİŞTİRİRKEN
 Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.
@@ -69,7 +78,7 @@ Windows ile başlat zaten açıksa yeni sürüm açılırken başlangıç yolu
 güncellenir. Kapalıysa kapalı kalır. Mevcut görünüm tercihleriniz korunur.
 
 SINIRLAR
-Parlaklık ve açık tema henüz yoktur. Bazı üreticilerin özel Fn yazılımları
+Açık tema henüz yoktur. Bazı üreticilerin özel Fn yazılımları
 farklı davranabilir; bunlarda Windows paneli de görünebilir.
 
 Ayarlar: %LOCALAPPDATA%\LumaFlyouts\settings.json

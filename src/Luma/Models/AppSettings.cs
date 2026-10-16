@@ -10,6 +10,7 @@ public sealed class AppSettings
     public bool VolumeKeys { get; set; } = true;
     public bool LockKeys { get; set; } = true;
     public bool ObserveVolume { get; set; } = true;
+    public bool ObserveBrightness { get; set; } = true;
     public bool Animations { get; set; } = true;
     public bool ShowMedia { get; set; } = true;
     public bool ArtworkBackground { get; set; } = true;
