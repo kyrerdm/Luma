@@ -49,8 +49,14 @@ public sealed class AppController : IDisposable
         audio.Changed += OnAudioChanged;
         media = new(Application.Current.Dispatcher);
         media.Changed += flyout.UpdateMedia;
-        flyout.MediaRequested += async command => flyout.ReportMediaResult(await media.ExecuteAsync(command));
-        flyout.SeekRequested += async position => flyout.ReportMediaResult(await media.SeekAsync(position));
+        flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
+        flyout.SeekRequested += async (source, position) => flyout.ReportMediaResult(await media.SeekAsync(position, source));
+        flyout.SourceRequested += async source =>
+        {
+            var success = await media.SelectSourceAsync(source);
+            flyout.UpdateMedia(media.State);
+            flyout.ReportSourceSelection(source, success);
+        };
         flyout.SettingsRequested += ShowSettings;
         flyout.VolumeRequested += SetVolume;
         flyout.MuteRequested += () => OnVolumePressed(VolumeCommand.Mute, Stopwatch.GetTimestamp());

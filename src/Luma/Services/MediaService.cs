@@ -1,14 +1,11 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using Luma.Models;
-using Windows.Media.Control;
 
 namespace Luma.Services;
 
@@ -18,238 +15,185 @@ public sealed class MediaService : IDisposable
 {
     private readonly Dispatcher dispatcher;
     private readonly StaWorker worker = new("Luma media");
+    private readonly Func<IMediaSessionProvider> providerFactory;
+    private IMediaSessionProvider? provider;
+    private IReadOnlyList<IMediaSession> sessions = Array.Empty<IMediaSession>();
+    private IMediaSession? selected;
+    private string? manualSourceId;
+    private int selectionRevision;
     private DispatcherTimer? timer;
-    private GlobalSystemMediaTransportControlsSessionManager? manager;
-    private GlobalSystemMediaTransportControlsSession? session;
-    private volatile bool disposed;
-    private bool refreshing;
+    private TaskCompletionSource? refreshCompletion;
     private bool pending;
-    private bool propertiesDirty = true;
-    private string title = "";
-    private string artist = "";
-    private ImageSource? artwork;
+    private volatile bool disposed;
     private MediaState state = MediaState.Empty;
     public MediaState State => Volatile.Read(ref state);
     public string? Error { get; private set; }
     public event Action<MediaState>? Changed;
 
-    public MediaService(Dispatcher dispatcher)
+    public MediaService(Dispatcher dispatcher) : this(dispatcher, () => new WindowsMediaSessionProvider()) { }
+    internal MediaService(Dispatcher dispatcher, Func<IMediaSessionProvider> providerFactory)
     {
         this.dispatcher = dispatcher;
+        this.providerFactory = providerFactory;
     }
 
     public Task StartAsync() => worker.RunAsync(StartCoreAsync);
-
     private async Task StartCoreAsync()
     {
         try
         {
-            manager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
-            if (disposed) { manager = null; return; }
-            manager.CurrentSessionChanged += OnCurrentSessionChanged;
-            manager.SessionsChanged += OnSessionsChanged;
+            provider = providerFactory();
+            await provider.InitializeAsync();
+            if (disposed) return;
+            provider.Changed += QueueRefresh;
             await RefreshAsync();
-            if (!disposed)
-            {
-                timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-                timer.Tick += (_, _) => QueueRefresh(false);
-                timer.Start();
-            }
+            if (disposed) return;
+            timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            timer.Tick += (_, _) => QueueRefresh();
+            timer.Start();
         }
         catch (Exception ex) when (IsMediaError(ex)) { Error = ex.Message; Publish(MediaState.Empty); }
     }
 
-    private void OnCurrentSessionChanged(GlobalSystemMediaTransportControlsSessionManager sender, CurrentSessionChangedEventArgs args) => QueueRefresh(true);
-    private void OnSessionsChanged(GlobalSystemMediaTransportControlsSessionManager sender, SessionsChangedEventArgs args) => QueueRefresh(true);
-    private void OnPropertiesChanged(GlobalSystemMediaTransportControlsSession sender, MediaPropertiesChangedEventArgs args) => QueueRefresh(true);
-    private void OnPlaybackChanged(GlobalSystemMediaTransportControlsSession sender, PlaybackInfoChangedEventArgs args) => QueueRefresh(false);
-    private void OnTimelineChanged(GlobalSystemMediaTransportControlsSession sender, TimelinePropertiesChangedEventArgs args) => QueueRefresh(false);
-
-    private void QueueRefresh(bool reloadProperties)
+    private void QueueRefresh()
     {
-        if (disposed || dispatcher.HasShutdownStarted) return;
-        worker.Post(async () =>
-        {
-            if (disposed) return;
-            propertiesDirty |= reloadProperties;
-            await RefreshAsync();
-        });
+        if (!disposed) worker.Post(async () => await RefreshAsync());
     }
 
-    private async Task RefreshAsync()
+    internal Task RefreshForDiagnosticsAsync() => worker.RunAsync(RefreshAsync);
+
+    private Task RefreshAsync()
     {
-        if (disposed || manager is null) return;
-        if (refreshing) { pending = true; return; }
-        refreshing = true;
+        if (disposed || provider is null) return Task.CompletedTask;
+        if (refreshCompletion is not null) { pending = true; return refreshCompletion.Task; }
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        refreshCompletion = completion;
+        _ = RefreshCoreAsync(completion);
+        return completion.Task;
+    }
+
+    private async Task RefreshCoreAsync(TaskCompletionSource completion)
+    {
         try
         {
             do
             {
                 pending = false;
-                var selected = manager.GetCurrentSession();
-                if (selected is null || selected.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
-                    selected = manager.GetSessions().FirstOrDefault(s => s.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing) ?? selected ?? manager.GetSessions().FirstOrDefault();
-                if (session != selected)
+                var revision = selectionRevision;
+                var available = provider!.GetSessions();
+                foreach (var removed in sessions.Except(available)) removed.Changed -= QueueRefresh;
+                foreach (var added in available.Except(sessions)) added.Changed += QueueRefresh;
+                sessions = available;
+                var states = new List<MediaState>();
+                foreach (var entry in available)
                 {
-                    DetachSession();
-                    session = selected;
-                    title = artist = ""; artwork = null;
-                    propertiesDirty = true;
-                    if (session is not null)
+                    try
                     {
-                        session.MediaPropertiesChanged += OnPropertiesChanged;
-                        session.PlaybackInfoChanged += OnPlaybackChanged;
-                        session.TimelinePropertiesChanged += OnTimelineChanged;
+                        var snapshot = await entry.ReadAsync(false);
+                        if (disposed) return;
+                        if (snapshot.Available) states.Add(snapshot);
                     }
+                    catch (Exception ex) when (IsMediaError(ex)) { }
                 }
-                var current = session;
-                if (current is null) { Publish(MediaState.Empty); continue; }
-                if (propertiesDirty)
-                {
-                    propertiesDirty = false;
-                    var properties = await current.TryGetMediaPropertiesAsync();
-                    if (disposed) return;
-                    title = properties.Title;
-                    artist = string.IsNullOrWhiteSpace(properties.Artist) ? properties.AlbumArtist : properties.Artist;
-                    artwork = await ReadArtworkAsync(properties.Thumbnail);
-                    if (disposed) return;
-                }
-                var playback = current.GetPlaybackInfo();
-                var timeline = current.GetTimelineProperties();
-                var controls = playback.Controls;
-                var start = timeline.StartTime;
-                var end = timeline.EndTime < start ? start : timeline.EndTime;
-                var playing = playback.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
-                var position = timeline.Position;
-                if (playing && timeline.LastUpdatedTime <= DateTimeOffset.UtcNow)
-                    position += TimeSpan.FromSeconds(Math.Clamp((DateTimeOffset.UtcNow - timeline.LastUpdatedTime).TotalSeconds, 0, 86400) * (playback.PlaybackRate ?? 1));
-                position = TimeSpan.FromTicks(Math.Clamp(position.Ticks, start.Ticks, end.Ticks));
-                Publish(new MediaState
-                {
-                    Available = !string.IsNullOrWhiteSpace(title), SessionId = current.SourceAppUserModelId,
-                    AppName = AppDisplayName(current.SourceAppUserModelId), Title = title, Artist = artist,
-                    Artwork = artwork, IsPlaying = playing, CanToggle = controls.IsPlayPauseToggleEnabled || (playing ? controls.IsPauseEnabled : controls.IsPlayEnabled),
-                    CanPrevious = controls.IsPreviousEnabled, CanNext = controls.IsNextEnabled,
-                    CanSeek = controls.IsPlaybackPositionEnabled && end > start,
-                    Start = start, End = end, Position = position, SampledAt = DateTimeOffset.UtcNow, PlaybackRate = playback.PlaybackRate ?? 1
-                });
+                if (revision != selectionRevision) { pending = true; continue; }
+                if (manualSourceId is not null && states.All(s => s.SessionId != manualSourceId)) manualSourceId = null;
+                var target = ChooseSource(states, manualSourceId, provider.CurrentSessionId);
+                selected = available.FirstOrDefault(s => s.Id == target?.SessionId);
+                if (target is null || selected is null) { Publish(MediaState.Empty); continue; }
+                try { target = await selected.ReadAsync(true); }
+                catch (Exception ex) when (IsMediaError(ex)) { target = target with { Artwork = null }; }
+                if (disposed) return;
+                if (revision != selectionRevision) { pending = true; continue; }
+                var sources = Array.AsReadOnly(states.Select(s => new MediaSourceInfo(s.SessionId, s.AppName, s.Title, s.Artist, s.IsPlaying)).ToArray());
+                Publish(target with { Sources = sources, AutomaticSource = manualSourceId is null });
                 Error = null;
             } while (pending && !disposed);
         }
         catch (Exception ex) when (IsMediaError(ex))
         {
-            Error = ex.Message;
-            propertiesDirty = true;
-            DetachSession();
+            Error = ex.Message; selected = null;
             Publish(MediaState.Empty);
         }
-        finally { refreshing = false; }
+        catch (Exception ex) { completion.TrySetException(ex); }
+        finally { refreshCompletion = null; completion.TrySetResult(); }
     }
 
-    private static async Task<ImageSource?> ReadArtworkAsync(Windows.Storage.Streams.IRandomAccessStreamReference? thumbnail)
+    internal static MediaState? ChooseSource(IReadOnlyList<MediaState> available, string? manual, string? current)
     {
-        if (thumbnail is null) return null;
-        try
-        {
-            using var random = await thumbnail.OpenReadAsync();
-            if (random.Size == 0 || random.Size > 8 * 1024 * 1024) return null;
-            using var stream = random.AsStreamForRead();
-            var image = new BitmapImage();
-            image.BeginInit(); image.CacheOption = BitmapCacheOption.OnLoad; image.DecodePixelWidth = 320;
-            image.StreamSource = stream; image.EndInit(); image.Freeze();
-            return image;
-        }
-        catch (Exception ex) when (IsMediaError(ex) || ex is NotSupportedException or System.IO.IOException) { return null; }
+        if (manual is not null && available.FirstOrDefault(s => s.SessionId == manual) is { } chosen) return chosen;
+        var active = available.FirstOrDefault(s => s.SessionId == current);
+        return active is { IsPlaying: true } ? active : available.FirstOrDefault(s => s.IsPlaying) ?? active ?? available.FirstOrDefault();
     }
 
-    public async Task<bool> ExecuteAsync(MediaCommand command)
+    public async Task<bool> SelectSourceAsync(string? id)
     {
         if (disposed) return false;
-        try { return await worker.RunAsync(() => ExecuteCoreAsync(command)); }
-        catch (OperationCanceledException) { return false; }
-    }
-
-    private async Task<bool> ExecuteCoreAsync(MediaCommand command)
-    {
-        var target = session;
-        if (target is null || disposed) return false;
         try
         {
-            var playback = target.GetPlaybackInfo();
-            var result = command switch
+            return await worker.RunAsync(async () =>
             {
-                MediaCommand.Previous => await target.TrySkipPreviousAsync(),
-                MediaCommand.Next => await target.TrySkipNextAsync(),
-                _ when playback.Controls.IsPlayPauseToggleEnabled => await target.TryTogglePlayPauseAsync(),
-                _ when playback.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing => await target.TryPauseAsync(),
-                _ => await target.TryPlayAsync()
-            };
-            QueueRefresh(command != MediaCommand.TogglePlayback);
-            return result;
+                if (disposed || (id is not null && sessions.All(s => s.Id != id))) return false;
+                manualSourceId = id; selectionRevision++;
+                await RefreshAsync();
+                return !disposed && (id is null ? State.AutomaticSource : State.SessionId == id);
+            });
         }
-        catch (Exception ex) when (IsMediaError(ex)) { QueueRefresh(true); return false; }
+        catch (Exception ex) when (ex is OperationCanceledException || IsMediaError(ex)) { return false; }
     }
 
-    public async Task<bool> SeekAsync(TimeSpan position)
+    public async Task<bool> ExecuteAsync(MediaCommand command, string? expectedSourceId = null)
     {
         if (disposed) return false;
-        try { return await worker.RunAsync(() => SeekCoreAsync(position)); }
-        catch (OperationCanceledException) { return false; }
-    }
-
-    private async Task<bool> SeekCoreAsync(TimeSpan position)
-    {
-        var target = session;
-        if (target is null || disposed || !State.CanSeek) return false;
         try
         {
-            var ticks = Math.Clamp(position.Ticks, State.Start.Ticks, State.End.Ticks);
-            var result = await target.TryChangePlaybackPositionAsync(ticks);
-            QueueRefresh(false);
-            return result;
+            return await worker.RunAsync(async () =>
+            {
+                var target = selected;
+                if (disposed || target is null || (expectedSourceId is not null && expectedSourceId != target.Id)) return false;
+                var result = await target.ExecuteAsync(command);
+                QueueRefresh();
+                return result;
+            });
         }
-        catch (Exception ex) when (IsMediaError(ex)) { QueueRefresh(true); return false; }
+        catch (Exception ex) when (ex is OperationCanceledException || IsMediaError(ex)) { QueueRefresh(); return false; }
+    }
+
+    public async Task<bool> SeekAsync(TimeSpan position, string? expectedSourceId = null)
+    {
+        if (disposed) return false;
+        try
+        {
+            return await worker.RunAsync(async () =>
+            {
+                var target = selected;
+                if (disposed || target is null || !State.CanSeek || (expectedSourceId is not null && expectedSourceId != target.Id)) return false;
+                var result = await target.SeekAsync(position);
+                QueueRefresh();
+                return result;
+            });
+        }
+        catch (Exception ex) when (ex is OperationCanceledException || IsMediaError(ex)) { QueueRefresh(); return false; }
     }
 
     private void Publish(MediaState next)
     {
         if (disposed) return;
         Volatile.Write(ref state, next);
-        dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => { if (!disposed) Changed?.Invoke(next); }));
+        // A queued callback must not repaint an earlier selection over a newer one.
+        dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => { if (!disposed) Changed?.Invoke(State); }));
     }
-    private static bool IsMediaError(Exception ex) => ex is COMException or UnauthorizedAccessException or InvalidOperationException or ArgumentException;
-    private static string AppDisplayName(string id)
-    {
-        var lower = id.ToLowerInvariant();
-        if (lower.Contains("spotify")) return "Spotify";
-        if (lower.Contains("chrome")) return "Chrome";
-        if (lower.Contains("msedge") || lower.Contains("microsoftedge")) return "Edge";
-        if (lower.Contains("firefox")) return "Firefox";
-        if (lower.Contains("vlc")) return "VLC";
-        if (lower.Contains("zunemusic") || lower.Contains("mediaplayer")) return "Media Player";
-        return id.Split('!')[^1].Split('.')[0] is { Length: > 0 } name ? name : "Medya";
-    }
-    private void DetachSession()
-    {
-        if (session is null) return;
-        session.MediaPropertiesChanged -= OnPropertiesChanged;
-        session.PlaybackInfoChanged -= OnPlaybackChanged;
-        session.TimelinePropertiesChanged -= OnTimelineChanged;
-        session = null;
-    }
+
+    internal static bool IsMediaError(Exception ex) => ex is COMException or UnauthorizedAccessException or InvalidOperationException or ArgumentException;
+
     public void Dispose()
     {
         if (disposed) return;
         disposed = true;
         worker.Post(() =>
         {
-            timer?.Stop(); DetachSession();
-            if (manager is not null)
-            {
-                manager.CurrentSessionChanged -= OnCurrentSessionChanged;
-                manager.SessionsChanged -= OnSessionsChanged;
-                manager = null;
-            }
+            timer?.Stop();
+            foreach (var session in sessions) session.Changed -= QueueRefresh;
+            if (provider is not null) { provider.Changed -= QueueRefresh; provider.Dispose(); }
         });
         worker.Dispose();
     }

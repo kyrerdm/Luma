@@ -1,8 +1,11 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -10,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Luma.Models;
 using Luma.Services;
+using MediaState = Luma.Models.MediaState;
 
 namespace Luma.Views;
 
@@ -34,12 +38,16 @@ public partial class FlyoutWindow : Window
     private long inputTimestamp;
     private AudioState audioState;
     private MediaState media = MediaState.Empty;
+    private MediaState[] previewSources = Array.Empty<MediaState>();
+    private bool selectingSource;
+    private string? pendingSourceId;
     private bool Motion => settings.Animations && SystemParameters.ClientAreaAnimation;
     public event Action<int>? VolumeRequested;
     public event Action? MuteRequested;
     public event Action? SettingsRequested;
-    public event Action<MediaCommand>? MediaRequested;
-    public event Action<TimeSpan>? SeekRequested;
+    public event Action<string, MediaCommand>? MediaRequested;
+    public event Action<string, TimeSpan>? SeekRequested;
+    public event Action<string?>? SourceRequested;
     internal event Action<double>? ResponseMeasured;
 
     public FlyoutWindow(AppSettings settings)
@@ -111,7 +119,7 @@ public partial class FlyoutWindow : Window
     public void ShowVolume(AudioState state, bool isPreview = false)
     {
         restorePinnedVolume = false;
-        if (preview != isPreview) media = MediaState.Empty;
+        if (preview != isPreview) { SourceMenu.IsOpen = false; media = MediaState.Empty; previewSources = Array.Empty<MediaState>(); selectingSource = false; }
         preview = isPreview; volumeMode = true; audioState = state;
         VolumeCard.Visibility = Visibility.Visible; LockCard.Visibility = Visibility.Collapsed;
         PaintVolume(); UpdateMediaLayout(!IsVisible); Reveal();
@@ -120,7 +128,8 @@ public partial class FlyoutWindow : Window
     public void ShowPreview(MediaState sample)
     {
         ShowVolume(new(true, 40, false, "Önizleme · sistem sesi değişmez"), true);
-        media = sample;
+        previewSources = new[] { sample, sample with { SessionId = sample.SessionId + "-alt", Title = "Afterglow", AppName = "Önizleme 2", IsPlaying = false, Position = TimeSpan.FromSeconds(32), End = TimeSpan.FromSeconds(180) } };
+        media = sample with { Sources = PreviewSourceInfo() };
         PaintMedia(); UpdateMediaLayout(false);
     }
 
@@ -182,10 +191,13 @@ public partial class FlyoutWindow : Window
         ArtworkPlaceholder.Visibility = media.Artwork is null ? Visibility.Visible : Visibility.Collapsed;
         ArtworkBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
         PlayIcon.Text = media.IsPlaying ? "\uE769" : "\uE768";
-        PreviousButton.IsEnabled = media.CanPrevious;
-        NextButton.IsEnabled = media.CanNext;
-        PlayButton.IsEnabled = media.CanToggle;
-        TimelineSlider.IsEnabled = media.CanSeek;
+        PreviousButton.IsEnabled = media.CanPrevious && !selectingSource;
+        NextButton.IsEnabled = media.CanNext && !selectingSource;
+        PlayButton.IsEnabled = media.CanToggle && !selectingSource;
+        TimelineSlider.IsEnabled = media.CanSeek && !selectingSource;
+        SourceButton.Visibility = media.Sources.Count > 1 || !media.AutomaticSource ? Visibility.Visible : Visibility.Collapsed;
+        SourceButton.IsEnabled = !selectingSource;
+        SourceButton.ToolTip = "Medya kaynağı · " + (media.AutomaticSource ? "Otomatik" : media.AppName);
         TimelineSlider.MotionEnabled = false;
         TimelineSlider.Minimum = media.Start.TotalSeconds;
         TimelineSlider.Maximum = Math.Max(media.Start.TotalSeconds + 0.001, media.End.TotalSeconds);
@@ -234,6 +246,7 @@ public partial class FlyoutWindow : Window
 
     public void ShowLock(string name, bool enabled)
     {
+        SourceMenu.IsOpen = false;
         if (volumeMode) restorePinnedVolume = pinned && IsVisible;
         volumeMode = false;
         VolumeCard.Visibility = Visibility.Collapsed; LockCard.Visibility = Visibility.Visible;
@@ -276,27 +289,29 @@ public partial class FlyoutWindow : Window
 
     private void AnimateUtilities(double opacity)
     {
-        if (!Motion) { PinButton.Opacity = pinned ? 1 : opacity; return; }
+        if (!Motion) { PinButton.Opacity = pinned ? 1 : opacity; SourceButton.Opacity = opacity; return; }
         PinButton.BeginAnimation(OpacityProperty, new DoubleAnimation(pinned ? 1 : opacity, TimeSpan.FromMilliseconds(140)));
+        SourceButton.BeginAnimation(OpacityProperty, new DoubleAnimation(opacity, TimeSpan.FromMilliseconds(140)));
     }
 
     private void RestartTimer()
     {
         hideTimer.Stop();
-        if (!IsVisible || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen) return;
+        if (!IsVisible || (selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) return;
         hideTimer.Interval = TimeSpan.FromSeconds(settings.DurationSeconds); hideTimer.Start();
     }
 
     private void HideAnimated()
     {
         hideTimer.Stop();
-        if ((pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen) { RestartTimer(); return; }
+        if ((selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) { RestartTimer(); return; }
         if (!volumeMode && restorePinnedVolume && pinned) { ShowVolume(audioState, preview); return; }
         Dismiss();
     }
 
     public void Dismiss()
     {
+        SourceMenu.IsOpen = false;
         restorePinnedVolume = false;
         hideTimer.Stop(); timelineTimer.Stop();
         if (!Motion) { Hide(); return; }
@@ -310,6 +325,7 @@ public partial class FlyoutWindow : Window
     public void ReportMediaResult(bool success)
     {
         if (success) return;
+        CommandHintText.Text = "Bu işlem şu anda kullanılamıyor.";
         CommandHint.Visibility = Visibility.Visible; hintTimer.Stop(); hintTimer.Start();
     }
 
@@ -371,7 +387,7 @@ public partial class FlyoutWindow : Window
     {
         var position = TimeSpan.FromSeconds(TimelineSlider.Value);
         if (preview) media = media with { Position = position, SampledAt = DateTimeOffset.UtcNow };
-        else SeekRequested?.Invoke(position);
+        else SeekRequested?.Invoke(media.SessionId, position);
         RestartTimer();
     }
     private void SendCommand(MediaCommand command)
@@ -383,12 +399,92 @@ public partial class FlyoutWindow : Window
                 : media with { Position = TimeSpan.Zero, SampledAt = DateTimeOffset.UtcNow };
             PaintMedia();
         }
-        else MediaRequested?.Invoke(command);
+        else MediaRequested?.Invoke(media.SessionId, command);
         RestartTimer();
     }
     private void Play_Click(object sender, RoutedEventArgs e) => SendCommand(MediaCommand.TogglePlayback);
     private void Previous_Click(object sender, RoutedEventArgs e) => SendCommand(MediaCommand.Previous);
     private void Next_Click(object sender, RoutedEventArgs e) => SendCommand(MediaCommand.Next);
+
+    private System.Collections.Generic.IReadOnlyList<MediaSourceInfo> PreviewSourceInfo() => Array.AsReadOnly(previewSources.Select(s => new MediaSourceInfo(s.SessionId, s.AppName, s.Title, s.Artist, s.IsPlaying)).ToArray());
+
+    private void BuildSourceMenu()
+    {
+        SourceMenu.Items.Clear();
+        var automatic = new MenuItem { Header = SourceHeader("Otomatik", "Çalan kaynağı takip et"), IsChecked = media.AutomaticSource };
+        automatic.Click += (_, _) => SelectSource(null);
+        SourceMenu.Items.Add(automatic);
+        SourceMenu.Items.Add(new Separator());
+        foreach (var source in media.Sources.OrderBy(s => s.AppName).ThenBy(s => s.Title))
+        {
+            var item = new MenuItem
+            {
+                Tag = source.Id, Header = SourceHeader(source.Title, source.AppName + (source.IsPlaying ? " · Çalıyor" : " · Duraklatıldı")),
+                IsChecked = !media.AutomaticSource && media.SessionId == source.Id,
+                ToolTip = source.AppName + " · " + source.Title + (string.IsNullOrWhiteSpace(source.Artist) ? "" : "\n" + source.Artist)
+            };
+            System.Windows.Automation.AutomationProperties.SetName(item, source.AppName + ": " + source.Title);
+            item.Click += (_, _) => SelectSource(source.Id);
+            SourceMenu.Items.Add(item);
+        }
+    }
+
+    private static StackPanel SourceHeader(string title, string detail)
+    {
+        var header = new StackPanel { Width = 208 };
+        header.Children.Add(new TextBlock { Text = title, FontSize = 12, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis });
+        header.Children.Add(new TextBlock { Text = detail, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(165, 165, 176)), Margin = new Thickness(0, 4, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis });
+        return header;
+    }
+
+    private void Source_Click(object sender, RoutedEventArgs e)
+    {
+        BuildSourceMenu();
+        SourceMenu.PlacementTarget = SourceButton;
+        SourceMenu.Placement = settings.Position.StartsWith("Top", StringComparison.Ordinal) ? PlacementMode.Bottom : PlacementMode.Top;
+        SourceMenu.IsOpen = true;
+    }
+
+    private void Sources_Opening(object sender, ContextMenuEventArgs e) => BuildSourceMenu();
+    private void Sources_Opened(object sender, RoutedEventArgs e) { hideTimer.Stop(); RotateSourceArrow(90); }
+    private void Sources_Closed(object sender, RoutedEventArgs e) { RotateSourceArrow(0); RestartTimer(); }
+    private void RotateSourceArrow(double angle)
+    {
+        if (Motion) SourceArrowRotation.BeginAnimation(RotateTransform.AngleProperty, new DoubleAnimation(angle, TimeSpan.FromMilliseconds(140)));
+        else { SourceArrowRotation.BeginAnimation(RotateTransform.AngleProperty, null); SourceArrowRotation.Angle = angle; }
+    }
+
+    private void SelectSource(string? id)
+    {
+        SourceMenu.IsOpen = false;
+        if (preview)
+        {
+            var index = Array.FindIndex(previewSources, s => s.SessionId == media.SessionId);
+            if (index >= 0) previewSources[index] = media;
+            var target = id is null ? MediaService.ChooseSource(previewSources, null, null) : previewSources.FirstOrDefault(s => s.SessionId == id);
+            if (target is null) return;
+            media = target with { Sources = PreviewSourceInfo(), AutomaticSource = id is null, SampledAt = DateTimeOffset.UtcNow };
+            PaintMedia(); RestartTimer();
+            if (Motion) TrackTitleText.BeginAnimation(OpacityProperty, new DoubleAnimation(0.25, 1, TimeSpan.FromMilliseconds(240)));
+            return;
+        }
+        selectingSource = true; pendingSourceId = id;
+        PaintMedia(); hideTimer.Stop();
+        SourceRequested?.Invoke(id);
+    }
+
+    public void ReportSourceSelection(string? id, bool success)
+    {
+        if (!selectingSource || id != pendingSourceId) return;
+        selectingSource = false; pendingSourceId = null;
+        PaintMedia(); RestartTimer();
+        if (!success)
+        {
+            CommandHintText.Text = "Bu kaynak artık kullanılamıyor.";
+            CommandHint.Visibility = Visibility.Visible; hintTimer.Stop(); hintTimer.Start();
+        }
+    }
+
     private void Pin_Click(object sender, RoutedEventArgs e)
     {
         SetPinned(!pinned);
@@ -401,8 +497,8 @@ public partial class FlyoutWindow : Window
         PinButton.Opacity = pinned ? 1 : 0.45; RestartTimer();
     }
     private void Dismiss_Click(object sender, RoutedEventArgs e) { SetPinned(false); Dismiss(); }
-    private void Settings_Click(object sender, RoutedEventArgs e) { restorePinnedVolume = false; Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
-    protected override void OnClosed(EventArgs e) { MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
+    private void Settings_Click(object sender, RoutedEventArgs e) { SourceMenu.IsOpen = false; restorePinnedVolume = false; Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
+    protected override void OnClosed(EventArgs e) { SourceMenu.IsOpen = false; MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
     private static string FormatTime(TimeSpan time) => time.TotalHours >= 1 ? time.ToString(@"h\:mm\:ss") : time.ToString(@"m\:ss");
 
     [StructLayout(LayoutKind.Sequential)] private struct Point { public int X; public int Y; }

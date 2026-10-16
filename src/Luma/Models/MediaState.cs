@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace Luma.Models;
+
+public sealed record MediaSourceInfo(string Id, string AppName, string Title, string Artist, bool IsPlaying);
 
 public sealed record MediaState
 {
@@ -22,6 +25,8 @@ public sealed record MediaState
     public DateTimeOffset SampledAt { get; init; } = DateTimeOffset.UtcNow;
     public double PlaybackRate { get; init; } = 1;
     public ImageSource? Artwork { get; init; }
+    public IReadOnlyList<MediaSourceInfo> Sources { get; init; } = Array.Empty<MediaSourceInfo>();
+    public bool AutomaticSource { get; init; } = true;
 
     public TimeSpan CurrentPosition(DateTimeOffset now)
     {

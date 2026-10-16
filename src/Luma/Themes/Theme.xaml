@@ -228,5 +228,15 @@
     <Setter Property="Foreground" Value="#E3E3E7" /><Setter Property="FontSize" Value="12" />
     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem"><Border x:Name="MenuHover" Background="Transparent" CornerRadius="5" Padding="8,8"><Grid><TextBlock x:Name="Check" Text="&#xE73E;" FontFamily="Segoe Fluent Icons" FontSize="10" Visibility="Hidden" VerticalAlignment="Center" /><ContentPresenter ContentSource="Header" Margin="22,0,20,0" /></Grid></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="MenuHover" Property="Background" Value="#404045" /></Trigger><Trigger Property="IsChecked" Value="True"><Setter TargetName="Check" Property="Visibility" Value="Visible" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
   </Style>
+  <Style x:Key="SourceMenuStyle" TargetType="ContextMenu" BasedOn="{StaticResource {x:Type ContextMenu}}">
+    <Setter Property="FontFamily" Value="{StaticResource UIFont}" />
+    <Setter Property="MinWidth" Value="260" /><Setter Property="MaxWidth" Value="290" /><Setter Property="MaxHeight" Value="320" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContextMenu">
+      <Border Background="#29292C" BorderBrush="#48484F" BorderThickness="1" CornerRadius="8" Padding="4">
+        <ScrollViewer MaxHeight="{TemplateBinding MaxHeight}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True"><StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" /></ScrollViewer>
+      </Border>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
   <Style TargetType="Separator"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Background="#424247" Margin="8,4" /></ControlTemplate></Setter.Value></Setter></Style>
+  <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}" />
 </ResourceDictionary>

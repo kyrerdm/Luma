@@ -1,4 +1,4 @@
-Luma 0.3.2 — Windows 11
+Luma 0.4.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -14,6 +14,18 @@ Windows'a medya bilgisi sunan bir oynatıcı açıkken ses şeridinin altında
 parça adı, sanatçı, kapak ve oynatma kontrolleri görünür. Oynat/duraklat,
 önceki/sonraki ve zaman çizelgesi oyuncunun desteklediği ölçüde çalışır.
 Desteklenmeyen kontroller pasif görünür. Medya yoksa boş kart gösterilmez.
+
+Sağ alttaki küçük okla medya kaynağını seçin. Parça, uygulama ve çalma
+durumu listelenir; kapak ve oynatma düğmeleri seçtiğiniz kaynağa geçer.
+Kaynak seçmek diğer oynatıcıları durdurmaz veya başlatmaz. Seçilen kaynak
+duraklatılsa da seçim korunur. Kaynak kapanırsa kalan kaynaklara dönülür.
+Otomatik seçeneği çalan kaynağı takip eder; yeniden açılışta otomatik mod
+kullanılır. Menü açıkken otomatik gizleme bekler.
+
+Chrome ve Spotify gibi ayrı Windows medya oturumları seçilebilir. Normal
+Chrome sekmeleri genellikle tek ortak oturum sunar; bu durumda iki sekme
+ayrı listelenmez. Her sekmeyi bağımsız kontrol etmek tarayıcı entegrasyonu
+gerektirir.
 
 Sol alttaki pin simgesi göstergeyi açık tutar. Tekrar basarak otomatik
 gizlemeye dönün. Ayarlar sağ tık menüsünden veya tepsiden açılır.
@@ -46,7 +58,8 @@ taşımadan veya silmeden önce bu seçeneği kapatın.
 
 ÖNİZLEME
 Göstergeyi dene düğmesindeki parça ve kapak örnektir; bu moddaki ses,
-oynatma ve zaman çizelgesi kontrolleri gerçek sesi veya oynatıcıyı değiştirmez.
+oynatma, kaynak seçimi ve zaman çizelgesi kontrolleri gerçek sesi veya
+oynatıcıyı değiştirmez.
 
 SÜRÜM DEĞİŞTİRİRKEN
 Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.

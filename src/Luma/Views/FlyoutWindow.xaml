@@ -45,9 +45,13 @@
                 <Button x:Name="NextButton" Style="{StaticResource QuietButton}" Click="Next_Click" ToolTip="Sonraki" AutomationProperties.Name="Sonraki parça" Margin="19,0,0,0"><TextBlock Style="{StaticResource Icon}" Text="&#xE893;" FontSize="16" /></Button>
               </StackPanel>
               <Button x:Name="PinButton" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Click="Pin_Click" ToolTip="Açık tut" AutomationProperties.Name="Göstergeyi açık tut" Opacity="0.45"><TextBlock x:Name="PinIcon" Style="{StaticResource Icon}" Text="&#xE718;" FontSize="13" /></Button>
+              <Button x:Name="SourceButton" Style="{StaticResource QuietButton}" HorizontalAlignment="Right" Click="Source_Click" ContextMenuOpening="Sources_Opening" ToolTip="Medya kaynağını seç" AutomationProperties.Name="Medya kaynağını seç" Opacity="0.45" Visibility="Collapsed">
+                <Button.ContextMenu><ContextMenu x:Name="SourceMenu" Style="{StaticResource SourceMenuStyle}" Opened="Sources_Opened" Closed="Sources_Closed" /></Button.ContextMenu>
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE76C;" FontSize="12" RenderTransformOrigin="0.5,0.5"><TextBlock.RenderTransform><RotateTransform x:Name="SourceArrowRotation" /></TextBlock.RenderTransform></TextBlock>
+              </Button>
             </Grid>
           </Grid>
-          <Border x:Name="CommandHint" VerticalAlignment="Bottom" Background="#F0202022" Padding="10,7" Visibility="Collapsed"><TextBlock Text="Bu işlem şu anda kullanılamıyor." FontSize="10" HorizontalAlignment="Center" Foreground="#D2D2D7" /></Border>
+          <Border x:Name="CommandHint" VerticalAlignment="Bottom" Background="#F0202022" Padding="10,7" Visibility="Collapsed"><TextBlock x:Name="CommandHintText" Text="Bu işlem şu anda kullanılamıyor." FontSize="10" HorizontalAlignment="Center" Foreground="#D2D2D7" /></Border>
         </Grid>
       </Border>
     </StackPanel>

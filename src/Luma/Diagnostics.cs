@@ -21,7 +21,7 @@ using Luma.Themes;
 
 namespace Luma;
 
-internal static class Diagnostics
+internal static partial class Diagnostics
 {
     public static async Task<int> RunAsync(string directory)
     {
@@ -84,7 +84,13 @@ internal static class Diagnostics
         {
             await mediaService.StartAsync().WaitAsync(TimeSpan.FromSeconds(6));
             Check("Windows media session API initializes", mediaService.Error is null, mediaService.Error ?? $"Active session: {mediaService.State.Available}");
+            var before = mediaService.State.Sources;
+            await mediaService.RefreshForDiagnosticsAsync().WaitAsync(TimeSpan.FromSeconds(6));
+            var after = mediaService.State.Sources;
+            var sameApps = before.Select(s => s.AppName).Order().SequenceEqual(after.Select(s => s.AppName).Order());
+            Check("Windows session identities survive a refresh", !sameApps || before.Select(s => s.Id).Order().SequenceEqual(after.Select(s => s.Id).Order()), $"Available sessions: {after.Count}; unchanged app list: {sameApps}");
         }
+        await VerifyMediaSourcesAsync(directory, (name, passed) => Check(name, passed));
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };
@@ -127,8 +133,8 @@ internal static class Diagnostics
         var mediaRequests = new List<MediaCommand>();
         var seekRequests = new List<TimeSpan>();
         flyout.VolumeRequested += _ => volumeRequests++;
-        flyout.MediaRequested += mediaRequests.Add;
-        flyout.SeekRequested += seekRequests.Add;
+        flyout.MediaRequested += (_, command) => mediaRequests.Add(command);
+        flyout.SeekRequested += (_, position) => seekRequests.Add(position);
         var volumeSlider = (SmoothSlider)flyout.FindName("VolumeSlider");
         var play = (System.Windows.Controls.Button)flyout.FindName("PlayButton");
         var timeline = (SmoothSlider)flyout.FindName("TimelineSlider");
