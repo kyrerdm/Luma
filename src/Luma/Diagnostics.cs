@@ -93,6 +93,7 @@ internal static partial class Diagnostics
         await VerifyMediaSourcesAsync(directory, (name, passed) => Check(name, passed));
         await VerifyBrightnessAsync(directory, Check);
         await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
+        await VerifyReleaseFeaturesAsync(directory, Check);
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };
@@ -186,9 +187,9 @@ internal static partial class Diagnostics
         var accentPresets = Palette.Options.Count == 12 && Palette.Options.Select(option => option.Hex).Distinct().Count() == 12;
         foreach (ComboBoxItem item in accents.Items)
         {
+            if (item.Content is not AccentOption option) continue;
             accents.SelectedItem = item;
             store.Save(previewSettings);
-            var option = (AccentOption)item.Content;
             accentPresets &= store.Load().Accent == option.Id && ((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color == option.Color;
         }
         Check("All twelve accent presets apply and survive restart", accentPresets);

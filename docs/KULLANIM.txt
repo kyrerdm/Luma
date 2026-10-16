@@ -1,12 +1,25 @@
-Luma 0.5.2 — Windows 11
+Luma 0.6.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
+Kurulum için Luma-0.6.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
+uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
+Kurulum: %LOCALAPPDATA%\Programs\Luma\0.6.0
+
+Taşınabilir kullanım için Luma-0.6.0-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
 Ses açma, kısma ve sessize alma tuşlarına basarak göstergeyi kullanın.
 Ses panelindeki kaydırıcı ve ses simgesi de sistem sesini kontrol eder.
+Ses şeridinin sağındaki okla ses çıkışını seçin veya uygulama seslerini açın.
+Bu panel açıkken otomatik gizleme durur. Çıkış seçimi genel ve medya
+varsayılanını değiştirir; ayrı iletişim/arama aygıtı tercihi korunur.
+Uygulamalar Windows'un yeni varsayılanına kendi destekleri ölçüsünde geçer.
+Uygulama sesleri seçili çıkıştaki oturumlardır. Aynı uygulamanın birden çok
+oturumu birlikte ayarlanır; başka çıkışa özel yönlendirilmiş uygulamalar
+listede görünmeyebilir. Medya kaynağı seçimi ayrı bir kontroldür.
 Caps Lock, Num Lock ve Scroll Lock değişince küçük bir bildirim görünür.
 
 MEDYA KARTI
@@ -37,6 +50,9 @@ Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
 TERCİHLER
 Ayarlar ekranından konumu, süreyi, ses adımını, rengi ve animasyonları değiştirin.
 Renk örneklerinden 12 vurgu rengi seçilebilir; tercihiniz kaydedilir.
+Açık, koyu veya Windows ile aynı temayı seçebilirsiniz. Özel renk alanına
+#RRGGBB biçiminde kod yazıp Seç düğmesine basın. Panel opaklığı %65–%100
+arasında ayarlanır; yazılar tam görünür kalır.
 Sol üst, sağ üst, sol alt ve sağ alt köşeler ile üst/alt orta seçilebilir.
 Gösterge boyutu %75–%140 arasında ayarlanır ve yeniden açılışta korunur.
 Kapak büyütüldü; zaman çizelgesi daha aşağı alındı. Kapak görselinin
@@ -46,6 +62,9 @@ belirli bir monitörü seçebilirsiniz. Seçilen monitör çıkarılırsa ana ek
 kullanılır; tekrar bağlandığında seçtiğiniz ekrana dönülür.
 Değişiklikler otomatik kaydedilir. Göstergenin üzerine geldiğinizde
 kaybolmadan bekler.
+Tam ekranda göstergeleri gizle tercihi isteğe bağlıdır. Hedef monitörde
+ekranı kaplayan ön plan penceresi varken bildirimler gizlenir; ses ve
+parlaklık komutları çalışır. Bazı kenarlıksız pencereler de tam ekran sayılır.
 
 Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
 Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsiniz.
@@ -72,9 +91,13 @@ Windows bildirimleri sonradan ulaştığından panel kısa bir an görünebilir;
 tamamen belirmemesi garanti edilmez. Tanınmayan pencere düzenleri ve
 üreticiye ait ayrı göstergeler bu kapsama girmez.
 Sabitlenmiş ses/medya kartı parlaklık bildirimi bitince geri gelir.
-Destek bulunmazsa ayarlardaki kaydırıcı pasif görünür. Harici monitörler
-için DDC/CI desteği yoktur. Gösterilecek ekran tercihi, Luma panelinin
-konumunu belirler; parlaklığın hedefi dahili ekran olarak kalır.
+Destek bulunmazsa ayarlardaki kaydırıcı pasif görünür. Gösterilecek ekran
+tercihi Luma panelinin konumunu belirler; Fn tuşlarının hedefi dahili ekrandır.
+Harici monitörlerde Monitör parlaklığı (DDC/CI) tercihini açın ve Monitörleri
+tara düğmesini kullanın. Varsayılan olarak kapalıdır; açılana kadar sorgu
+yapılmaz. Monitör menüsünde DDC/CI açık olmalıdır. Desteklenmeyen ekranın
+kaydırıcısı pasif kalır. Her kaydırıcı yalnızca kendi ekranını kontrol eder.
+USB bağlantı istasyonları ve bazı kablolar DDC/CI iletimini desteklemeyebilir.
 Tanınmayan Windows düzenlerinde veya üretici yazılımlarında ek panel görünebilir.
 
 Ayarlar içindeki örnek kart görsel amaçlıdır. Deneme düğmesi kaldırıldı.
@@ -83,13 +106,18 @@ SÜRÜM DEĞİŞTİRİRKEN
 Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.
 Windows ile başlat zaten açıksa yeni sürüm açılırken başlangıç yolu
 güncellenir. Kapalıysa kapalı kalır. Mevcut görünüm tercihleriniz korunur.
+Kurulu sürümü yeni Setup.exe dosyasıyla güncelleyebilirsiniz. Ayarlardaki
+Güncellemeleri denetle düğmesi GitHub'ın kararlı sürümünü kontrol eder;
+varsa İndir düğmesi indirme sayfasını açar. İndirme ve kurulum kullanıcı
+tarafından yapılır; otomatik indirme veya arka plan güncellemesi yoktur.
 
 SINIRLAR
-Açık tema henüz yoktur. Bazı üreticilerin özel Fn yazılımları
+Paket henüz dijital imzalı değildir. Bazı üreticilerin özel Fn yazılımları
 farklı davranabilir; bunlarda Windows paneli de görünebilir.
 
 Ayarlar: %LOCALAPPDATA%\LumaFlyouts\settings.json
-Klavye kaydı veya telemetri yoktur. İnternet bağlantısı gerekmez.
+Klavye kaydı veya telemetri yoktur. Günlük kullanım için internet gerekmez.
+Yalnızca güncelleme denetlemesine basıldığında GitHub'a ağ isteği yapılır.
 
 Bu uygulama ModernFlyouts fikrinden ilham alan bağımsız bir projedir.
 ModernFlyouts'un kodunu veya görsel varlıklarını içermez.

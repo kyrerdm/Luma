@@ -31,11 +31,18 @@ public static class Palette
 
     public static bool IsKnown(string? id) => Options.Any(option => option.Id == id);
     public static AccentOption Resolve(string? id) => Options.FirstOrDefault(option => option.Id == id) ?? Options[0];
+    public static bool ValidCustomColor(string? value) => value is { Length: 7 } && value[0] == '#' && value.Skip(1).All(Uri.IsHexDigit);
 
     public static void Apply(string accent)
     {
         var brush = new SolidColorBrush(Resolve(accent).Color);
         brush.Freeze();
         Application.Current.Resources["AccentBrush"] = brush;
+    }
+    public static void Apply(Luma.Models.AppSettings settings)
+    {
+        var color = settings.Accent == "Custom" && ValidCustomColor(settings.CustomAccent) ? (Color)ColorConverter.ConvertFromString(settings.CustomAccent) : Resolve(settings.Accent).Color;
+        var brush = new SolidColorBrush(color); brush.Freeze(); Application.Current.Resources["AccentBrush"] = brush;
+        Appearance.Apply(settings);
     }
 }

@@ -10,13 +10,18 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\Luma.ico</ApplicationIcon>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile Condition="'$(PublishSingleFile)' == 'true'">true</EnableCompressionInSingleFile>
     <AssemblyName>Luma</AssemblyName>
     <RootNamespace>Luma</RootNamespace>
-    <Version>0.5.2</Version>
+    <Version>0.6.0</Version>
     <Description>Windows için sade ses, parlaklık ve medya göstergeleri.</Description>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\KULLANIM.txt" LogicalName="Luma.Install.KULLANIM.txt" />
+    <EmbeddedResource Include="..\..\docs\WINRT-LICENSE.txt" LogicalName="Luma.Install.WINRT-LICENSE.txt" />
+    <EmbeddedResource Include="..\..\docs\WINDOWS-SDK-NOTICE.txt" LogicalName="Luma.Install.WINDOWS-SDK-NOTICE.txt" />
+    <EmbeddedResource Include="..\..\docs\distribution\*.txt" LogicalName="Luma.Install.%(Filename)%(Extension)" />
     <PackageReference Include="System.Management" Version="10.0.13" />
     <Resource Include="Assets\Luma.ico" />
   </ItemGroup>

@@ -23,3 +23,8 @@ $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvar
 $checksumPath = $zipPath + '.sha256'
 [System.IO.File]::WriteAllText($checksumPath, $hash + '  ' + [System.IO.Path]::GetFileName($zipPath) + "`n", [System.Text.UTF8Encoding]::new($false))
 [pscustomobject]@{ File = $zipPath; Bytes = (Get-Item -LiteralPath $zipPath).Length; SHA256 = $hash; ChecksumFile = $checksumPath } | Format-List
+$setupPath = Join-Path $projectRoot ('artifacts\Luma-' + $version + '-Setup.exe')
+Copy-Item -LiteralPath $executable -Destination $setupPath -Force
+$setupHash = (Get-FileHash -LiteralPath $setupPath -Algorithm SHA256).Hash.ToLowerInvariant()
+[System.IO.File]::WriteAllText(($setupPath + '.sha256'), $setupHash + '  ' + [System.IO.Path]::GetFileName($setupPath) + "`n", [System.Text.UTF8Encoding]::new($false))
+[pscustomobject]@{ Setup = $setupPath; Bytes = (Get-Item -LiteralPath $setupPath).Length; SHA256 = $setupHash } | Format-List

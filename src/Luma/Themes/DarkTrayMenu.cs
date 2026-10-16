@@ -50,6 +50,7 @@ internal sealed class DarkTrayMenu : ContextMenuStrip
         Renderer = new DarkRenderer(accent, glyphFont);
         Padding = new Padding(6);
         ItemAdded += (_, _) => ApplyMetrics();
+        Opening += (_, _) => { BackColor = Appearance.IsLight ? Color.White : Color.FromArgb(37,37,40); ForeColor = Appearance.IsLight ? Color.FromArgb(32,32,41) : Color.FromArgb(242,242,243); };
     }
 
     public void AddAction(TrayAction action, string text, EventHandler handler)
@@ -127,7 +128,7 @@ internal sealed class DarkTrayMenu : ContextMenuStrip
 
         protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
         {
-            using var brush = new SolidBrush(Color.FromArgb(37, 37, 40));
+            using var brush = new SolidBrush(Appearance.IsLight ? Color.White : Color.FromArgb(37, 37, 40));
             e.Graphics.FillRectangle(brush, new Rectangle(Point.Empty, e.ToolStrip.Size));
         }
 
@@ -135,7 +136,7 @@ internal sealed class DarkTrayMenu : ContextMenuStrip
         {
             var state = e.Graphics.Save(); e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             using var path = Rounded(new RectangleF(0.5f, 0.5f, e.ToolStrip.Width - 1, e.ToolStrip.Height - 1), 8 * Dpi(e.ToolStrip));
-            using var pen = new Pen(Color.FromArgb(65, 65, 73));
+            using var pen = new Pen(Appearance.IsLight ? Color.FromArgb(214,214,223) : Color.FromArgb(65, 65, 73));
             e.Graphics.DrawPath(pen, path); e.Graphics.Restore(state);
         }
 
@@ -147,7 +148,7 @@ internal sealed class DarkTrayMenu : ContextMenuStrip
             var row = RowBounds(e.Item, e.ToolStrip, scale);
             row.Inflate(0, -scale);
             using var path = Rounded(row, 5 * scale);
-            using var fill = new SolidBrush(Color.FromArgb(53, 53, 60));
+            using var fill = new SolidBrush(Appearance.IsLight ? Color.FromArgb(228,228,238) : Color.FromArgb(53, 53, 60));
             e.Graphics.FillPath(fill, path); e.Graphics.Restore(state);
         }
 
@@ -155,7 +156,7 @@ internal sealed class DarkTrayMenu : ContextMenuStrip
         {
             var scale = Dpi(e.ToolStrip);
             var text = new Rectangle((int)Math.Round(43 * scale), 0, e.Item.Width - (int)Math.Round(55 * scale), e.Item.Height);
-            var color = e.Item.Enabled ? Color.FromArgb(242, 242, 243) : Color.FromArgb(128, 128, 139);
+            var color = e.Item.Enabled ? (Appearance.IsLight ? Color.FromArgb(32,32,41) : Color.FromArgb(242, 242, 243)) : Color.FromArgb(128, 128, 139);
             const TextFormatFlags textFlags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix | TextFormatFlags.NoPadding;
             TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont, text, color, textFlags);
             if (e.Item.Tag is not TrayAction action) return;

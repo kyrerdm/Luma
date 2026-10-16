@@ -8,3 +8,5 @@
 *.gif binary
 *.png binary
 *.ico binary
+# Keep redistributable notices byte-for-byte, including upstream whitespace.
+docs/distribution/*.txt -text -whitespace

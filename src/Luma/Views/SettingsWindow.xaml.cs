@@ -25,6 +25,12 @@ public partial class SettingsWindow : Window
         this.settings = settings;
         this.save = save;
         InitializeComponent();
+        VersionText.Text = AppVersion.Current.ToString(3);
+        CustomColorText.Text = settings.CustomAccent;
+        OpacitySlider.Value = settings.SurfaceOpacity;
+        FullscreenToggle.IsChecked = settings.HideInFullscreen;
+        ExternalToggle.IsChecked = settings.ExternalBrightness;
+        foreach (ComboBoxItem item in ThemeCombo.Items) if ((string)item.Tag == settings.Theme) ThemeCombo.SelectedItem = item;
         VolumeToggle.IsChecked = settings.VolumeKeys;
         LocksToggle.IsChecked = settings.LockKeys;
         ObserveToggle.IsChecked = settings.ObserveVolume;
@@ -38,6 +44,7 @@ public partial class SettingsWindow : Window
         StepSlider.Value = settings.VolumeStep;
         ScaleSlider.Value = settings.FlyoutScale;
         foreach (var option in Palette.Options) AccentCombo.Items.Add(new ComboBoxItem { Content = option, Tag = option.Id });
+        AccentCombo.Items.Add(new ComboBoxItem { Content = "Özel renk", Tag = "Custom" });
         foreach (ComboBoxItem item in PositionCombo.Items) if ((string)item.Tag == settings.Position) PositionCombo.SelectedItem = item;
         foreach (ComboBoxItem item in AccentCombo.Items) if ((string)item.Tag == settings.Accent) AccentCombo.SelectedItem = item;
         ReloadMonitors();
@@ -51,7 +58,7 @@ public partial class SettingsWindow : Window
         SourceInitialized += (_, _) =>
         {
             var handle = new WindowInteropHelper(this).Handle;
-            var dark = 1; DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
+            var dark = Appearance.IsLight ? 0 : 1; DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
             var round = 2; DwmSetWindowAttribute(handle, 33, ref round, sizeof(int));
             var chrome = new System.Windows.Shell.WindowChrome { CaptionHeight = 46, ResizeBorderThickness = new Thickness(6), CornerRadius = new CornerRadius(12), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false };
             System.Windows.Shell.WindowChrome.SetWindowChrome(this, chrome);
@@ -63,6 +70,7 @@ public partial class SettingsWindow : Window
         ServiceStatus.Text = text;
         StatusDot.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString(healthy ? "#9BD6AD" : "#E2B676"));
     }
+    internal void ApplyAppearance() { var handle = new WindowInteropHelper(this).Handle; if (handle != IntPtr.Zero) { var dark = Appearance.IsLight ? 0 : 1; DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int)); } }
 
     internal void SetBrightness(BrightnessState state, bool writeFailed = false)
     {
@@ -92,6 +100,7 @@ public partial class SettingsWindow : Window
         settings.Animations = AnimationsToggle.IsChecked == true;
         settings.ShowMedia = MediaToggle.IsChecked == true;
         settings.ArtworkBackground = ArtworkToggle.IsChecked == true;
+        settings.HideInFullscreen = FullscreenToggle.IsChecked == true;
         UpdatePreview();
         Save();
     }
@@ -103,8 +112,18 @@ public partial class SettingsWindow : Window
     private void Accent_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (!ready || AccentCombo.SelectedItem is not ComboBoxItem item) return;
-        settings.Accent = (string)item.Tag; Palette.Apply(settings.Accent); Save();
+        settings.Accent = (string)item.Tag; Palette.Apply(settings); ApplyAppearance(); Save();
     }
+    private void Theme_Changed(object sender, SelectionChangedEventArgs e) { if (ready && ThemeCombo.SelectedItem is ComboBoxItem item) { settings.Theme = (string)item.Tag; Palette.Apply(settings); ApplyAppearance(); Save(); } }
+    private void CustomColor_Click(object sender, RoutedEventArgs e)
+    {
+        var color = CustomColorText.Text.Trim();
+        if (!Palette.ValidCustomColor(color)) { ColorStatusText.Text = "# ile başlayan altı haneli renk kodu gir."; return; }
+        settings.CustomAccent = color.ToUpperInvariant(); settings.Accent = "Custom";
+        foreach (ComboBoxItem item in AccentCombo.Items) if ((string)item.Tag == "Custom") AccentCombo.SelectedItem = item;
+        Palette.Apply(settings); Save(); ColorStatusText.Text = "Özel rengin uygulandı.";
+    }
+    private void Opacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e) { if (ready) { settings.SurfaceOpacity = e.NewValue; Palette.Apply(settings); UpdateLabels(); Save(); } }
     private void UpdatePreview()
     {
         MediaPreviewCard.Visibility = settings.ShowMedia ? Visibility.Visible : Visibility.Collapsed;
@@ -152,7 +171,7 @@ public partial class SettingsWindow : Window
         if (!ready) return;
         settings.FlyoutScale = e.NewValue; UpdateLabels(); Save();
     }
-    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} sn"; StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; }
+    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} sn"; StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; OpacityText.Text = $"%{settings.SurfaceOpacity * 100:0}"; }
     private void Save()
     {
         try { save(); FeedbackText.Text = "Kaydedildi. Tercihlerin bir sonraki açılışta da burada."; }

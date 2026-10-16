@@ -1,0 +1,12 @@
+<UserControl x:Class="Luma.Views.AudioPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="348" FontFamily="{StaticResource UIFont}" Foreground="{DynamicResource TextBrush}">
+  <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="15">
+    <StackPanel>
+      <TextBlock Text="Ses çıkışı" FontSize="13" FontWeight="SemiBold" Margin="2,0,0,8" />
+      <ScrollViewer MaxHeight="148" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="OutputRows" /></ScrollViewer>
+      <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,12" />
+      <TextBlock Text="Uygulama sesleri" FontSize="13" FontWeight="SemiBold" Margin="2,0,0,6" />
+      <ScrollViewer MaxHeight="250" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="AppRows" /></ScrollViewer>
+      <TextBlock x:Name="StatusText" FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="2,10,0,0" Text="Ses çıkışları yükleniyor…" />
+    </StackPanel>
+  </Border>
+</UserControl>

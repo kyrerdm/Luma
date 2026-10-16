@@ -58,6 +58,8 @@ public partial class FlyoutWindow : Window
         this.settings = settings;
         InitializeComponent();
         MonitorCatalog.Changed += OnDisplaysChanged;
+        fullscreenTimer.Tick += (_, _) => { if (IsVisible && SuppressForFullscreen) Dismiss(); };
+        IsVisibleChanged += (_, _) => { if (IsVisible && settings.HideInFullscreen) fullscreenTimer.Start(); else fullscreenTimer.Stop(); };
         layoutScale = settings.FlyoutScale;
         FlyoutTransform.ScaleX = FlyoutTransform.ScaleY = layoutScale;
         Width = 396 * layoutScale; Height = 80 * layoutScale;
@@ -151,6 +153,7 @@ public partial class FlyoutWindow : Window
 
     internal void ShowBrightness(BrightnessState state, bool isPreview = false)
     {
+        AudioPopup.IsOpen = false;
         SourceMenu.IsOpen = false;
         if (volumeMode) restorePinnedVolume = pinned && IsVisible;
         volumeMode = false; brightnessMode = true; brightnessState = state;
@@ -165,7 +168,7 @@ public partial class FlyoutWindow : Window
     private bool brightnessPreview;
     internal void RefreshBrightness(BrightnessState state)
     {
-        if (!brightnessMode || brightnessPreview) return;
+        if (!brightnessMode || brightnessPreview || brightnessState.InstanceId != state.InstanceId) return;
         brightnessState = state; PaintBrightness();
     }
 
@@ -204,6 +207,7 @@ public partial class FlyoutWindow : Window
         VolumeSlider.Opacity = audioState.Muted ? 0.4 : 1;
         VolumeCard.ToolTip = preview ? "Önizleme · sistem sesi değişmez" : audioState.DeviceName + " · Ayarlar için sağ tıkla";
         MuteButton.IsEnabled = audioState.Available;
+        OutputButton.IsEnabled = audioState.Available && !preview;
         updating = false;
     }
 
@@ -227,6 +231,7 @@ public partial class FlyoutWindow : Window
         BrightnessSlider.MotionEnabled = Motion;
         TimelineSlider.MotionEnabled = false;
         ArtworkBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
+        if (IsVisible && settings.HideInFullscreen) fullscreenTimer.Start(); else fullscreenTimer.Stop();
         UpdateMediaLayout(!IsVisible);
         RestartTimer();
     }
@@ -301,6 +306,7 @@ public partial class FlyoutWindow : Window
 
     public void ShowLock(string name, bool enabled)
     {
+        AudioPopup.IsOpen = false;
         SourceMenu.IsOpen = false;
         if (volumeMode) restorePinnedVolume = pinned && IsVisible;
         volumeMode = false;
@@ -314,6 +320,7 @@ public partial class FlyoutWindow : Window
 
     private void Reveal()
     {
+        if (SuppressForFullscreen) { Dismiss(); return; }
         var entering = !IsVisible || dismissing;
         dismissing = false; ++revealRevision;
         CardStack.BeginAnimation(OpacityProperty, null); CardStack.Opacity = 1;
@@ -354,20 +361,21 @@ public partial class FlyoutWindow : Window
     private void RestartTimer()
     {
         hideTimer.Stop();
-        if (!IsVisible || (selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) return;
+        if (!IsVisible || AudioPopup.IsOpen || (selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) return;
         hideTimer.Interval = TimeSpan.FromSeconds(settings.DurationSeconds); hideTimer.Start();
     }
 
     private void HideAnimated()
     {
         hideTimer.Stop();
-        if ((selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) { RestartTimer(); return; }
+        if (AudioPopup.IsOpen || (selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) { RestartTimer(); return; }
         if (!volumeMode && restorePinnedVolume && pinned) { ShowVolume(audioState, preview); return; }
         Dismiss();
     }
 
     public void Dismiss()
     {
+        AudioPopup.IsOpen = false;
         SourceMenu.IsOpen = false;
         restorePinnedVolume = false;
         hideTimer.Stop(); timelineTimer.Stop();
@@ -490,12 +498,13 @@ public partial class FlyoutWindow : Window
     {
         var header = new StackPanel { Width = 208 };
         header.Children.Add(new TextBlock { Text = title, FontSize = 12, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis });
-        header.Children.Add(new TextBlock { Text = detail, FontSize = 10, Foreground = new SolidColorBrush(Color.FromRgb(165, 165, 176)), Margin = new Thickness(0, 4, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis });
+        var subtitle = new TextBlock { Text = detail, FontSize = 10, Margin = new Thickness(0, 4, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis }; subtitle.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); header.Children.Add(subtitle);
         return header;
     }
 
     private void Source_Click(object sender, RoutedEventArgs e)
     {
+        AudioPopup.IsOpen = false;
         BuildSourceMenu();
         SourceMenu.PlacementTarget = SourceButton;
         SourceMenu.Placement = settings.Position.StartsWith("Top", StringComparison.Ordinal) ? PlacementMode.Bottom : PlacementMode.Top;
@@ -555,7 +564,7 @@ public partial class FlyoutWindow : Window
     }
     private void Dismiss_Click(object sender, RoutedEventArgs e) { SetPinned(false); Dismiss(); }
     private void Settings_Click(object sender, RoutedEventArgs e) { SourceMenu.IsOpen = false; restorePinnedVolume = false; Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
-    protected override void OnClosed(EventArgs e) { SourceMenu.IsOpen = false; MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
+    protected override void OnClosed(EventArgs e) { AudioPopup.IsOpen = false; fullscreenTimer.Stop(); SourceMenu.IsOpen = false; MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
     private static string FormatTime(TimeSpan time) => time.TotalHours >= 1 ? time.ToString(@"h\:mm\:ss") : time.ToString(@"m\:ss");
 
     [StructLayout(LayoutKind.Sequential)] private struct Point { public int X; public int Y; }

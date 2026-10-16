@@ -52,6 +52,7 @@ public sealed class BackgroundAudioService : IDisposable
     });
 
     public long SetVolume(int value) => Enqueue(() => device!.SetVolume(value));
+    public void RequestRefresh() => worker.Post(() => { if (device is AudioService native) native.InvalidateEndpoint(); Refresh(true); });
 
     private long Enqueue(Action apply)
     {

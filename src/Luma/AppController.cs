@@ -13,11 +13,14 @@ using Forms = System.Windows.Forms;
 
 namespace Luma;
 
-public sealed class AppController : IDisposable
+public sealed partial class AppController : IDisposable
 {
     private readonly SettingsStore store;
     private readonly AppSettings settings;
     private readonly BackgroundAudioService audio;
+    private readonly BackgroundAudioRouting routing;
+    private readonly DispatcherTimer routingTimer = new() { Interval = TimeSpan.FromSeconds(1.5) };
+    private bool refreshingRouting;
     private readonly BackgroundBrightnessService brightness;
     private readonly NativeBrightnessOsdSuppressor nativeBrightnessOsd;
     private readonly MediaService media;
@@ -46,19 +49,37 @@ public sealed class AppController : IDisposable
     {
         store = new(dataDirectory);
         settings = store.Load();
-        Palette.Apply(settings.Accent);
+        Palette.Apply(settings);
         flyout = new(settings);
         window = new(settings, SaveSettings);
         flyout.Prepare();
         audio = new(Application.Current.Dispatcher, audioFactory);
         audio.Changed += OnAudioChanged;
+        routing = new(Application.Current.Dispatcher);
+        flyout.AudioPanelOpenChanged += async open => { if (open) { await RefreshRouting(); if (!disposed && flyout.AudioPanelOpen) routingTimer.Start(); } else routingTimer.Stop(); };
+        routingTimer.Tick += async (_, _) => await RefreshRouting();
+        flyout.AudioPanel.OutputRequested += async id =>
+        {
+            flyout.AudioPanel.SetBusy(true);
+            var success = await routing.SelectAsync(id);
+            if (disposed) return;
+            flyout.AudioPanel.SetBusy(false); flyout.AudioPanel.SetState(routing.State); flyout.AudioPanel.Report(success);
+            audio.RequestRefresh();
+        };
+        flyout.AudioPanel.AppVolumeRequested += async (app, value) => { var success = await routing.SetVolumeAsync(app, value); if (!disposed) { flyout.AudioPanel.SetState(routing.State); flyout.AudioPanel.Report(success); } };
+        flyout.AudioPanel.AppMuteRequested += async (app, mute) => { var success = await routing.SetMuteAsync(app, mute); if (!disposed) { flyout.AudioPanel.SetState(routing.State); flyout.AudioPanel.Report(success); } };
         nativeBrightnessOsd = new();
         brightness = new(Application.Current.Dispatcher, brightnessFactory);
         nativeBrightnessOsd.CandidateShown += brightness.RequestRefresh;
         brightness.Activity += nativeBrightnessOsd.NotifyBrightnessActivity;
         brightness.Changed += OnBrightnessChanged;
-        flyout.BrightnessRequested += SetBrightness;
+        flyout.BrightnessRequested += value => { if (flyout.BrightnessTargetId.StartsWith("ddc:", StringComparison.Ordinal)) _ = SetExternal(flyout.BrightnessTargetId, value); else SetBrightness(value); };
         window.BrightnessRequested += SetBrightness;
+        window.ExternalScanRequested += async () => await ScanExternal();
+        window.ExternalBrightnessRequested += async (id, value) => await SetExternal(id, value);
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnAppearanceChanged;
+        Microsoft.Win32.SystemEvents.PowerModeChanged += OnResume;
+        MonitorCatalog.Changed += OnMonitorChange;
         media = new(Application.Current.Dispatcher);
         media.Changed += flyout.UpdateMedia;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
@@ -84,7 +105,7 @@ public sealed class AppController : IDisposable
         trayIcon = BrandIcon.CreateTrayIcon();
         var menu = new DarkTrayMenu(() =>
         {
-            var color = Palette.Resolve(settings.Accent).Color;
+            var color = ((System.Windows.Media.SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color;
             return Color.FromArgb(color.R, color.G, color.B);
         });
         menu.AddAction(TrayAction.Settings, "Luma ayarları", (_, _) => ShowSettings());
@@ -99,12 +120,20 @@ public sealed class AppController : IDisposable
         window.Show();
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
         window.Activate();
+        if (settings.ExternalBrightness) _ = ScanExternal();
     }
     internal void OnTrayMouseClick(object? sender, Forms.MouseEventArgs e)
     {
         if (e.Button == Forms.MouseButtons.Left) ShowSettings();
     }
-    private void SaveSettings() { store.Save(settings); Palette.Apply(settings.Accent); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); }
+    private async Task RefreshRouting()
+    {
+        if (disposed || refreshingRouting || !flyout.AudioPanelOpen) return;
+        refreshingRouting = true;
+        try { var success = await routing.RefreshAsync(); if (!disposed && flyout.AudioPanelOpen) { flyout.AudioPanel.SetState(routing.State); flyout.AudioPanel.Report(success); } }
+        finally { refreshingRouting = false; }
+    }
+    private void SaveSettings() { store.Save(settings); Palette.Apply(settings); window.ApplyAppearance(); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); if (!settings.ExternalBrightness) { externalRevision++; external.Suspend(); } }
     private void ApplyPreferences()
     {
         nativeBrightnessOsd.SetEnabled(settings.ObserveBrightness && settings.HideNativeBrightness && lastBrightness.Available);
@@ -177,6 +206,10 @@ public sealed class AppController : IDisposable
     {
         if (disposed) return;
         disposed = true;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnAppearanceChanged;
+        Microsoft.Win32.SystemEvents.PowerModeChanged -= OnResume;
+        MonitorCatalog.Changed -= OnMonitorChange;
+        external.Dispose();
         keyboard?.Dispose();
         media.Dispose();
         tray.Visible = false;
@@ -185,6 +218,7 @@ public sealed class AppController : IDisposable
         flyout.Close();
         window.AllowClose = true; window.Close();
         audio.Dispose();
+        routingTimer.Stop(); routing.Dispose();
         brightness.Activity -= nativeBrightnessOsd.NotifyBrightnessActivity;
         brightness.Dispose();
         nativeBrightnessOsd.Dispose();

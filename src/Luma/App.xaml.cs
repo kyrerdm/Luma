@@ -2,8 +2,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows;
 using Luma.Services;
+using Luma.Views;
+using Luma.Themes;
 
 namespace Luma;
 
@@ -12,6 +16,8 @@ public partial class App : Application
     private Mutex? instanceMutex;
     private EventWaitHandle? openSettings;
     private RegisteredWaitHandle? openSettingsRegistration;
+    private EventWaitHandle? exitSignal;
+    private RegisteredWaitHandle? exitRegistration;
     private AppController? controller;
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -39,8 +45,23 @@ public partial class App : Application
             return;
         }
 
+        if (e.Args.Contains("--install") || IsSetupExecutable(Environment.ProcessPath ?? ""))
+        {
+            var store = new Luma.Models.SettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumaFlyouts"));
+            Palette.Apply(store.Load());
+            new InstallWindow().ShowDialog(); Shutdown(); return;
+        }
         instanceMutex = new Mutex(true, "Local\\Luma.Flyouts.Instance", out var created);
         openSettings = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\Luma.Flyouts.OpenSettings");
+        if (!created && e.Args.Contains("--wait-for-instance"))
+        {
+            for (var attempt = 0; attempt < 100 && !created; attempt++)
+            {
+                try { created = instanceMutex.WaitOne(0); }
+                catch (AbandonedMutexException) { created = true; }
+                if (!created) await Task.Delay(100);
+            }
+        }
         if (!created) { openSettings.Set(); instanceMutex.Dispose(); instanceMutex = null; Shutdown(); return; }
 
         var dataIndex = Array.IndexOf(e.Args, "--data-dir");
@@ -52,6 +73,9 @@ public partial class App : Application
             controller = new AppController(dataDirectory);
             openSettingsRegistration = ThreadPool.RegisterWaitForSingleObject(openSettings,
                 (_, _) => Dispatcher.BeginInvoke(new Action(() => controller?.ShowSettings())), null, Timeout.Infinite, false);
+            exitSignal = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\Luma.Flyouts.Exit");
+            exitRegistration = ThreadPool.RegisterWaitForSingleObject(exitSignal,
+                (_, _) => Dispatcher.BeginInvoke(new Action(() => Shutdown())), null, Timeout.Infinite, false);
             if (!e.Args.Contains("--background")) controller.ShowSettings();
         }
         catch (Exception ex)
@@ -64,10 +88,36 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        exitRegistration?.Unregister(null); exitSignal?.Dispose();
         openSettingsRegistration?.Unregister(null);
         controller?.Dispose();
         openSettings?.Dispose();
         if (instanceMutex is not null) { instanceMutex.ReleaseMutex(); instanceMutex.Dispose(); }
         base.OnExit(e);
     }
+    internal static void LaunchInstalled(string executable)
+    {
+        using var launched = Process.Start(new ProcessStartInfo(executable, "--wait-for-instance") { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable), WindowStyle = ProcessWindowStyle.Hidden });
+        try { using var signal = EventWaitHandle.OpenExisting("Local\\Luma.Flyouts.Exit"); signal.Set(); }
+        catch (WaitHandleCannotBeOpenedException)
+        {
+            // Versions before 0.6 have no exit signal. Close only an older Luma
+            // belonging to this session; settings were already saved on change.
+            using var current = Process.GetCurrentProcess();
+            foreach (var process in Process.GetProcessesByName("Luma"))
+            {
+                using (process)
+                {
+                    try
+                    {
+                        if (process.Id == current.Id || process.SessionId != current.SessionId) continue;
+                        var info = process.MainModule?.FileVersionInfo;
+                        if (info?.ProductName == "Luma" && info.FileMajorPart == 0 && info.FileMinorPart < 6) process.Kill();
+                    }
+                    catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { }
+                }
+            }
+        }
+    }
+    internal static bool IsSetupExecutable(string path) => System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileNameWithoutExtension(path), @"^Luma-\d+\.\d+\.\d+-Setup(?: \(\d+\))?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 }

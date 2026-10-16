@@ -4,10 +4,10 @@ using System.Diagnostics;
 
 namespace Luma.Services;
 
-public readonly record struct AudioState(bool Available, int Volume, bool Muted, string DeviceName);
+public readonly record struct AudioState(bool Available, int Volume, bool Muted, string DeviceName, string DeviceId = "");
 
 // Calls belong to the audio worker STA. Slow device discovery must never block the UI.
-public sealed class AudioService : IAudioDevice
+public sealed partial class AudioService : IAudioDevice, IAudioRoutingDevice
 {
     private IMMDeviceEnumerator? enumerator;
     private IMMDevice? device;
@@ -23,7 +23,7 @@ public sealed class AudioService : IAudioDevice
             EnsureEndpoint();
             Marshal.ThrowExceptionForHR(endpoint!.GetMasterVolumeLevelScalar(out var level));
             Marshal.ThrowExceptionForHR(endpoint.GetMute(out var muted));
-            return new(true, (int)Math.Round(level * 100), muted, deviceName);
+            return new(true, (int)Math.Round(level * 100), muted, deviceName, deviceId ?? "");
         }
         catch (COMException)
         {
@@ -113,7 +113,7 @@ public sealed class AudioService : IAudioDevice
     [ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     private interface IMMDeviceEnumerator
     {
-        [PreserveSig] int EnumAudioEndpoints(int flow, uint mask, out IntPtr devices);
+        [PreserveSig] int EnumAudioEndpoints(int flow, uint mask, out IMMDeviceCollection devices);
         [PreserveSig] int GetDefaultAudioEndpoint(int flow, int role, out IMMDevice device);
         [PreserveSig] int GetDevice([MarshalAs(UnmanagedType.LPWStr)] string id, out IMMDevice device);
         [PreserveSig] int RegisterEndpointNotificationCallback(IntPtr callback);

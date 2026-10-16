@@ -21,6 +21,11 @@ public sealed class AppSettings
     public int VolumeStep { get; set; } = 2;
     public double FlyoutScale { get; set; } = 1;
     public string TargetDisplay { get; set; } = "Cursor";
+    public string Theme { get; set; } = "Dark";
+    public string CustomAccent { get; set; } = "#81B7DB";
+    public double SurfaceOpacity { get; set; } = 0.94;
+    public bool HideInFullscreen { get; set; }
+    public bool ExternalBrightness { get; set; }
 
     public void Normalize()
     {
@@ -29,7 +34,12 @@ public sealed class AppSettings
         if (!double.IsFinite(DurationSeconds)) DurationSeconds = 2.5;
         DurationSeconds = Math.Clamp(DurationSeconds, 1, 8);
         VolumeStep = Math.Clamp(VolumeStep, 1, 10);
-        if (!Palette.IsKnown(Accent)) Accent = "Ice";
+        if (!Palette.IsKnown(Accent) && Accent != "Custom") Accent = "Ice";
+        if (Theme is not ("Dark" or "Light" or "System")) Theme = "Dark";
+        if (!Palette.ValidCustomColor(CustomAccent)) CustomAccent = "#81B7DB";
+        CustomAccent = CustomAccent.ToUpperInvariant();
+        if (!double.IsFinite(SurfaceOpacity)) SurfaceOpacity = 0.94;
+        SurfaceOpacity = Math.Clamp(SurfaceOpacity, 0.65, 1);
         if (!double.IsFinite(FlyoutScale)) FlyoutScale = 1;
         FlyoutScale = Math.Clamp(FlyoutScale, 0.75, 1.4);
         if (string.IsNullOrWhiteSpace(TargetDisplay) || TargetDisplay.Length > 1024) TargetDisplay = "Cursor";
