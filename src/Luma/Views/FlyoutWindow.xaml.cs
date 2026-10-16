@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Luma.Models;
 using Luma.Services;
@@ -26,6 +28,9 @@ public partial class FlyoutWindow : Window
     private bool dismissing;
     private int revealRevision;
     private int layoutRevision;
+    private double layoutScale;
+    private ImageSource? paintedArtwork;
+    private long inputTimestamp;
     private AudioState audioState;
     private MediaState media = MediaState.Empty;
     private bool Motion => settings.Animations && SystemParameters.ClientAreaAnimation;
@@ -34,11 +39,16 @@ public partial class FlyoutWindow : Window
     public event Action? SettingsRequested;
     public event Action<MediaCommand>? MediaRequested;
     public event Action<TimeSpan>? SeekRequested;
+    internal event Action<double>? ResponseMeasured;
 
     public FlyoutWindow(AppSettings settings)
     {
         this.settings = settings;
         InitializeComponent();
+        MonitorCatalog.Changed += OnDisplaysChanged;
+        layoutScale = settings.FlyoutScale;
+        FlyoutTransform.ScaleX = FlyoutTransform.ScaleY = layoutScale;
+        Width = 396 * layoutScale; Height = 80 * layoutScale;
         SourceInitialized += (_, _) =>
         {
             var handle = new WindowInteropHelper(this).Handle;
@@ -64,6 +74,35 @@ public partial class FlyoutWindow : Window
             e.Handled = true;
             RestartTimer();
         };
+    }
+
+    public void Prepare()
+    {
+        // Build the native window, templates, glyphs and effects before the first key press.
+        new WindowInteropHelper(this).EnsureHandle();
+        var content = (FrameworkElement)Content;
+        var previous = MediaCard.Visibility;
+        MediaCard.Visibility = Visibility.Visible;
+        var size = new Size(396 * settings.FlyoutScale, 310 * settings.FlyoutScale);
+        content.Measure(size); content.Arrange(new System.Windows.Rect(size)); content.UpdateLayout();
+        var cache = new RenderTargetBitmap((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height), 96, 96, PixelFormats.Pbgra32);
+        cache.Render(content);
+        MediaCard.Visibility = previous;
+        content.Measure(new Size(Width, Height)); content.Arrange(new System.Windows.Rect(0, 0, Width, Height)); content.UpdateLayout();
+    }
+
+    internal void TrackInput(long timestamp)
+    {
+        if (ResponseMeasured is null) return;
+        inputTimestamp = timestamp;
+        CompositionTarget.Rendering -= MeasureResponse;
+        CompositionTarget.Rendering += MeasureResponse;
+    }
+    private void MeasureResponse(object? sender, EventArgs e)
+    {
+        CompositionTarget.Rendering -= MeasureResponse;
+        if (IsVisible && inputTimestamp > 0) ResponseMeasured?.Invoke(Stopwatch.GetElapsedTime(inputTimestamp).TotalMilliseconds);
+        inputTimestamp = 0;
     }
 
     public void ShowVolume(AudioState state, bool isPreview = false)
@@ -130,9 +169,13 @@ public partial class FlyoutWindow : Window
         AppNameText.Text = media.AppName;
         TrackTitleText.Text = media.Title; TrackTitleText.ToolTip = media.Title;
         ArtistText.Text = media.Artist;
-        ArtworkCover.Background = media.Artwork is null ? null : new ImageBrush(media.Artwork) { Stretch = Stretch.UniformToFill };
+        if (!ReferenceEquals(paintedArtwork, media.Artwork))
+        {
+            paintedArtwork = media.Artwork;
+            ArtworkCover.Background = media.Artwork is null ? null : new ImageBrush(media.Artwork) { Stretch = Stretch.UniformToFill };
+            ArtworkBackdrop.Source = media.Artwork;
+        }
         ArtworkPlaceholder.Visibility = media.Artwork is null ? Visibility.Visible : Visibility.Collapsed;
-        ArtworkBackdrop.Source = media.Artwork;
         ArtworkBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
         PlayIcon.Text = media.IsPlaying ? "\uE769" : "\uE768";
         PreviousButton.IsEnabled = media.CanPrevious;
@@ -161,10 +204,13 @@ public partial class FlyoutWindow : Window
     {
         var expanded = volumeMode && settings.ShowMedia && media.Available;
         if (expanded && IsVisible) timelineTimer.Start(); else timelineTimer.Stop();
-        if (expanded == mediaExpanded) return;
+        if (expanded == mediaExpanded && Math.Abs(layoutScale - settings.FlyoutScale) < 0.001) return;
         mediaExpanded = expanded;
+        layoutScale = settings.FlyoutScale;
+        FlyoutTransform.ScaleX = FlyoutTransform.ScaleY = layoutScale;
+        Width = 396 * layoutScale;
         var revision = ++layoutRevision;
-        var target = expanded ? 286d : 80d;
+        var target = (expanded ? 310d : 80d) * layoutScale;
         var from = ActualHeight > 0 ? ActualHeight : Height;
         BeginAnimation(HeightProperty, null);
         Height = target;
@@ -201,7 +247,7 @@ public partial class FlyoutWindow : Window
         if (entering && Motion)
         {
             AnimateCard(volumeMode ? VolumeCard : LockCard, 0);
-            if (mediaExpanded) AnimateCard(MediaCard, 45);
+            if (mediaExpanded) AnimateCard(MediaCard, 25);
         }
         if (mediaExpanded) timelineTimer.Start(); else timelineTimer.Stop();
         RestartTimer();
@@ -216,8 +262,8 @@ public partial class FlyoutWindow : Window
         var duration = TimeSpan.FromMilliseconds(260);
         var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
         var begin = TimeSpan.FromMilliseconds(delay);
-        card.Opacity = 0;
-        card.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(190)) { BeginTime = begin });
+        card.Opacity = 0.18;
+        card.BeginAnimation(OpacityProperty, new DoubleAnimation(0.18, 1, TimeSpan.FromMilliseconds(160)) { BeginTime = begin });
         scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1, duration) { BeginTime = begin, EasingFunction = easing });
         scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1, duration) { BeginTime = begin, EasingFunction = easing });
         translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, duration) { BeginTime = begin, EasingFunction = easing });
@@ -266,23 +312,31 @@ public partial class FlyoutWindow : Window
         PlaceCore();
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(PlaceCore));
     }
+    private void OnDisplaysChanged()
+    {
+        if (!Dispatcher.HasShutdownStarted) Dispatcher.BeginInvoke(new Action(PlaceOnActiveMonitor));
+    }
     private void PlaceCore()
     {
         if (!IsVisible) return;
         GetCursorPos(out var cursor);
-        var monitor = MonitorFromPoint(cursor, 2);
+        var monitor = MonitorCatalog.Resolve(settings.TargetDisplay, cursor.X, cursor.Y);
         var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
         if (!GetMonitorInfo(monitor, ref info)) return;
         var handle = new WindowInteropHelper(this).Handle;
         var dpi = GetDpiForWindow(handle); var scale = (dpi == 0 ? 96 : dpi) / 96.0;
         if (!GetWindowRect(handle, out var rectangle)) return;
         var width = rectangle.Right - rectangle.Left; var height = rectangle.Bottom - rectangle.Top;
-        var gap = (int)Math.Round(16 * scale);
-        var right = settings.Position.EndsWith("Right", StringComparison.Ordinal);
-        var top = settings.Position.StartsWith("Top", StringComparison.Ordinal);
-        var x = right ? info.Work.Right - width - gap : info.Work.Left + (info.Work.Right - info.Work.Left - width) / 2;
-        var y = top ? info.Work.Top + gap : info.Work.Bottom - height - gap;
-        SetWindowPos(handle, (IntPtr)(-1), x, y, 0, 0, 0x0001 | 0x0010 | 0x0200);
+        var gap = (int)Math.Round(12 * scale);
+        var location = CalculateLocation(new System.Windows.Rect(info.Work.Left, info.Work.Top, info.Work.Right - info.Work.Left, info.Work.Bottom - info.Work.Top), new Size(width, height), gap, settings.Position);
+        SetWindowPos(handle, (IntPtr)(-1), (int)location.X, (int)location.Y, 0, 0, 0x0001 | 0x0010 | 0x0200);
+    }
+
+    internal static System.Windows.Point CalculateLocation(System.Windows.Rect work, Size size, double gap, string position)
+    {
+        var x = position.EndsWith("Left", StringComparison.Ordinal) ? work.Left + gap : position.EndsWith("Right", StringComparison.Ordinal) ? work.Right - size.Width - gap : work.Left + (work.Width - size.Width) / 2;
+        var y = position.StartsWith("Top", StringComparison.Ordinal) ? work.Top + gap : work.Bottom - size.Height - gap;
+        return new System.Windows.Point(Math.Clamp(x, work.Left, Math.Max(work.Left, work.Right - size.Width)), Math.Clamp(y, work.Top, Math.Max(work.Top, work.Bottom - size.Height)));
     }
 
     private void Volume_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -342,14 +396,13 @@ public partial class FlyoutWindow : Window
     }
     private void Dismiss_Click(object sender, RoutedEventArgs e) { SetPinned(false); Dismiss(); }
     private void Settings_Click(object sender, RoutedEventArgs e) { Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
-    protected override void OnClosed(EventArgs e) { hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
+    protected override void OnClosed(EventArgs e) { MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
     private static string FormatTime(TimeSpan time) => time.TotalHours >= 1 ? time.ToString(@"h\:mm\:ss") : time.ToString(@"m\:ss");
 
     [StructLayout(LayoutKind.Sequential)] private struct Point { public int X; public int Y; }
     [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left; public int Top; public int Right; public int Bottom; }
     [StructLayout(LayoutKind.Sequential)] private struct MonitorInfo { public int Size; public Rect Monitor; public Rect Work; public uint Flags; }
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out Point point);
-    [DllImport("user32.dll")] private static extern IntPtr MonitorFromPoint(Point point, uint flags);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
     [DllImport("user32.dll")] private static extern uint GetDpiForWindow(IntPtr handle);
     [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr handle, out Rect rectangle);

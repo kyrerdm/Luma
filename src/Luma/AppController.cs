@@ -1,9 +1,11 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 using Luma.Models;
 using Luma.Services;
 using Luma.Views;
@@ -16,37 +18,44 @@ public sealed class AppController : IDisposable
 {
     private readonly SettingsStore store;
     private readonly AppSettings settings;
-    private readonly AudioService audio = new();
+    private readonly BackgroundAudioService audio;
     private readonly MediaService media;
     private readonly KeyboardService? keyboard;
     private readonly FlyoutWindow flyout;
     private readonly SettingsWindow window;
-    private readonly DispatcherTimer poll = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private readonly Forms.NotifyIcon tray;
     private readonly Icon trayIcon;
     private readonly string? hookError;
-    private AudioState lastState;
+    private AudioState lastState = new(false, 0, false, "Ses aygıtı bekleniyor");
+    private long pendingAudioSequence;
     private bool disposed;
+    internal Task<AudioState> AudioReady => audio.Ready;
+    internal FlyoutWindow DiagnosticFlyout => flyout;
+    internal Task FlushAudioAsync() => audio.FlushAsync();
 
-    public AppController(string dataDirectory)
+    public AppController(string dataDirectory) : this(dataDirectory, null) { }
+
+    internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory)
     {
         store = new(dataDirectory);
         settings = store.Load();
         Palette.Apply(settings.Accent);
-        lastState = audio.Read();
         flyout = new(settings);
         window = new(settings, SaveSettings, Preview);
+        flyout.Prepare();
+        audio = new(Application.Current.Dispatcher, audioFactory);
+        audio.Changed += OnAudioChanged;
         media = new(Application.Current.Dispatcher);
         media.Changed += flyout.UpdateMedia;
         flyout.MediaRequested += async command => flyout.ReportMediaResult(await media.ExecuteAsync(command));
         flyout.SeekRequested += async position => flyout.ReportMediaResult(await media.SeekAsync(position));
         flyout.SettingsRequested += ShowSettings;
-        flyout.VolumeRequested += value => { audio.SetVolume(value); UpdateAfterCommand(); };
-        flyout.MuteRequested += () => { audio.ToggleMute(); UpdateAfterCommand(); };
+        flyout.VolumeRequested += SetVolume;
+        flyout.MuteRequested += () => OnVolumePressed(VolumeCommand.Mute, Stopwatch.GetTimestamp());
         try
         {
             keyboard = new(Application.Current.Dispatcher);
-            keyboard.VolumePressed += OnVolumePressed;
+            keyboard.VolumeInput += input => OnVolumePressed(input.Command, input.Timestamp);
             keyboard.LockPressed += (name, enabled) => flyout.ShowLock(name, enabled);
         }
         catch (Win32Exception ex) { hookError = ex.Message; }
@@ -60,8 +69,6 @@ public sealed class AppController : IDisposable
         menu.Items.Add("Çıkış", null, (_, _) => Application.Current.Shutdown());
         tray = new Forms.NotifyIcon { Text = "Luma · ses ve klavye göstergeleri", Icon = trayIcon, ContextMenuStrip = menu, Visible = true };
         tray.DoubleClick += (_, _) => ShowSettings();
-        poll.Tick += (_, _) => PollAudio();
-        poll.Start();
         _ = media.StartAsync();
     }
 
@@ -83,24 +90,31 @@ public sealed class AppController : IDisposable
         }
         window.SetStatus(hookError is not null ? "Tuş erişimi yok" : !lastState.Available ? "Ses aygıtı bekleniyor" : "Arka planda hazır", hookError is null && lastState.Available);
     }
-    private void OnVolumePressed(VolumeCommand command)
+    private void OnVolumePressed(VolumeCommand command, long timestamp)
     {
-        var state = audio.Read();
-        if (!state.Available) { UpdateAfterCommand(); return; }
-        if (command == VolumeCommand.Mute) audio.ToggleMute();
-        else audio.SetVolume(state.Volume + (command == VolumeCommand.Up ? settings.VolumeStep : -settings.VolumeStep));
-        UpdateAfterCommand();
+        if (!lastState.Available) return;
+        lastState = command == VolumeCommand.Mute ? lastState with { Muted = !lastState.Muted }
+            : lastState with { Volume = Math.Clamp(lastState.Volume + (command == VolumeCommand.Up ? settings.VolumeStep : -settings.VolumeStep), 0, 100), Muted = false };
+        pendingAudioSequence = audio.Adjust(command, settings.VolumeStep);
+        flyout.TrackInput(timestamp);
+        ShowCurrentVolume();
     }
-    private void UpdateAfterCommand()
+    private void SetVolume(int value)
     {
-        lastState = audio.Read();
-        ApplyPreferences();
+        if (!lastState.Available) return;
+        lastState = lastState with { Volume = Math.Clamp(value, 0, 100), Muted = false };
+        pendingAudioSequence = audio.SetVolume(value);
+        ShowCurrentVolume();
+    }
+    private void ShowCurrentVolume()
+    {
         flyout.ShowVolume(lastState);
         flyout.UpdateMedia(media.State);
     }
-    private void PollAudio()
+    private void OnAudioChanged(AudioUpdate update)
     {
-        var current = audio.Read();
+        if (disposed || update.Sequence < pendingAudioSequence) return;
+        var current = update.State;
         var changed = current.Available && lastState.Available && (current.Volume != lastState.Volume || current.Muted != lastState.Muted);
         lastState = current;
         ApplyPreferences();
@@ -126,7 +140,6 @@ public sealed class AppController : IDisposable
     {
         if (disposed) return;
         disposed = true;
-        poll.Stop();
         keyboard?.Dispose();
         media.Dispose();
         tray.Visible = false;

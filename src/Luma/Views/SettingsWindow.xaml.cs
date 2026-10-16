@@ -35,8 +35,11 @@ public partial class SettingsWindow : Window
         StartupToggle.IsChecked = StartupService.IsEnabled();
         DurationSlider.Value = settings.DurationSeconds;
         StepSlider.Value = settings.VolumeStep;
+        ScaleSlider.Value = settings.FlyoutScale;
         foreach (ComboBoxItem item in PositionCombo.Items) if ((string)item.Tag == settings.Position) PositionCombo.SelectedItem = item;
         foreach (ComboBoxItem item in AccentCombo.Items) if ((string)item.Tag == settings.Accent) AccentCombo.SelectedItem = item;
+        ReloadMonitors();
+        MonitorCatalog.Changed += OnDisplaysChanged;
         var sample = PreviewData.Artwork();
         PreviewBackdrop.Source = sample;
         PreviewCover.Background = new ImageBrush(sample) { Stretch = Stretch.UniformToFill };
@@ -86,6 +89,33 @@ public partial class SettingsWindow : Window
         MediaPreviewCard.Visibility = settings.ShowMedia ? Visibility.Visible : Visibility.Collapsed;
         PreviewBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
     }
+    private void ReloadMonitors()
+    {
+        var previous = ready; ready = false;
+        MonitorCombo.Items.Clear();
+        MonitorCombo.Items.Add(new ComboBoxItem { Content = "İmlecin olduğu ekran", Tag = "Cursor" });
+        MonitorCombo.Items.Add(new ComboBoxItem { Content = "Ana ekran", Tag = "Primary" });
+        foreach (var display in MonitorCatalog.Current) MonitorCombo.Items.Add(new ComboBoxItem { Content = display.Label, Tag = display.Id, ToolTip = display.Description });
+        ComboBoxItem? selected = null;
+        foreach (ComboBoxItem item in MonitorCombo.Items) if ((string)item.Tag == settings.TargetDisplay) selected = item;
+        if (selected is null)
+        {
+            selected = new ComboBoxItem { Content = "Ekran bağlı değil", Tag = settings.TargetDisplay, ToolTip = "Seçtiğin ekran yeniden bağlanana kadar ana ekran kullanılır." };
+            MonitorCombo.Items.Add(selected);
+        }
+        MonitorCombo.SelectedItem = selected;
+        ready = previous;
+    }
+    private void OnDisplaysChanged()
+    {
+        if (!Dispatcher.HasShutdownStarted) Dispatcher.BeginInvoke(new Action(ReloadMonitors));
+    }
+    private void Monitor_Opened(object? sender, EventArgs e) => MonitorCatalog.Refresh();
+    private void Monitor_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (!ready || MonitorCombo.SelectedItem is not ComboBoxItem item) return;
+        settings.TargetDisplay = (string)item.Tag; Save();
+    }
     private void Duration_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (!ready) return;
@@ -96,7 +126,12 @@ public partial class SettingsWindow : Window
         if (!ready) return;
         settings.VolumeStep = (int)Math.Round(e.NewValue); UpdateLabels(); Save();
     }
-    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} sn"; StepText.Text = $"%{settings.VolumeStep}"; }
+    private void Scale_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!ready) return;
+        settings.FlyoutScale = e.NewValue; UpdateLabels(); Save();
+    }
+    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} sn"; StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; }
     private void Save()
     {
         try { save(); FeedbackText.Text = "Kaydedildi. Tercihlerin bir sonraki açılışta da burada."; }
@@ -117,5 +152,6 @@ public partial class SettingsWindow : Window
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Close_Click(object sender, RoutedEventArgs e) => Hide();
     protected override void OnClosing(CancelEventArgs e) { if (!AllowClose) { e.Cancel = true; Hide(); } base.OnClosing(e); }
+    protected override void OnClosed(EventArgs e) { MonitorCatalog.Changed -= OnDisplaysChanged; base.OnClosed(e); }
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr handle, int attribute, ref int value, int size);
 }

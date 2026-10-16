@@ -1,4 +1,4 @@
-Luma 0.2 — Windows 11
+Luma 0.3 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -21,8 +21,15 @@ Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
 
 TERCİHLER
 Ayarlar ekranından konumu, süreyi, ses adımını, rengi ve animasyonları değiştirin.
-Değişiklikler otomatik kaydedilir. Gösterge fare imlecinin bulunduğu
-monitörde açılır; üzerine geldiğinizde kaybolmadan bekler.
+Sol üst, sağ üst, sol alt ve sağ alt köşeler ile üst/alt orta seçilebilir.
+Gösterge boyutu %75–%140 arasında ayarlanır ve yeniden açılışta korunur.
+Kapak büyütüldü; zaman çizelgesi daha aşağı alındı. Kapak görselinin
+bulanık arka plan yansıması tercihlerden kapatılabilir.
+Gösterilecek ekran alanından imlecin olduğu ekranı, ana ekranı veya
+belirli bir monitörü seçebilirsiniz. Seçilen monitör çıkarılırsa ana ekran
+kullanılır; tekrar bağlandığında seçtiğiniz ekrana dönülür.
+Değişiklikler otomatik kaydedilir. Göstergenin üzerine geldiğinizde
+kaybolmadan bekler.
 
 Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
 Tepsi simgesine çift tıklayın: Ayarları aç.

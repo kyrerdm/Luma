@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -16,27 +17,30 @@ public enum MediaCommand { TogglePlayback, Previous, Next }
 public sealed class MediaService : IDisposable
 {
     private readonly Dispatcher dispatcher;
-    private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromSeconds(1) };
+    private readonly StaWorker worker = new("Luma media");
+    private DispatcherTimer? timer;
     private GlobalSystemMediaTransportControlsSessionManager? manager;
     private GlobalSystemMediaTransportControlsSession? session;
-    private bool disposed;
+    private volatile bool disposed;
     private bool refreshing;
     private bool pending;
     private bool propertiesDirty = true;
     private string title = "";
     private string artist = "";
     private ImageSource? artwork;
-    public MediaState State { get; private set; } = MediaState.Empty;
+    private MediaState state = MediaState.Empty;
+    public MediaState State => Volatile.Read(ref state);
     public string? Error { get; private set; }
     public event Action<MediaState>? Changed;
 
     public MediaService(Dispatcher dispatcher)
     {
         this.dispatcher = dispatcher;
-        timer.Tick += (_, _) => QueueRefresh(false);
     }
 
-    public async Task StartAsync()
+    public Task StartAsync() => worker.RunAsync(StartCoreAsync);
+
+    private async Task StartCoreAsync()
     {
         try
         {
@@ -45,7 +49,12 @@ public sealed class MediaService : IDisposable
             manager.CurrentSessionChanged += OnCurrentSessionChanged;
             manager.SessionsChanged += OnSessionsChanged;
             await RefreshAsync();
-            if (!disposed) timer.Start();
+            if (!disposed)
+            {
+                timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                timer.Tick += (_, _) => QueueRefresh(false);
+                timer.Start();
+            }
         }
         catch (Exception ex) when (IsMediaError(ex)) { Error = ex.Message; Publish(MediaState.Empty); }
     }
@@ -59,12 +68,12 @@ public sealed class MediaService : IDisposable
     private void QueueRefresh(bool reloadProperties)
     {
         if (disposed || dispatcher.HasShutdownStarted) return;
-        dispatcher.BeginInvoke(new Action(async () =>
+        worker.Post(async () =>
         {
             if (disposed) return;
             propertiesDirty |= reloadProperties;
             await RefreshAsync();
-        }));
+        });
     }
 
     private async Task RefreshAsync()
@@ -155,6 +164,13 @@ public sealed class MediaService : IDisposable
 
     public async Task<bool> ExecuteAsync(MediaCommand command)
     {
+        if (disposed) return false;
+        try { return await worker.RunAsync(() => ExecuteCoreAsync(command)); }
+        catch (OperationCanceledException) { return false; }
+    }
+
+    private async Task<bool> ExecuteCoreAsync(MediaCommand command)
+    {
         var target = session;
         if (target is null || disposed) return false;
         try
@@ -176,6 +192,13 @@ public sealed class MediaService : IDisposable
 
     public async Task<bool> SeekAsync(TimeSpan position)
     {
+        if (disposed) return false;
+        try { return await worker.RunAsync(() => SeekCoreAsync(position)); }
+        catch (OperationCanceledException) { return false; }
+    }
+
+    private async Task<bool> SeekCoreAsync(TimeSpan position)
+    {
         var target = session;
         if (target is null || disposed || !State.CanSeek) return false;
         try
@@ -188,7 +211,12 @@ public sealed class MediaService : IDisposable
         catch (Exception ex) when (IsMediaError(ex)) { QueueRefresh(true); return false; }
     }
 
-    private void Publish(MediaState state) { if (disposed) return; State = state; Changed?.Invoke(state); }
+    private void Publish(MediaState next)
+    {
+        if (disposed) return;
+        Volatile.Write(ref state, next);
+        dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => { if (!disposed) Changed?.Invoke(next); }));
+    }
     private static bool IsMediaError(Exception ex) => ex is COMException or UnauthorizedAccessException or InvalidOperationException or ArgumentException;
     private static string AppDisplayName(string id)
     {
@@ -212,12 +240,17 @@ public sealed class MediaService : IDisposable
     public void Dispose()
     {
         if (disposed) return;
-        disposed = true; timer.Stop(); DetachSession();
-        if (manager is not null)
+        disposed = true;
+        worker.Post(() =>
         {
-            manager.CurrentSessionChanged -= OnCurrentSessionChanged;
-            manager.SessionsChanged -= OnSessionsChanged;
-            manager = null;
-        }
+            timer?.Stop(); DetachSession();
+            if (manager is not null)
+            {
+                manager.CurrentSessionChanged -= OnCurrentSessionChanged;
+                manager.SessionsChanged -= OnSessionsChanged;
+                manager = null;
+            }
+        });
+        worker.Dispose();
     }
 }

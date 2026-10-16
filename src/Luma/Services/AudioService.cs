@@ -1,41 +1,26 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Luma.Services;
 
 public readonly record struct AudioState(bool Available, int Volume, bool Muted, string DeviceName);
 
-// All calls run on the WPF STA thread. Device loss is recoverable; never keep a dead endpoint.
-public sealed class AudioService : IDisposable
+// Calls belong to the audio worker STA. Slow device discovery must never block the UI.
+public sealed class AudioService : IAudioDevice
 {
     private IMMDeviceEnumerator? enumerator;
     private IMMDevice? device;
     private IAudioEndpointVolume? endpoint;
     private string? deviceId;
     private string deviceName = "Varsayılan ses aygıtı";
+    private long nextEndpointCheck;
 
     public AudioState Read()
     {
         try
         {
-            enumerator ??= (IMMDeviceEnumerator)new MMDeviceEnumerator();
-            Marshal.ThrowExceptionForHR(enumerator.GetDefaultAudioEndpoint(0, 1, out var current));
-            try
-            {
-                Marshal.ThrowExceptionForHR(current.GetId(out var currentId));
-                if (endpoint is null || currentId != deviceId)
-                {
-                    ReleaseEndpoint();
-                    device = current;
-                    current = null!;
-                    deviceId = currentId;
-                    var iid = typeof(IAudioEndpointVolume).GUID;
-                    Marshal.ThrowExceptionForHR(device.Activate(ref iid, 23, IntPtr.Zero, out var activated));
-                    endpoint = (IAudioEndpointVolume)activated;
-                    deviceName = ReadDeviceName(device);
-                }
-            }
-            finally { Release(current); }
+            EnsureEndpoint();
             Marshal.ThrowExceptionForHR(endpoint!.GetMasterVolumeLevelScalar(out var level));
             Marshal.ThrowExceptionForHR(endpoint.GetMute(out var muted));
             return new(true, (int)Math.Round(level * 100), muted, deviceName);
@@ -47,11 +32,36 @@ public sealed class AudioService : IDisposable
         }
     }
 
-    public bool SetVolume(int volume)
+    private void EnsureEndpoint()
     {
-        if (!Read().Available) return false;
+        // Reuse the endpoint for reads and writes. Periodic discovery still handles device switches.
+        if (endpoint is not null && Stopwatch.GetTimestamp() < nextEndpointCheck) return;
+        enumerator ??= (IMMDeviceEnumerator)new MMDeviceEnumerator();
+        Marshal.ThrowExceptionForHR(enumerator.GetDefaultAudioEndpoint(0, 1, out var current));
         try
         {
+            Marshal.ThrowExceptionForHR(current.GetId(out var currentId));
+            if (endpoint is null || currentId != deviceId)
+            {
+                ReleaseEndpoint();
+                device = current;
+                current = null!;
+                deviceId = currentId;
+                var iid = typeof(IAudioEndpointVolume).GUID;
+                Marshal.ThrowExceptionForHR(device.Activate(ref iid, 23, IntPtr.Zero, out var activated));
+                endpoint = (IAudioEndpointVolume)activated;
+                deviceName = ReadDeviceName(device);
+            }
+        }
+        finally { Release(current); }
+        nextEndpointCheck = Stopwatch.GetTimestamp() + Stopwatch.Frequency;
+    }
+
+    public bool SetVolume(int volume)
+    {
+        try
+        {
+            EnsureEndpoint();
             var context = Guid.Empty;
             Marshal.ThrowExceptionForHR(endpoint!.SetMasterVolumeLevelScalar(Math.Clamp(volume, 0, 100) / 100f, ref context));
             Marshal.ThrowExceptionForHR(endpoint.SetMute(false, ref context));
@@ -62,12 +72,12 @@ public sealed class AudioService : IDisposable
 
     public bool ToggleMute()
     {
-        var state = Read();
-        if (!state.Available) return false;
         try
         {
+            EnsureEndpoint();
+            Marshal.ThrowExceptionForHR(endpoint!.GetMute(out var muted));
             var context = Guid.Empty;
-            Marshal.ThrowExceptionForHR(endpoint!.SetMute(!state.Muted, ref context));
+            Marshal.ThrowExceptionForHR(endpoint.SetMute(!muted, ref context));
             return true;
         }
         catch (COMException) { ReleaseEndpoint(); return false; }

@@ -16,15 +16,20 @@ public sealed class AppSettings
     public string Position { get; set; } = "BottomCenter";
     public double DurationSeconds { get; set; } = 2.5;
     public int VolumeStep { get; set; } = 2;
+    public double FlyoutScale { get; set; } = 1;
+    public string TargetDisplay { get; set; } = "Cursor";
 
     public void Normalize()
     {
-        if (Position is not ("BottomCenter" or "TopCenter" or "TopRight" or "BottomRight"))
+        if (Position is not ("BottomCenter" or "TopCenter" or "TopRight" or "BottomRight" or "TopLeft" or "BottomLeft"))
             Position = "BottomCenter";
         if (!double.IsFinite(DurationSeconds)) DurationSeconds = 2.5;
         DurationSeconds = Math.Clamp(DurationSeconds, 1, 8);
         VolumeStep = Math.Clamp(VolumeStep, 1, 10);
         if (Accent is not ("Ice" or "Lilac" or "Mint")) Accent = "Ice";
+        if (!double.IsFinite(FlyoutScale)) FlyoutScale = 1;
+        FlyoutScale = Math.Clamp(FlyoutScale, 0.75, 1.4);
+        if (string.IsNullOrWhiteSpace(TargetDisplay) || TargetDisplay.Length > 1024) TargetDisplay = "Cursor";
     }
 }
 
