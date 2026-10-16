@@ -8,6 +8,9 @@ using System.Threading;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Luma.Models;
@@ -97,6 +100,11 @@ internal static class Diagnostics
         await Task.Delay(400);
         window.UpdateLayout(); flyout.UpdateLayout();
         Check("Settings window loads", window.ActualWidth >= 900 && window.ActualHeight >= 660);
+        var titleBar = (FrameworkElement)window.FindName("TitleBar");
+        Check("Empty title bar and app label are native drag regions", NativeHitTest(titleBar, new Point(28, 23)) == 2 && NativeHitTest(titleBar, new Point(470, 23)) == 2 && NativeHitTest(titleBar, new Point(810, 23)) == 2);
+        var minimizeButton = (FrameworkElement)window.FindName("MinimizeButton");
+        var closeButton = (FrameworkElement)window.FindName("CloseButton");
+        Check("Title bar buttons remain clickable", NativeHitTest(minimizeButton, new Point(18, 18)) == 1 && NativeHitTest(closeButton, new Point(18, 18)) == 1);
         Check("Overlay is topmost without focus", flyout.Topmost && !flyout.ShowActivated && !flyout.IsActive && !flyout.ShowInTaskbar);
         Check("Volume strip stays compact", Math.Abs(flyout.ActualHeight - 80) < 1 && ((FrameworkElement)flyout.FindName("VolumeCard")).ActualHeight == 56);
         Render(window, Path.Combine(directory, "luma-settings.png"));
@@ -147,6 +155,25 @@ internal static class Diagnostics
         await Task.Delay(100);
         Render(window, Path.Combine(directory, "luma-settings-more.png"));
 
+        var darkMenus = true;
+        foreach (var name in new[] { "PositionCombo", "MonitorCombo", "AccentCombo" })
+        {
+            var combo = (ComboBox)window.FindName(name);
+            combo.IsDropDownOpen = true;
+            await Task.Delay(180);
+            var popup = (Popup)combo.Template.FindName("PART_Popup", combo);
+            var surface = (Border)combo.Template.FindName("DropDownSurface", combo);
+            darkMenus &= popup.IsOpen && surface.Background is SolidColorBrush { Color.R: < 70, Color.G: < 70, Color.B: < 70 } && surface.ActualWidth >= combo.ActualWidth;
+            foreach (ComboBoxItem item in combo.Items)
+            {
+                darkMenus &= item.Foreground is SolidColorBrush { Color.R: > 220, Color.G: > 220, Color.B: > 220 } && item.FontFamily.Source == window.FontFamily.Source && item.FontSize == 12;
+                if (item.IsSelected) darkMenus &= ((FrameworkElement)item.Template.FindName("SelectionMark", item)).Visibility == Visibility.Visible;
+            }
+            RenderElement((FrameworkElement)popup.Child, Path.Combine(directory, $"luma-{name}-dropdown.png"));
+            combo.IsDropDownOpen = false;
+        }
+        Check("All preference dropdowns use dark surfaces and consistent text", darkMenus);
+
         var duration = (System.Windows.Controls.Slider)window.FindName("DurationSlider");
         duration.Value = 4;
         Check("Duration preference updates", previewSettings.DurationSeconds == 4 && saved > 0);
@@ -178,6 +205,37 @@ internal static class Diagnostics
         Render(flyout, Path.Combine(directory, "luma-lock.png"));
         Check("Lock notification renders expected label", ((System.Windows.Controls.TextBlock)flyout.FindName("StatusText")).Text == "Caps Lock");
         window.Close(); flyout.Close();
+        var pointer = System.Windows.Forms.Cursor.Position;
+        var pointerScreen = System.Windows.Forms.Screen.FromPoint(pointer).WorkingArea;
+        var lockSettings = new AppSettings
+        {
+            DurationSeconds = 1, TargetDisplay = "Cursor",
+            Position = (pointer.Y < pointerScreen.Top + pointerScreen.Height / 2 ? "Bottom" : "Top") + (pointer.X < pointerScreen.Left + pointerScreen.Width / 2 ? "Right" : "Left")
+        };
+        var pinnedFlyout = new FlyoutWindow(lockSettings);
+        pinnedFlyout.ShowPreview(PreviewData.Media());
+        await Task.Delay(300);
+        var pin = (Button)pinnedFlyout.FindName("PinButton");
+        pin.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        pinnedFlyout.ShowLock("Caps Lock", true);
+        Render(pinnedFlyout, Path.Combine(directory, "luma-pinned-lock.png"));
+        await Task.Delay(1500);
+        var lockCard = (FrameworkElement)pinnedFlyout.FindName("LockCard");
+        var restoredMedia = (FrameworkElement)pinnedFlyout.FindName("MediaCard");
+        Check("Pinned media returns after Caps Lock expires", pinnedFlyout.IsVisible && lockCard.Visibility == Visibility.Collapsed && restoredMedia.Visibility == Visibility.Visible);
+        Render(pinnedFlyout, Path.Combine(directory, "luma-pinned-restored.png"));
+        pinnedFlyout.ShowLock("Scroll Lock", true);
+        await Task.Delay(1500);
+        Check("Repeated lock notices do not replace pinned media permanently", pinnedFlyout.IsVisible && lockCard.Visibility == Visibility.Collapsed && restoredMedia.Visibility == Visibility.Visible && ((TextBlock)pinnedFlyout.FindName("TrackTitleText")).Text == sample.Title);
+        pinnedFlyout.ShowLock("Caps Lock", false);
+        pinnedFlyout.ShowPreview(PreviewData.Media());
+        await Task.Delay(1200);
+        Check("New volume display cancels pending lock dismissal", pinnedFlyout.IsVisible && lockCard.Visibility == Visibility.Collapsed);
+        pin.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        pinnedFlyout.ShowLock("Num Lock", true);
+        await Task.Delay(1500);
+        Check("Unpinned lock notice still dismisses normally", !pinnedFlyout.IsVisible);
+        pinnedFlyout.Close();
         Palette.Apply("Ice");
         var motion = new FlyoutWindow(new AppSettings { DurationSeconds = 8, Animations = true });
         var frameDirectory = Path.Combine(directory, "motion"); Directory.CreateDirectory(frameDirectory);
@@ -212,7 +270,13 @@ internal static class Diagnostics
             responsive.DiagnosticFlyout.ResponseMeasured += elapsed => frame.TrySetResult(elapsed);
             var inputs = new[] { MakeKey(0xAF, false), MakeKey(0xAF, true) };
             var sent = SendInput(2, inputs, Marshal.SizeOf<NativeInput>());
-            var elapsed = await frame.Task.WaitAsync(TimeSpan.FromSeconds(3));
+            double elapsed;
+            try { elapsed = await frame.Task.WaitAsync(TimeSpan.FromSeconds(3)); }
+            catch (TimeoutException)
+            {
+                File.AppendAllText(Path.Combine(directory, "progress.log"), $"Response timeout: sent={sent}; overlay visible={responsive.DiagnosticFlyout.IsVisible}; size={responsive.DiagnosticFlyout.ActualWidth}x{responsive.DiagnosticFlyout.ActualHeight}{Environment.NewLine}");
+                throw;
+            }
             Check("First volume frame does not wait for a slow driver", sent == 2 && elapsed < 250, $"Input-to-render preparation: {elapsed:0.0} ms; simulated device query: 1200 ms");
             slowDevice.DelayReads = false;
             await responsive.FlushAudioAsync().WaitAsync(TimeSpan.FromSeconds(4));
@@ -240,8 +304,10 @@ internal static class Diagnostics
     }
 
     private static void Render(Window window, string path, int? fixedWidth = null, int? fixedHeight = null)
+        => RenderElement((FrameworkElement)window.Content, path, fixedWidth, fixedHeight);
+
+    private static void RenderElement(FrameworkElement content, string path, int? fixedWidth = null, int? fixedHeight = null)
     {
-        var content = (FrameworkElement)window.Content;
         content.UpdateLayout();
         var width = fixedWidth ?? (int)Math.Ceiling(content.ActualWidth);
         var height = fixedHeight ?? (int)Math.Ceiling(content.ActualHeight);
@@ -257,6 +323,13 @@ internal static class Diagnostics
     }
 
     private static NativeInput MakeKey(ushort key, bool up) => new() { Type = 1, Data = new InputUnion { Keyboard = new KeyboardInput { VirtualKey = key, Flags = up ? 2u : 0u } } };
+    private static int NativeHitTest(FrameworkElement element, Point local)
+    {
+        var point = element.PointToScreen(local);
+        var packed = (((int)point.Y & 0xFFFF) << 16) | ((int)point.X & 0xFFFF);
+        return SendMessage(new WindowInteropHelper(Window.GetWindow(element)).Handle, 0x84, IntPtr.Zero, (IntPtr)packed).ToInt32();
+    }
+    [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
     [StructLayout(LayoutKind.Sequential)] private struct NativeInput { public uint Type; public InputUnion Data; }
     [StructLayout(LayoutKind.Explicit)] private struct InputUnion { [FieldOffset(0)] public KeyboardInput Keyboard; [FieldOffset(0)] public MouseInput Mouse; }
     [StructLayout(LayoutKind.Sequential)] private struct KeyboardInput { public ushort VirtualKey; public ushort ScanCode; public uint Flags; public uint Time; public UIntPtr ExtraInfo; }

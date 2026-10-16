@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Luma.Models;
@@ -51,7 +50,7 @@ public partial class SettingsWindow : Window
             var handle = new WindowInteropHelper(this).Handle;
             var dark = 1; DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
             var round = 2; DwmSetWindowAttribute(handle, 33, ref round, sizeof(int));
-            var chrome = new System.Windows.Shell.WindowChrome { CaptionHeight = 0, ResizeBorderThickness = new Thickness(6), CornerRadius = new CornerRadius(12), GlassFrameThickness = new Thickness(0) };
+            var chrome = new System.Windows.Shell.WindowChrome { CaptionHeight = 46, ResizeBorderThickness = new Thickness(6), CornerRadius = new CornerRadius(12), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false };
             System.Windows.Shell.WindowChrome.SetWindowChrome(this, chrome);
         };
     }
@@ -148,7 +147,6 @@ public partial class SettingsWindow : Window
         }
     }
     private void Preview_Click(object sender, RoutedEventArgs e) => preview();
-    private void Title_Drag(object sender, MouseButtonEventArgs e) { if (e.ChangedButton == MouseButton.Left) DragMove(); }
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Close_Click(object sender, RoutedEventArgs e) => Hide();
     protected override void OnClosing(CancelEventArgs e) { if (!AllowClose) { e.Cancel = true; Hide(); } base.OnClosing(e); }

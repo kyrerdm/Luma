@@ -39,13 +39,12 @@
               <TextBlock x:Name="PositionText" Grid.Row="1" Text="0:00" FontSize="9" Foreground="#ADADB5" /><TextBlock x:Name="EndText" Grid.Row="1" Text="0:00" FontSize="9" Foreground="#ADADB5" HorizontalAlignment="Right" />
             </Grid>
             <Grid Grid.Row="2" VerticalAlignment="Bottom">
-              <Button x:Name="MediaSettingsButton" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Click="Settings_Click" ToolTip="Luma ayarları" AutomationProperties.Name="Luma ayarları" Opacity="0.45"><TextBlock Style="{StaticResource Icon}" FontSize="13" Text="&#xE713;" /></Button>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="PreviousButton" Style="{StaticResource QuietButton}" Click="Previous_Click" ToolTip="Önceki" AutomationProperties.Name="Önceki parça" Margin="0,0,19,0"><TextBlock Style="{StaticResource Icon}" Text="&#xE892;" FontSize="16" /></Button>
                 <Button x:Name="PlayButton" Style="{StaticResource PlayButton}" Click="Play_Click" ToolTip="Oynat / duraklat" AutomationProperties.Name="Oynat veya duraklat"><TextBlock x:Name="PlayIcon" Style="{StaticResource Icon}" Text="&#xE768;" FontSize="15" /></Button>
                 <Button x:Name="NextButton" Style="{StaticResource QuietButton}" Click="Next_Click" ToolTip="Sonraki" AutomationProperties.Name="Sonraki parça" Margin="19,0,0,0"><TextBlock Style="{StaticResource Icon}" Text="&#xE893;" FontSize="16" /></Button>
               </StackPanel>
-              <Button x:Name="PinButton" Style="{StaticResource QuietButton}" HorizontalAlignment="Right" Click="Pin_Click" ToolTip="Açık tut" AutomationProperties.Name="Göstergeyi açık tut" Opacity="0.45"><TextBlock x:Name="PinIcon" Style="{StaticResource Icon}" Text="&#xE718;" FontSize="13" /></Button>
+              <Button x:Name="PinButton" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Click="Pin_Click" ToolTip="Açık tut" AutomationProperties.Name="Göstergeyi açık tut" Opacity="0.45"><TextBlock x:Name="PinIcon" Style="{StaticResource Icon}" Text="&#xE718;" FontSize="13" /></Button>
             </Grid>
           </Grid>
           <Border x:Name="CommandHint" VerticalAlignment="Bottom" Background="#F0202022" Padding="10,7" Visibility="Collapsed"><TextBlock Text="Bu işlem şu anda kullanılamıyor." FontSize="10" HorizontalAlignment="Center" Foreground="#D2D2D7" /></Border>

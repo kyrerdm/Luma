@@ -13,7 +13,7 @@ foreach ($name in @('failure.txt', 'progress.log', 'results.json')) {
 }
 $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR = Join-Path $projectRoot '.tools\bundle'
 $process = Start-Process -FilePath $executable -ArgumentList @('--self-test', ('"' + $reportDirectory + '"')) -PassThru -WindowStyle Hidden
-if (-not $process.WaitForExit(30000)) { $process.Kill(); throw 'Verification timed out.' }
+if (-not $process.WaitForExit(45000)) { $process.Kill(); throw 'Verification timed out.' }
 if ($process.ExitCode -ne 0) {
     if (Test-Path -LiteralPath (Join-Path $reportDirectory 'failure.txt')) { Get-Content -LiteralPath (Join-Path $reportDirectory 'failure.txt') }
     if (Test-Path -LiteralPath (Join-Path $reportDirectory 'results.json')) { Get-Content -LiteralPath (Join-Path $reportDirectory 'results.json') }

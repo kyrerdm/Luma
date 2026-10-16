@@ -23,6 +23,7 @@ public partial class FlyoutWindow : Window
     private bool preview;
     private bool volumeMode;
     private bool pinned;
+    private bool restorePinnedVolume;
     private bool mediaExpanded;
     private bool seekDirty;
     private bool dismissing;
@@ -107,6 +108,7 @@ public partial class FlyoutWindow : Window
 
     public void ShowVolume(AudioState state, bool isPreview = false)
     {
+        restorePinnedVolume = false;
         if (preview != isPreview) media = MediaState.Empty;
         preview = isPreview; volumeMode = true; audioState = state;
         VolumeCard.Visibility = Visibility.Visible; LockCard.Visibility = Visibility.Collapsed;
@@ -230,7 +232,8 @@ public partial class FlyoutWindow : Window
 
     public void ShowLock(string name, bool enabled)
     {
-        preview = false; volumeMode = false;
+        if (volumeMode) restorePinnedVolume = pinned && IsVisible;
+        volumeMode = false;
         VolumeCard.Visibility = Visibility.Collapsed; LockCard.Visibility = Visibility.Visible;
         StatusText.Text = name; LockStateText.Text = enabled ? "Açık" : "Kapalı";
         LockIcon.Text = enabled ? "\uE72E" : "\uE785";
@@ -271,27 +274,28 @@ public partial class FlyoutWindow : Window
 
     private void AnimateUtilities(double opacity)
     {
-        if (!Motion) { MediaSettingsButton.Opacity = PinButton.Opacity = opacity; return; }
-        MediaSettingsButton.BeginAnimation(OpacityProperty, new DoubleAnimation(opacity, TimeSpan.FromMilliseconds(140)));
+        if (!Motion) { PinButton.Opacity = pinned ? 1 : opacity; return; }
         PinButton.BeginAnimation(OpacityProperty, new DoubleAnimation(pinned ? 1 : opacity, TimeSpan.FromMilliseconds(140)));
     }
 
     private void RestartTimer()
     {
         hideTimer.Stop();
-        if (!IsVisible || pinned || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen) return;
+        if (!IsVisible || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen) return;
         hideTimer.Interval = TimeSpan.FromSeconds(settings.DurationSeconds); hideTimer.Start();
     }
 
     private void HideAnimated()
     {
         hideTimer.Stop();
-        if (pinned || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen) { RestartTimer(); return; }
+        if ((pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen) { RestartTimer(); return; }
+        if (!volumeMode && restorePinnedVolume && pinned) { ShowVolume(audioState, preview); return; }
         Dismiss();
     }
 
     public void Dismiss()
     {
+        restorePinnedVolume = false;
         hideTimer.Stop(); timelineTimer.Stop();
         if (!Motion) { Hide(); return; }
         dismissing = true;
@@ -395,7 +399,7 @@ public partial class FlyoutWindow : Window
         PinButton.Opacity = pinned ? 1 : 0.45; RestartTimer();
     }
     private void Dismiss_Click(object sender, RoutedEventArgs e) { SetPinned(false); Dismiss(); }
-    private void Settings_Click(object sender, RoutedEventArgs e) { Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
+    private void Settings_Click(object sender, RoutedEventArgs e) { restorePinnedVolume = false; Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
     protected override void OnClosed(EventArgs e) { MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
     private static string FormatTime(TimeSpan time) => time.TotalHours >= 1 ? time.ToString(@"h\:mm\:ss") : time.ToString(@"m\:ss");
 

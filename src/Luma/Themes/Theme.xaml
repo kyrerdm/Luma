@@ -5,8 +5,9 @@
   <SolidColorBrush x:Key="TextBrush" Color="#F2F2F3" />
   <SolidColorBrush x:Key="MutedBrush" Color="#9C9CA4" />
   <SolidColorBrush x:Key="AccentBrush" Color="#81B7DB" />
+  <FontFamily x:Key="UIFont">Segoe UI Variable Text, Segoe UI</FontFamily>
   <Style TargetType="Window">
-    <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI" />
+    <Setter Property="FontFamily" Value="{StaticResource UIFont}" />
     <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
     <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
     <Setter Property="FontSize" Value="14" />
@@ -93,17 +94,59 @@
       </Setter.Value>
     </Setter>
   </Style>
+  <Style x:Key="DarkComboItem" TargetType="ComboBoxItem">
+    <Setter Property="FontFamily" Value="{StaticResource UIFont}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="12,8" />
+    <Setter Property="Margin" Value="0,1" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+      <Border x:Name="ItemSurface" Background="{TemplateBinding Background}" CornerRadius="5" SnapsToDevicePixels="True">
+        <Grid>
+          <Border x:Name="SelectionMark" Width="2" Height="14" CornerRadius="1" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Left" Visibility="Collapsed" />
+          <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+      <ControlTemplate.Triggers>
+        <Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="#34343B" /><Setter TargetName="SelectionMark" Property="Visibility" Value="Visible" /></Trigger>
+        <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="#3E3E46" /></Trigger>
+        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ItemSurface" Property="Opacity" Value="0.4" /></Trigger>
+      </ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value></Setter>
+  </Style>
   <Style TargetType="ComboBox">
+    <Setter Property="FontFamily" Value="{StaticResource UIFont}" />
+    <Setter Property="FontSize" Value="12" />
     <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
     <Setter Property="Background" Value="#252528" />
     <Setter Property="BorderBrush" Value="#3D3D43" />
-    <Setter Property="Padding" Value="12,9" />
-    <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#181820" /><Setter Property="Padding" Value="12,8" /></Style></Setter.Value></Setter>
-    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid>
-      <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" ClickMode="Press"><ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#252528" BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}" BorderThickness="1" CornerRadius="8"><TextBlock Text="&#xE70D;" FontFamily="Segoe Fluent Icons" Foreground="#AAA5BA" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="10" /></Border></ControlTemplate></ToggleButton.Template></ToggleButton>
-      <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" Margin="12,9,32,9" IsHitTestVisible="False" />
-      <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade"><Border Background="#EEEDEF" CornerRadius="8" Padding="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"><ScrollViewer><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" /></ScrollViewer></Border></Popup>
-    </Grid><ControlTemplate.Triggers><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+    <Setter Property="Padding" Value="12,9,32,9" />
+    <Setter Property="MaxDropDownHeight" Value="280" />
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DarkComboItem}" />
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+      <Grid>
+        <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" ClickMode="Press">
+          <ToggleButton.Template><ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="ClosedSurface" Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}" BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}" BorderThickness="1" CornerRadius="8">
+              <TextBlock Text="&#xE70D;" FontFamily="Segoe Fluent Icons" Foreground="#A9A9B3" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="10" />
+            </Border>
+            <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ClosedSurface" Property="Background" Value="#303034" /></Trigger></ControlTemplate.Triggers>
+          </ControlTemplate></ToggleButton.Template>
+        </ToggleButton>
+        <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" IsHitTestVisible="False" />
+        <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+          <Border x:Name="DropDownSurface" Background="#252528" BorderBrush="#46464E" BorderThickness="1" CornerRadius="8" Padding="4" Margin="0,4,0,0" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" TextElement.FontFamily="{TemplateBinding FontFamily}" TextElement.FontSize="{TemplateBinding FontSize}" TextElement.Foreground="{TemplateBinding Foreground}">
+            <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Focusable="False"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" /></ScrollViewer>
+          </Border>
+        </Popup>
+      </Grid>
+      <ControlTemplate.Triggers>
+        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Trigger>
+        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4" /></Trigger>
+      </ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value></Setter>
   </Style>
   <Style TargetType="ScrollBar">
     <Setter Property="Width" Value="10" />

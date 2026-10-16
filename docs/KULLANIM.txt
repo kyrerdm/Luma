@@ -1,4 +1,4 @@
-Luma 0.3 — Windows 11
+Luma 0.3.1 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -15,7 +15,10 @@ parça adı, sanatçı, kapak ve oynatma kontrolleri görünür. Oynat/duraklat,
 önceki/sonraki ve zaman çizelgesi oyuncunun desteklediği ölçüde çalışır.
 Desteklenmeyen kontroller pasif görünür. Medya yoksa boş kart gösterilmez.
 
-Pin simgesi göstergeyi açık tutar. Tekrar basarak otomatik gizlemeye dönün.
+Sol alttaki pin simgesi göstergeyi açık tutar. Tekrar basarak otomatik
+gizlemeye dönün. Ayarlar sağ tık menüsünden veya tepsiden açılır.
+Kilit tuşu bildirimleri geçicidir; süreleri bitince açık tuttuğunuz
+ses/medya kartına geri dönülür.
 Ses şeridinde fare tekerleğiyle de sesi değiştirebilirsiniz.
 Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
 
@@ -32,6 +35,7 @@ Değişiklikler otomatik kaydedilir. Göstergenin üzerine geldiğinizde
 kaybolmadan bekler.
 
 Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
+Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsiniz.
 Tepsi simgesine çift tıklayın: Ayarları aç.
 Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
 
