@@ -55,6 +55,7 @@ public sealed class AppController : IDisposable
         nativeBrightnessOsd = new();
         brightness = new(Application.Current.Dispatcher, brightnessFactory);
         nativeBrightnessOsd.CandidateShown += brightness.RequestRefresh;
+        brightness.Activity += nativeBrightnessOsd.NotifyBrightnessActivity;
         brightness.Changed += OnBrightnessChanged;
         flyout.BrightnessRequested += SetBrightness;
         window.BrightnessRequested += SetBrightness;
@@ -167,7 +168,6 @@ public sealed class AppController : IDisposable
         window.SetBrightness(current, update.WriteFailed);
         if ((changed || update.HardwareActivity) && settings.ObserveBrightness)
         {
-            nativeBrightnessOsd.NotifyBrightnessActivity();
             flyout.ShowBrightness(current);
         }
         else flyout.RefreshBrightness(current);
@@ -185,6 +185,7 @@ public sealed class AppController : IDisposable
         flyout.Close();
         window.AllowClose = true; window.Close();
         audio.Dispose();
+        brightness.Activity -= nativeBrightnessOsd.NotifyBrightnessActivity;
         brightness.Dispose();
         nativeBrightnessOsd.Dispose();
     }

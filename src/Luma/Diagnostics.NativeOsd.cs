@@ -106,13 +106,13 @@ internal static partial class Diagnostics
         var candidateCount = 0;
         var previousValue = active.Value;
         suppression.CandidateShown += () => { candidateCount++; brightness.RequestRefresh(); };
+        brightness.Activity += suppression.NotifyBrightnessActivity;
         brightness.Changed += async update =>
         {
             var changed = update.State.Available && update.State.Value != previousValue;
             previousValue = update.State.Value;
             if (!update.HardwareActivity && !changed) return;
             activityCount++;
-            suppression.NotifyBrightnessActivity();
             await Task.Delay(200);
             if (suppression.HiddenCount > 0) observed.TrySetResult();
         };

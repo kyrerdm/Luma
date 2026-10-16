@@ -1,4 +1,4 @@
-Luma 0.5.1 — Windows 11
+Luma 0.5.2 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -67,9 +67,10 @@ Parlaklık göstergesi tercihi yalnızca otomatik bildirimi açıp kapatır.
 Windows parlaklık panelini gizle seçeneği varsayılan olarak açıktır.
 Luma parlaklığı gösterirken altta çıkan ikinci Windows panelini gizler.
 Bu seçeneği veya Parlaklık göstergesi tercihini kapatınca Windows paneli
-normal davranır. Gizleme Windows'un pencere düzenine bağlıdır; farklı
-Windows sürümlerinde kısa bir ilk belirme olabilir. Üreticiye ait ayrı
-göstergeler bu kapsama girmez.
+normal davranır. Gizleme arayüz kuyruğunu beklemeden başlatılır.
+Windows bildirimleri sonradan ulaştığından panel kısa bir an görünebilir;
+tamamen belirmemesi garanti edilmez. Tanınmayan pencere düzenleri ve
+üreticiye ait ayrı göstergeler bu kapsama girmez.
 Sabitlenmiş ses/medya kartı parlaklık bildirimi bitince geri gelir.
 Destek bulunmazsa ayarlardaki kaydırıcı pasif görünür. Harici monitörler
 için DDC/CI desteği yoktur. Gösterilecek ekran tercihi, Luma panelinin

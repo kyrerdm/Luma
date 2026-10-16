@@ -49,6 +49,45 @@ internal static partial class Diagnostics
         {
             await service.Ready.WaitAsync(TimeSpan.FromSeconds(3));
             check("Brightness initialization never writes to the panel", fake.Writes == 0 && service.State.Value == 40, "");
+            fake.Emit("internal-a", 100);
+            var shellWindow = new NativeOsdWindow((IntPtr)7, "XamlExplorerHostIslandWindow", "", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe"), 0x84000000, 0x08200088, new Rect(854, 944, 211, 76), 120, true, true);
+            var shellPlatform = new DiagnosticOsdPlatform(shellWindow);
+            using (var nativeOsd = new NativeBrightnessOsdSuppressor(() => shellPlatform))
+            {
+                await nativeOsd.Ready.WaitAsync(TimeSpan.FromSeconds(3));
+                nativeOsd.SetEnabled(true);
+                service.Activity += nativeOsd.NotifyBrightnessActivity;
+                try
+                {
+                    var signal = Task.Run(async () =>
+                    {
+                        // The value stays at its limit, but this is still real hardware activity.
+                        fake.Emit("internal-a", 100);
+                        await nativeOsd.FlushAsync();
+                        return !shellPlatform.Current.Visible;
+                    });
+                    var watch = Stopwatch.StartNew();
+                    // Deliberately keep the UI occupied; dismissal must run independently.
+                    var completedWithoutUi = signal.Wait(TimeSpan.FromSeconds(2));
+                    var hiddenWithoutUi = completedWithoutUi && signal.Result;
+                    await signal;
+                    check("Native brightness dismissal bypasses a busy UI even at an unchanged limit", hiddenWithoutUi && fake.Writes == 0, $"UI-independent dismissal: {watch.Elapsed.TotalMilliseconds:F1} ms");
+                }
+                finally { service.Activity -= nativeOsd.NotifyBrightnessActivity; }
+            }
+            fake.Emit("internal-a", 40);
+            var activityCount = 0;
+            void CountActivity() => Interlocked.Increment(ref activityCount);
+            service.Activity += CountActivity;
+            await service.RefreshForDiagnosticsAsync().WaitAsync(TimeSpan.FromSeconds(3));
+            fake.Emit("different-panel", 20);
+            check("Unchanged polling and other panels do not arm native OSD dismissal", activityCount == 0, "");
+            fake.SetSilently(60);
+            await service.RefreshForDiagnosticsAsync().WaitAsync(TimeSpan.FromSeconds(3));
+            check("Polling brightness changes trigger native dismissal before the UI update", activityCount == 1 && service.State.Value == 60, "");
+            service.Activity -= CountActivity;
+            fake.Emit("internal-a", 40);
+            await Task.Delay(50);
             var limitActivity = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             service.Changed += update => { if (update.HardwareActivity && update.State.Value == 40) limitActivity.TrySetResult(); };
             fake.Emit("internal-a", 40);
@@ -169,6 +208,7 @@ internal static partial class Diagnostics
             if (id == state.InstanceId) Volatile.Write(ref state, state with { Value = value });
             Changed?.Invoke(new(id, value));
         }
+        public void SetSilently(int value) => Volatile.Write(ref state, state with { Value = value });
         public bool SetBrightness(int value)
         {
             Interlocked.Increment(ref Writes);

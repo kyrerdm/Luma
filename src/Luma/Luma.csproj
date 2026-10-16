@@ -12,7 +12,7 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <AssemblyName>Luma</AssemblyName>
     <RootNamespace>Luma</RootNamespace>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
     <Description>Windows için sade ses, parlaklık ve medya göstergeleri.</Description>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
   </PropertyGroup>

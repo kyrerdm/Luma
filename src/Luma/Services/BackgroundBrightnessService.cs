@@ -25,6 +25,9 @@ internal sealed class BackgroundBrightnessService : IDisposable
     public BrightnessState State => Volatile.Read(ref snapshot);
     public Task<BrightnessState> Ready => ready.Task;
     public event Action<BrightnessUpdate>? Changed;
+    // Native OSD dismissal must not wait for the UI dispatcher to become idle.
+    // Subscribers run on the publishing thread and must only queue short work.
+    public event Action? Activity;
     internal Task FlushAsync() => worker.RunAsync(() => { });
     internal Task RefreshForDiagnosticsAsync() => worker.RunAsync(() => Refresh(false));
     public void RequestRefresh() => worker.Post(() => Refresh(false), DispatcherPriority.Send);
@@ -93,6 +96,8 @@ internal sealed class BackgroundBrightnessService : IDisposable
         var previous = State;
         Volatile.Write(ref snapshot, next);
         if (!force && previous.Available == next.Available && previous.Value == next.Value && previous.InstanceId == next.InstanceId && previous.Status == next.Status && previous.Levels.SequenceEqual(next.Levels)) return;
+        if (next.Available && (hardwareActivity || (previous.Available && previous.InstanceId == next.InstanceId && previous.Value != next.Value)))
+            Activity?.Invoke();
         var update = new BrightnessUpdate(next, Volatile.Read(ref appliedSequence), writeFailed, hardwareActivity);
         ui.BeginInvoke(DispatcherPriority.Background, new Action(() =>
         {
