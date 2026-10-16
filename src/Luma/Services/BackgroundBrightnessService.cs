@@ -7,7 +7,7 @@ using Microsoft.Win32;
 
 namespace Luma.Services;
 
-internal readonly record struct BrightnessUpdate(BrightnessState State, long Sequence, bool WriteFailed = false);
+internal readonly record struct BrightnessUpdate(BrightnessState State, long Sequence, bool WriteFailed = false, bool HardwareActivity = false);
 
 internal sealed class BackgroundBrightnessService : IDisposable
 {
@@ -27,6 +27,7 @@ internal sealed class BackgroundBrightnessService : IDisposable
     public event Action<BrightnessUpdate>? Changed;
     internal Task FlushAsync() => worker.RunAsync(() => { });
     internal Task RefreshForDiagnosticsAsync() => worker.RunAsync(() => Refresh(false));
+    public void RequestRefresh() => worker.Post(() => Refresh(false), DispatcherPriority.Send);
 
     public BackgroundBrightnessService(Dispatcher ui, Func<IBrightnessDevice>? factory = null)
     {
@@ -66,7 +67,7 @@ internal sealed class BackgroundBrightnessService : IDisposable
             var previous = State;
             if (disposed || !previous.Available || !previous.InstanceId.Equals(signal.InstanceId, StringComparison.OrdinalIgnoreCase)) return;
             signalRevision++;
-            Publish(previous with { Value = Math.Clamp(signal.Value, 0, 100) }, false);
+            Publish(previous with { Value = Math.Clamp(signal.Value, 0, 100) }, true, hardwareActivity: true);
         }
     }
 
@@ -87,12 +88,12 @@ internal sealed class BackgroundBrightnessService : IDisposable
         }
     }
 
-    private void Publish(BrightnessState next, bool force, bool writeFailed = false)
+    private void Publish(BrightnessState next, bool force, bool writeFailed = false, bool hardwareActivity = false)
     {
         var previous = State;
         Volatile.Write(ref snapshot, next);
         if (!force && previous.Available == next.Available && previous.Value == next.Value && previous.InstanceId == next.InstanceId && previous.Status == next.Status && previous.Levels.SequenceEqual(next.Levels)) return;
-        var update = new BrightnessUpdate(next, Volatile.Read(ref appliedSequence), writeFailed);
+        var update = new BrightnessUpdate(next, Volatile.Read(ref appliedSequence), writeFailed, hardwareActivity);
         ui.BeginInvoke(DispatcherPriority.Background, new Action(() =>
         {
             if (disposed) return;

@@ -19,6 +19,7 @@ public sealed class AppController : IDisposable
     private readonly AppSettings settings;
     private readonly BackgroundAudioService audio;
     private readonly BackgroundBrightnessService brightness;
+    private readonly NativeBrightnessOsdSuppressor nativeBrightnessOsd;
     private readonly MediaService media;
     private readonly KeyboardService? keyboard;
     private readonly FlyoutWindow flyout;
@@ -51,7 +52,9 @@ public sealed class AppController : IDisposable
         flyout.Prepare();
         audio = new(Application.Current.Dispatcher, audioFactory);
         audio.Changed += OnAudioChanged;
+        nativeBrightnessOsd = new();
         brightness = new(Application.Current.Dispatcher, brightnessFactory);
+        nativeBrightnessOsd.CandidateShown += brightness.RequestRefresh;
         brightness.Changed += OnBrightnessChanged;
         flyout.BrightnessRequested += SetBrightness;
         window.BrightnessRequested += SetBrightness;
@@ -103,6 +106,7 @@ public sealed class AppController : IDisposable
     private void SaveSettings() { store.Save(settings); Palette.Apply(settings.Accent); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); }
     private void ApplyPreferences()
     {
+        nativeBrightnessOsd.SetEnabled(settings.ObserveBrightness && settings.HideNativeBrightness && lastBrightness.Available);
         if (keyboard is not null)
         {
             keyboard.HandleVolume = settings.VolumeKeys;
@@ -148,6 +152,7 @@ public sealed class AppController : IDisposable
         if (!lastBrightness.Available) return;
         lastBrightness = lastBrightness with { Value = lastBrightness.Snap(value) };
         pendingBrightnessSequence = brightness.SetBrightness(lastBrightness.Value);
+        nativeBrightnessOsd.NotifyBrightnessActivity();
         window.SetBrightness(lastBrightness);
         flyout.ShowBrightness(lastBrightness);
     }
@@ -158,8 +163,13 @@ public sealed class AppController : IDisposable
         var current = update.State;
         var changed = current.Available && lastBrightness.Available && current.InstanceId == lastBrightness.InstanceId && current.Value != lastBrightness.Value;
         lastBrightness = current;
+        nativeBrightnessOsd.SetEnabled(settings.ObserveBrightness && settings.HideNativeBrightness && current.Available);
         window.SetBrightness(current, update.WriteFailed);
-        if (changed && settings.ObserveBrightness) flyout.ShowBrightness(current);
+        if ((changed || update.HardwareActivity) && settings.ObserveBrightness)
+        {
+            nativeBrightnessOsd.NotifyBrightnessActivity();
+            flyout.ShowBrightness(current);
+        }
         else flyout.RefreshBrightness(current);
     }
 
@@ -176,5 +186,6 @@ public sealed class AppController : IDisposable
         window.AllowClose = true; window.Close();
         audio.Dispose();
         brightness.Dispose();
+        nativeBrightnessOsd.Dispose();
     }
 }

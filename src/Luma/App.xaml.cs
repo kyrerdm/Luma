@@ -17,6 +17,14 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        var osdIndex = Array.IndexOf(e.Args, "--diagnose-brightness-osd");
+        if (osdIndex >= 0)
+        {
+            var output = osdIndex + 1 < e.Args.Length ? Path.GetFullPath(e.Args[osdIndex + 1]) : Path.Combine(AppContext.BaseDirectory, "osd-diagnostics");
+            try { Shutdown(await Diagnostics.WatchNativeBrightnessOsdAsync(output)); }
+            catch (Exception ex) { Directory.CreateDirectory(output); File.WriteAllText(Path.Combine(output, "failure.txt"), ex.ToString()); Shutdown(1); }
+            return;
+        }
         var testIndex = Array.IndexOf(e.Args, "--self-test");
         if (testIndex >= 0)
         {

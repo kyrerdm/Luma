@@ -29,6 +29,7 @@ public partial class SettingsWindow : Window
         LocksToggle.IsChecked = settings.LockKeys;
         ObserveToggle.IsChecked = settings.ObserveVolume;
         BrightnessToggle.IsChecked = settings.ObserveBrightness;
+        NativeBrightnessToggle.IsChecked = settings.HideNativeBrightness;
         AnimationsToggle.IsChecked = settings.Animations;
         MediaToggle.IsChecked = settings.ShowMedia;
         ArtworkToggle.IsChecked = settings.ArtworkBackground;
@@ -87,6 +88,7 @@ public partial class SettingsWindow : Window
         settings.LockKeys = LocksToggle.IsChecked == true;
         settings.ObserveVolume = ObserveToggle.IsChecked == true;
         settings.ObserveBrightness = BrightnessToggle.IsChecked == true;
+        settings.HideNativeBrightness = NativeBrightnessToggle.IsChecked == true;
         settings.Animations = AnimationsToggle.IsChecked == true;
         settings.ShowMedia = MediaToggle.IsChecked == true;
         settings.ArtworkBackground = ArtworkToggle.IsChecked == true;

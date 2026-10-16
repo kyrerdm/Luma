@@ -92,6 +92,7 @@ internal static partial class Diagnostics
         }
         await VerifyMediaSourcesAsync(directory, (name, passed) => Check(name, passed));
         await VerifyBrightnessAsync(directory, Check);
+        await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };

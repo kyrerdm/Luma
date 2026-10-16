@@ -49,6 +49,11 @@ internal static partial class Diagnostics
         {
             await service.Ready.WaitAsync(TimeSpan.FromSeconds(3));
             check("Brightness initialization never writes to the panel", fake.Writes == 0 && service.State.Value == 40, "");
+            var limitActivity = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            service.Changed += update => { if (update.HardwareActivity && update.State.Value == 40) limitActivity.TrySetResult(); };
+            fake.Emit("internal-a", 40);
+            await limitActivity.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            check("Brightness hardware activity is reported even at an unchanged limit", service.State.Value == 40 && fake.Writes == 0, "");
             check("Brightness requests respect the panel's supported levels", service.State.Snap(-20) == 0 && service.State.Snap(83) == 80 && service.State.Snap(120) == 100, "");
             var noticed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             service.Changed += update => { if (update.State.Value == 60) noticed.TrySetResult(); };

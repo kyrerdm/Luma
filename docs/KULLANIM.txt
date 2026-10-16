@@ -1,4 +1,4 @@
-Luma 0.5.0 — Windows 11
+Luma 0.5.1 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -64,11 +64,17 @@ Luma'nın güneş simgeli şeridi görünür. Kaydırıcı ve fare tekerleğiyle
 ekranın parlaklığını değiştirebilirsiniz. Ayarlarda Ekran parlaklığı
 bölümündeki Dahili ekran kaydırıcısı da aynı ekranı kontrol eder.
 Parlaklık göstergesi tercihi yalnızca otomatik bildirimi açıp kapatır.
+Windows parlaklık panelini gizle seçeneği varsayılan olarak açıktır.
+Luma parlaklığı gösterirken altta çıkan ikinci Windows panelini gizler.
+Bu seçeneği veya Parlaklık göstergesi tercihini kapatınca Windows paneli
+normal davranır. Gizleme Windows'un pencere düzenine bağlıdır; farklı
+Windows sürümlerinde kısa bir ilk belirme olabilir. Üreticiye ait ayrı
+göstergeler bu kapsama girmez.
 Sabitlenmiş ses/medya kartı parlaklık bildirimi bitince geri gelir.
 Destek bulunmazsa ayarlardaki kaydırıcı pasif görünür. Harici monitörler
 için DDC/CI desteği yoktur. Gösterilecek ekran tercihi, Luma panelinin
 konumunu belirler; parlaklığın hedefi dahili ekran olarak kalır.
-Windows veya üreticiye ait parlaklık paneli de görünebilir.
+Tanınmayan Windows düzenlerinde veya üretici yazılımlarında ek panel görünebilir.
 
 Ayarlar içindeki örnek kart görsel amaçlıdır. Deneme düğmesi kaldırıldı.
 
