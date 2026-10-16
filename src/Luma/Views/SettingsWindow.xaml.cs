@@ -35,6 +35,7 @@ public partial class SettingsWindow : Window
         DurationSlider.Value = settings.DurationSeconds;
         StepSlider.Value = settings.VolumeStep;
         ScaleSlider.Value = settings.FlyoutScale;
+        foreach (var option in Palette.Options) AccentCombo.Items.Add(new ComboBoxItem { Content = option, Tag = option.Id });
         foreach (ComboBoxItem item in PositionCombo.Items) if ((string)item.Tag == settings.Position) PositionCombo.SelectedItem = item;
         foreach (ComboBoxItem item in AccentCombo.Items) if ((string)item.Tag == settings.Accent) AccentCombo.SelectedItem = item;
         ReloadMonitors();

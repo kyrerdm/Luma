@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using Luma.Services;
 
 namespace Luma;
 
@@ -39,6 +40,7 @@ public partial class App : Application
             : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumaFlyouts");
         try
         {
+            StartupService.RefreshEnabledPath();
             controller = new AppController(dataDirectory);
             openSettingsRegistration = ThreadPool.RegisterWaitForSingleObject(openSettings,
                 (_, _) => Dispatcher.BeginInvoke(new Action(() => controller?.ShowSettings())), null, Timeout.Infinite, false);

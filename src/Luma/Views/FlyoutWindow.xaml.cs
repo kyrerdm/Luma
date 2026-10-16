@@ -101,8 +101,10 @@ public partial class FlyoutWindow : Window
     }
     private void MeasureResponse(object? sender, EventArgs e)
     {
+        // Show() can run a layout/render pass before the window becomes visible.
+        if (!IsVisible || inputTimestamp <= 0) return;
         CompositionTarget.Rendering -= MeasureResponse;
-        if (IsVisible && inputTimestamp > 0) ResponseMeasured?.Invoke(Stopwatch.GetElapsedTime(inputTimestamp).TotalMilliseconds);
+        ResponseMeasured?.Invoke(Stopwatch.GetElapsedTime(inputTimestamp).TotalMilliseconds);
         inputTimestamp = 0;
     }
 

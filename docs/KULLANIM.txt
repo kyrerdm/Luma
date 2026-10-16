@@ -1,4 +1,4 @@
-Luma 0.3.1 — Windows 11
+Luma 0.3.2 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -24,6 +24,7 @@ Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
 
 TERCİHLER
 Ayarlar ekranından konumu, süreyi, ses adımını, rengi ve animasyonları değiştirin.
+Renk örneklerinden 12 vurgu rengi seçilebilir; tercihiniz kaydedilir.
 Sol üst, sağ üst, sol alt ve sağ alt köşeler ile üst/alt orta seçilebilir.
 Gösterge boyutu %75–%140 arasında ayarlanır ve yeniden açılışta korunur.
 Kapak büyütüldü; zaman çizelgesi daha aşağı alındı. Kapak görselinin
@@ -36,7 +37,8 @@ kaybolmadan bekler.
 
 Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
 Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsiniz.
-Tepsi simgesine çift tıklayın: Ayarları aç.
+Tepsi simgesine bir kez sol tıklayın: Ayarları aç.
+Sağ tık menüsü de koyu temayı ve seçtiğiniz vurgu rengini kullanır.
 Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
 
 İsterseniz Windows ile başlat seçeneğini açabilirsiniz. Uygulama klasörünü
@@ -48,8 +50,8 @@ oynatma ve zaman çizelgesi kontrolleri gerçek sesi veya oynatıcıyı değişt
 
 SÜRÜM DEĞİŞTİRİRKEN
 Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.
-Windows ile başlat kullanıyorsanız yeni sürümde kapatıp tekrar açarak yolu
-güncelleyin. Mevcut görünüm tercihleriniz korunur.
+Windows ile başlat zaten açıksa yeni sürüm açılırken başlangıç yolu
+güncellenir. Kapalıysa kapalı kalır. Mevcut görünüm tercihleriniz korunur.
 
 SINIRLAR
 Parlaklık ve açık tema henüz yoktur. Bazı üreticilerin özel Fn yazılımları

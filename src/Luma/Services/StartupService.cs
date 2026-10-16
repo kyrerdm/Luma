@@ -31,4 +31,14 @@ public static class StartupService
         }
         else key.DeleteValue(ValueName, false);
     }
+
+    public static void RefreshEnabledPath()
+    {
+        if (!IsEnabled()) return;
+        try { SetEnabled(true); }
+        catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or System.IO.IOException or InvalidOperationException)
+        {
+            // A startup-path repair must not prevent the app from opening.
+        }
+    }
 }

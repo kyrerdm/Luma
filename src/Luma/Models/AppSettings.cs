@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using Luma.Themes;
 
 namespace Luma.Models;
 
@@ -26,7 +27,7 @@ public sealed class AppSettings
         if (!double.IsFinite(DurationSeconds)) DurationSeconds = 2.5;
         DurationSeconds = Math.Clamp(DurationSeconds, 1, 8);
         VolumeStep = Math.Clamp(VolumeStep, 1, 10);
-        if (Accent is not ("Ice" or "Lilac" or "Mint")) Accent = "Ice";
+        if (!Palette.IsKnown(Accent)) Accent = "Ice";
         if (!double.IsFinite(FlyoutScale)) FlyoutScale = 1;
         FlyoutScale = Math.Clamp(FlyoutScale, 0.75, 1.4);
         if (string.IsNullOrWhiteSpace(TargetDisplay) || TargetDisplay.Length > 1024) TargetDisplay = "Cursor";

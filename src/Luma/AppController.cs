@@ -31,6 +31,8 @@ public sealed class AppController : IDisposable
     private bool disposed;
     internal Task<AudioState> AudioReady => audio.Ready;
     internal FlyoutWindow DiagnosticFlyout => flyout;
+    internal SettingsWindow DiagnosticSettings => window;
+    internal Forms.ContextMenuStrip DiagnosticTrayMenu => tray.ContextMenuStrip!;
     internal Task FlushAudioAsync() => audio.FlushAsync();
 
     public AppController(string dataDirectory) : this(dataDirectory, null) { }
@@ -62,13 +64,17 @@ public sealed class AppController : IDisposable
         ApplyPreferences();
 
         trayIcon = CreateTrayIcon();
-        var menu = new Forms.ContextMenuStrip();
+        var menu = new DarkTrayMenu(() =>
+        {
+            var color = Palette.Resolve(settings.Accent).Color;
+            return Color.FromArgb(color.R, color.G, color.B);
+        });
         menu.Items.Add("Luma ayarları", null, (_, _) => ShowSettings());
         menu.Items.Add("Göstergeyi dene", null, (_, _) => Preview());
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Çıkış", null, (_, _) => Application.Current.Shutdown());
         tray = new Forms.NotifyIcon { Text = "Luma · ses ve klavye göstergeleri", Icon = trayIcon, ContextMenuStrip = menu, Visible = true };
-        tray.DoubleClick += (_, _) => ShowSettings();
+        tray.MouseClick += OnTrayMouseClick;
         _ = media.StartAsync();
     }
 
@@ -77,6 +83,10 @@ public sealed class AppController : IDisposable
         window.Show();
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
         window.Activate();
+    }
+    internal void OnTrayMouseClick(object? sender, Forms.MouseEventArgs e)
+    {
+        if (e.Button == Forms.MouseButtons.Left) ShowSettings();
     }
     private void Preview() => flyout.ShowPreview(PreviewData.Media());
     private void SaveSettings() { store.Save(settings); Palette.Apply(settings.Accent); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); }

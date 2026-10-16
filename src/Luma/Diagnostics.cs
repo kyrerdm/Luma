@@ -173,6 +173,17 @@ internal static class Diagnostics
             combo.IsDropDownOpen = false;
         }
         Check("All preference dropdowns use dark surfaces and consistent text", darkMenus);
+        var accents = (ComboBox)window.FindName("AccentCombo");
+        var accentPresets = Palette.Options.Count == 12 && Palette.Options.Select(option => option.Hex).Distinct().Count() == 12;
+        foreach (ComboBoxItem item in accents.Items)
+        {
+            accents.SelectedItem = item;
+            store.Save(previewSettings);
+            var option = (AccentOption)item.Content;
+            accentPresets &= store.Load().Accent == option.Id && ((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color == option.Color;
+        }
+        Check("All twelve accent presets apply and survive restart", accentPresets);
+        accents.SelectedIndex = 0;
 
         var duration = (System.Windows.Controls.Slider)window.FindName("DurationSlider");
         duration.Value = 4;
@@ -259,6 +270,31 @@ internal static class Diagnostics
             runtime.ShowSettings();
             await runtime.AudioReady.WaitAsync(TimeSpan.FromSeconds(5));
             Check("Normal startup creates settings and system tray", true);
+            var runtimeWindow = runtime.DiagnosticSettings;
+            runtimeWindow.Hide();
+            runtime.OnTrayMouseClick(null, new System.Windows.Forms.MouseEventArgs(System.Windows.Forms.MouseButtons.Right, 1, 0, 0, 0));
+            var rightClickStaysHidden = !runtimeWindow.IsVisible;
+            runtimeWindow.WindowState = WindowState.Minimized;
+            runtime.OnTrayMouseClick(null, new System.Windows.Forms.MouseEventArgs(System.Windows.Forms.MouseButtons.Left, 1, 0, 0, 0));
+            Check("One left tray click opens settings and right click stays separate", rightClickStaysHidden && runtimeWindow.IsVisible && runtimeWindow.WindowState == WindowState.Normal);
+            ((ComboBox)runtimeWindow.FindName("AccentCombo")).SelectedIndex = 3;
+            runtimeWindow.Hide();
+            var trayMenu = runtime.DiagnosticTrayMenu;
+            trayMenu.Show(new System.Drawing.Point(140, 140));
+            await Task.Delay(150);
+            trayMenu.Items[0].Select();
+            using (var bitmap = new System.Drawing.Bitmap(trayMenu.Width, trayMenu.Height))
+            {
+                trayMenu.DrawToBitmap(bitmap, new System.Drawing.Rectangle(System.Drawing.Point.Empty, bitmap.Size));
+                bitmap.Save(Path.Combine(directory, "luma-tray-menu.png"), System.Drawing.Imaging.ImageFormat.Png);
+                var darkTray = trayMenu.Items.Cast<System.Windows.Forms.ToolStripItem>().All(item => bitmap.GetPixel(bitmap.Width - 8, item.Bounds.Top + item.Height / 2).GetBrightness() < 0.35f);
+                Check("Tray menu renders dark backgrounds and separator", darkTray && trayMenu.ForeColor.R > 220 && trayMenu.Font.FontFamily.Name == "Segoe UI");
+                var first = trayMenu.Items[0].Bounds;
+                var highlight = bitmap.GetPixel(first.Left + 5, first.Top + first.Height / 2);
+                var expected = Palette.Resolve("Rose").Color;
+                Check("Tray highlight follows the selected accent", highlight.R == expected.R && highlight.G == expected.G && highlight.B == expected.B);
+            }
+            trayMenu.Close();
         }
         var slowDevice = new DelayedAudioDevice();
         using (var responsive = new AppController(Path.Combine(directory, "latency-data"), () => slowDevice))
