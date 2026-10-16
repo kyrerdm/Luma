@@ -1,30 +1,32 @@
 $ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.Drawing
+if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { throw 'Run with pwsh -NoProfile -STA -File scripts\New-LumaIcon.ps1' }
+Add-Type -AssemblyName PresentationCore, PresentationFramework, WindowsBase
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $assetsPath = Join-Path $projectRoot 'src\Luma\Assets'
-New-Item -ItemType Directory -Path $assetsPath -Force | Out-Null
-$sizes = @(256, 128, 64, 48, 32, 16)
-$images = [System.Collections.Generic.List[byte[]]]::new()
+$brandPath = Join-Path $assetsPath 'Brand.xaml'
+$reader = [Xml.XmlReader]::Create($brandPath)
+try { $brand = [Windows.Markup.XamlReader]::Load($reader) } finally { $reader.Dispose() }
+$sizes = @(256, 128, 64, 48, 40, 32, 24, 20, 16)
+$images = [Collections.Generic.List[byte[]]]::new()
+$previewPath = Join-Path $projectRoot 'artifacts\brand'
+New-Item -ItemType Directory -Path $previewPath -Force | Out-Null
 foreach ($size in $sizes) {
-    $bitmap = [System.Drawing.Bitmap]::new($size, $size)
-    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-    $graphics.Clear([System.Drawing.Color]::Transparent)
-    $graphics.ScaleTransform($size / 256.0, $size / 256.0)
-    $fill = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(129, 183, 219))
-    $graphics.FillEllipse($fill, 8, 8, 240, 240)
-    $pen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(29, 23, 43), 24)
-    $pen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-    $pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-    $pen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
-    $graphics.DrawLines($pen, [System.Drawing.PointF[]]@([System.Drawing.PointF]::new(96, 72), [System.Drawing.PointF]::new(96, 176), [System.Drawing.PointF]::new(166, 176)))
-    $stream = [System.IO.MemoryStream]::new()
-    $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
+    $visual = New-Object Windows.Media.DrawingVisual
+    $drawing = $visual.RenderOpen()
+    $drawing.DrawImage($brand['BrandAppIcon'], [Windows.Rect]::new(0, 0, $size, $size))
+    $drawing.Close()
+    $bitmap = [Windows.Media.Imaging.RenderTargetBitmap]::new($size, $size, 96, 96, [Windows.Media.PixelFormats]::Pbgra32)
+    $bitmap.Render($visual)
+    $encoder = New-Object Windows.Media.Imaging.PngBitmapEncoder
+    $encoder.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($bitmap))
+    $stream = New-Object IO.MemoryStream
+    $encoder.Save($stream)
     $images.Add($stream.ToArray())
-    $stream.Dispose(); $pen.Dispose(); $fill.Dispose(); $graphics.Dispose(); $bitmap.Dispose()
+    [IO.File]::WriteAllBytes((Join-Path $previewPath ('luma-' + $size + '.png')), $stream.ToArray())
+    $stream.Dispose()
 }
-$file = [System.IO.File]::Create((Join-Path $assetsPath 'Luma.ico'))
-$writer = [System.IO.BinaryWriter]::new($file)
+$file = [IO.File]::Create((Join-Path $assetsPath 'Luma.ico'))
+$writer = New-Object IO.BinaryWriter($file)
 try {
     $writer.Write([uint16]0); $writer.Write([uint16]1); $writer.Write([uint16]$sizes.Count)
     $offset = 6 + 16 * $sizes.Count
@@ -38,3 +40,4 @@ try {
     }
     foreach ($bytes in $images) { $writer.Write($bytes) }
 } finally { $writer.Dispose(); $file.Dispose() }
+Write-Output ('Generated Luma.ico and previews from ' + $brandPath)

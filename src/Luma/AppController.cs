@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows;
 using System.Windows.Threading;
 using System.Threading.Tasks;
@@ -69,16 +68,16 @@ public sealed class AppController : IDisposable
         catch (Win32Exception ex) { hookError = ex.Message; }
         ApplyPreferences();
 
-        trayIcon = CreateTrayIcon();
+        trayIcon = BrandIcon.CreateTrayIcon();
         var menu = new DarkTrayMenu(() =>
         {
             var color = Palette.Resolve(settings.Accent).Color;
             return Color.FromArgb(color.R, color.G, color.B);
         });
-        menu.Items.Add("Luma ayarları", null, (_, _) => ShowSettings());
-        menu.Items.Add("Göstergeyi dene", null, (_, _) => Preview());
+        menu.AddAction(TrayAction.Settings, "Luma ayarları", (_, _) => ShowSettings());
+        menu.AddAction(TrayAction.Preview, "Göstergeyi dene", (_, _) => Preview());
         menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add("Çıkış", null, (_, _) => Application.Current.Shutdown());
+        menu.AddAction(TrayAction.Exit, "Çıkış", (_, _) => Application.Current.Shutdown());
         tray = new Forms.NotifyIcon { Text = "Luma · ses ve klavye göstergeleri", Icon = trayIcon, ContextMenuStrip = menu, Visible = true };
         tray.MouseClick += OnTrayMouseClick;
         _ = media.StartAsync();
@@ -138,20 +137,6 @@ public sealed class AppController : IDisposable
         else flyout.RefreshVolume(current);
     }
 
-    private static Icon CreateTrayIcon()
-    {
-        using var bitmap = new Bitmap(32, 32);
-        using var graphics = Graphics.FromImage(bitmap);
-        graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        graphics.Clear(Color.Transparent);
-        using var fill = new SolidBrush(Color.FromArgb(129, 183, 219));
-        graphics.FillEllipse(fill, 1, 1, 30, 30);
-        using var pen = new Pen(Color.FromArgb(29, 23, 43), 3.2f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
-        graphics.DrawLines(pen, new[] { new System.Drawing.Point(12, 9), new System.Drawing.Point(12, 22), new System.Drawing.Point(21, 22) });
-        var handle = bitmap.GetHicon();
-        try { return (Icon)Icon.FromHandle(handle).Clone(); }
-        finally { DestroyIcon(handle); }
-    }
     public void Dispose()
     {
         if (disposed) return;
@@ -165,5 +150,4 @@ public sealed class AppController : IDisposable
         window.AllowClose = true; window.Close();
         audio.Dispose();
     }
-    [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool DestroyIcon(IntPtr handle);
 }

@@ -295,10 +295,23 @@ internal static partial class Diagnostics
                 bitmap.Save(Path.Combine(directory, "luma-tray-menu.png"), System.Drawing.Imaging.ImageFormat.Png);
                 var darkTray = trayMenu.Items.Cast<System.Windows.Forms.ToolStripItem>().All(item => bitmap.GetPixel(bitmap.Width - 8, item.Bounds.Top + item.Height / 2).GetBrightness() < 0.35f);
                 Check("Tray menu renders dark backgrounds and separator", darkTray && trayMenu.ForeColor.R > 220 && trayMenu.Font.FontFamily.Name == "Segoe UI");
-                var first = trayMenu.Items[0].Bounds;
-                var highlight = bitmap.GetPixel(first.Left + 5, first.Top + first.Height / 2);
+                var iconArea = ((DarkTrayMenu)trayMenu).GlyphArea(trayMenu.Items[0]);
                 var expected = Palette.Resolve("Rose").Color;
-                Check("Tray highlight follows the selected accent", highlight.R == expected.R && highlight.G == expected.G && highlight.B == expected.B);
+                var accentPixels = 0;
+                for (var y = iconArea.Top; y < iconArea.Bottom; y++)
+                    for (var x = iconArea.Left; x < iconArea.Right; x++)
+                    {
+                        var pixel = bitmap.GetPixel(x, y);
+                        if (Math.Abs(pixel.R - expected.R) < 45 && Math.Abs(pixel.G - expected.G) < 45 && Math.Abs(pixel.B - expected.B) < 45) accentPixels++;
+                    }
+                Check("Tray highlight follows the selected accent", accentPixels >= 3);
+            }
+            foreach (var index in new[] { 1, 3 })
+            {
+                trayMenu.Items[index].Select();
+                using var bitmap = new System.Drawing.Bitmap(trayMenu.Width, trayMenu.Height);
+                trayMenu.DrawToBitmap(bitmap, new System.Drawing.Rectangle(System.Drawing.Point.Empty, bitmap.Size));
+                bitmap.Save(Path.Combine(directory, $"luma-tray-{index}.png"), System.Drawing.Imaging.ImageFormat.Png);
             }
             trayMenu.Close();
         }

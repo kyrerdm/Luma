@@ -1,5 +1,7 @@
 # Luma
 
+<img src="docs/images/luma-logo.png" width="72" height="72" alt="Luma ışık dalgası logosu" />
+
 Windows 11 için sade ve akıcı ses, medya ve klavye göstergeleri. İnce bir ses şeridi, ayrı bir medya kartı ve ihtiyacın bittiğinde kaybolan küçük kontroller.
 
 **[Windows için indir](https://github.com/kyrerdm/Luma/releases/latest)** · [Kurulum](#kurulum) · [Özellikler](#özellikler) · [Kaynak koddan derleme](#kaynak-koddan-derleme)
@@ -13,7 +15,7 @@ Windows 11 için sade ve akıcı ses, medya ve klavye göstergeleri. İnce bir s
 **Gereksinim:** Windows 11, 64 bit (x64). ARM64 için ayrı paket henüz yoktur.
 
 1. **[Son sürüm sayfasını aç](https://github.com/kyrerdm/Luma/releases/latest).**
-2. Sayfanın **Assets** bölümünden **`Luma-0.4.0-win-x64.zip`** dosyasını indir. GitHub'ın eklediği **Source code** dosyaları çalıştırılabilir uygulamayı içermez.
+2. Sayfanın **Assets** bölümünden **`Luma-0.4.1-win-x64.zip`** dosyasını indir. GitHub'ın eklediği **Source code** dosyaları çalıştırılabilir uygulamayı içermez.
 3. İndirilen ZIP'e sağ tıkla ve **Tümünü ayıkla** seçeneğiyle kalıcı bir klasöre çıkar. Örneğin `C:\Users\kullanıcı\Apps\Luma`.
 4. Çıkardığın klasördeki **`Luma.exe`** dosyasını aç.
 5. Klavyeden sesi açıp kısarak göstergeyi dene. Ayarlar ekranından **Göstergeyi dene** düğmesini de kullanabilirsin.
@@ -49,7 +51,8 @@ Mevcut tercihler korunur; ayarlar `%LOCALAPPDATA%\LumaFlyouts\settings.json` dos
 | Görünüm tercihleri | Renk örnekleriyle 12 vurgu rengi; albüm kapağının bulanık arka plan yansıması. |
 | Konum ve süre | Dört köşe ve üst/alt orta; %75–%140 boyut ayarı, görünme süresi ve ses adımı. |
 | Çoklu ekran | İmlecin olduğu ekran, ana ekran veya bağlı monitörlerden biri seçilebilir. Seçilen ekran çıkarılırsa ana ekran kullanılır. |
-| Sistem tepsisi | Tek sol tıkla ayarlar; koyu sağ tık menüsünde önizleme ve uygulamadan tamamen çıkma. |
+| Sistem tepsisi | Tek sol tıkla ayarlar; simgeli, ferah aralıklı koyu sağ tık menüsünde önizleme ve çıkış. |
+| Işık dalgası logosu | Uygulama dosyası, tepsi ve ayarlar başlığında ortak simge; küçük boyutlar için ayrı ikon çözünürlükleri. |
 
 ## Kullanım ipuçları
 
@@ -92,7 +95,7 @@ Mevcut tercihler korunur; ayarlar `%LOCALAPPDATA%\LumaFlyouts\settings.json` dos
 
 ## Mevcut durum ve sınırlamalar
 
-**0.4.0 erken bir sürümdür.** Ses ve klavye göstergeleri ile medya kartının uygulaması hazırdır. Parlaklık kontrolü, açık tema, ARM64 paketi, kurulum sihirbazı ve Microsoft Store yayını henüz yoktur. Paket henüz dijital olarak imzalı değildir.
+**0.4.1 erken bir sürümdür.** Ses ve klavye göstergeleri ile medya kartının uygulaması hazırdır. Parlaklık kontrolü, açık tema, ARM64 paketi, kurulum sihirbazı ve Microsoft Store yayını henüz yoktur. Paket henüz dijital olarak imzalı değildir.
 
 Medya bilgisi ve düğmeler oynatıcının Windows'a sunduğu özelliklere bağlıdır. Canlı yayınlarda süre veya ileri sarma olmayabilir. Windows medya API'sine erişim ve komut yönlendirmesi kontrol edildi; canlı Spotify/diğer oynatıcılarda uçtan uca kullanım henüz doğrulanmadı.
 
@@ -127,12 +130,18 @@ cd Luma
 .\scripts\package.ps1
 ```
 
-Çıktı klasörü `artifacts\Luma-0.4.0`, paylaşılacak dosya `artifacts\Luma-0.4.0-win-x64.zip` konumundadır. SHA-256 özeti ZIP'in yanındaki `.sha256` dosyasına yazılır. Hata ayıklama sembolleri dağıtım ZIP'ine eklenmez.
+Çıktı klasörü `artifacts\Luma-0.4.1`, paylaşılacak dosya `artifacts\Luma-0.4.1-win-x64.zip` konumundadır. SHA-256 özeti ZIP'in yanındaki `.sha256` dosyasına yazılır. Hata ayıklama sembolleri dağıtım ZIP'ine eklenmez.
 
 `build.ps1 -Publish`, çalışma zamanını dahil etmeden paket oluşturur; bu çıktı için .NET 10 Desktop Runtime gerekir. Kişisel ayarlardan ayrı bir geliştirme oturumu için:
 
 ```powershell
-.\artifacts\Luma-0.4.0\Luma.exe --data-dir .\.local
+.\artifacts\Luma-0.4.1\Luma.exe --data-dir .\.local
+```
+
+Logo vektörü `src\Luma\Assets\Brand.xaml` dosyasındadır. Tepsi ve ayarlar aynı kaynağı kullanır. Vektör değiştiğinde uygulamanın ICO dosyasını ve PNG önizlemelerini PowerShell 7 ile yeniden üret:
+
+```powershell
+pwsh -NoProfile -STA -File scripts\New-LumaIcon.ps1
 ```
 
 ### Tepki süresi
@@ -141,7 +150,7 @@ Ses aygıtı, medya sorguları ve tuş dinleyicisi arayüzden ayrı yürütülü
 
 ### Doğrulama kapsamı
 
-0.4.0 için **67 kontrol** başarılı oldu. Kontroller; ayarların kurtarılmasını ve kalıcılığını, CoreAudio okumasını, gerçek klavye kancasına yazılımsal ses tuşu basışları gönderilmesini, Windows medya API'sinin açılmasını, WPF pencerelerini ve kullanıcı tercihlerini kapsar. Üst çubuğun Windows sürükleme alanı olması, pencere düğmelerinin tıklanabilmesi, koyu açılır listeler ve sabitlenmiş medya üzerinde geçici kilit bildirimleri de doğrulanır. Ayrıca 12 rengin kalıcılığı, tepsi tıklama davranışı ve WinForms tepsi menüsünün koyu zemini/vurgu rengi kontrol edilir. Kaynak seçimi, ayrı oturumlara komut yönlendirme, kaynak kapanınca geri dönüş, yükleme sırasında seçim değişikliği ve kaynak menüsünün otomatik gizlemeyi durdurması izole oturumlarla doğrulanır. Önizlemenin sistem komutları göndermemesi, animasyonun fazladan ses isteği üretmemesi, zaman çizelgesi ve boş medya kartının kapanması da kontrol edilir.
+0.4.1 için **67 kontrol** başarılı oldu. Kontroller; ayarların kurtarılmasını ve kalıcılığını, CoreAudio okumasını, gerçek klavye kancasına yazılımsal ses tuşu basışları gönderilmesini, Windows medya API'sinin açılmasını, WPF pencerelerini ve kullanıcı tercihlerini kapsar. Üst çubuğun Windows sürükleme alanı olması, pencere düğmelerinin tıklanabilmesi, koyu açılır listeler ve sabitlenmiş medya üzerinde geçici kilit bildirimleri de doğrulanır. Ayrıca 12 rengin kalıcılığı, tepsi tıklama davranışı ve WinForms tepsi menüsünün koyu zemini/vurgu rengi kontrol edilir. Kaynak seçimi, ayrı oturumlara komut yönlendirme, kaynak kapanınca geri dönüş, yükleme sırasında seçim değişikliği ve kaynak menüsünün otomatik gizlemeyi durdurması izole oturumlarla doğrulanır. Önizlemenin sistem komutları göndermemesi, animasyonun fazladan ses isteği üretmemesi, zaman çizelgesi ve boş medya kartının kapanması da kontrol edilir.
 
 Dört köşe yerleşimi, %75 / %100 / %140 ölçekleri, bağlı ekranların listelenmesi ve iki ekranlı bir benzetimde seçim/bağlantı kesilmesi davranışı kontrol edilir. Gerçek monitör takıp çıkarma ve farklı DPI kombinasyonları henüz doğrulanmadı. 1.200 ms bekleyen bir ses aygıtı benzetiminde ilk görüntü hazırlığı 250 ms sınırının altında kalır; bu değer fiziksel Fn tuşunu veya gerçek donanımın uçtan uca gecikmesini ölçmez. Testler normal Windows masaüstü erişimi gerektirir; başsız veya kısıtlı bir ortamda giriş testleri çalışmayabilir. Başlangıç kaydı değiştirilmez. Sonuçlar ve WPF'den alınan görseller `artifacts\verification` içine yazılır. Animasyon karelerini GIF'e çevirmek için Pillow bulunan bir Python ile `scripts\render-motion.py` çalıştırılabilir.
 

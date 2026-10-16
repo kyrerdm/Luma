@@ -1,4 +1,4 @@
-Luma 0.4.0 — Windows 11
+Luma 0.4.1 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
@@ -51,6 +51,8 @@ Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
 Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsiniz.
 Tepsi simgesine bir kez sol tıklayın: Ayarları aç.
 Sağ tık menüsü de koyu temayı ve seçtiğiniz vurgu rengini kullanır.
+Menüde ayarlar, önizleme ve çıkış simgeleri ayrı bir sütunda hizalanır.
+Luma'nın ışık dalgası simgesi tepside, uygulama dosyasında ve başlıkta görünür.
 Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
 
 İsterseniz Windows ile başlat seçeneğini açabilirsiniz. Uygulama klasörünü
