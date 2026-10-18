@@ -1,13 +1,13 @@
-Luma 0.7.0 — Windows 11
+Luma 0.8.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-0.7.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-0.8.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\0.7.0
+Kurulum: %LOCALAPPDATA%\Programs\Luma\0.8.0
 
-Taşınabilir kullanım için Luma-0.7.0-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-0.8.0-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
@@ -106,7 +106,10 @@ kaydırıcısı pasif kalır. Her kaydırıcı yalnızca kendi ekranını kontro
 USB bağlantı istasyonları ve bazı kablolar DDC/CI iletimini desteklemeyebilir.
 Tanınmayan Windows düzenlerinde veya üretici yazılımlarında ek panel görünebilir.
 
-Ayarlar içindeki örnek kart görsel amaçlıdır. Deneme düğmesi kaldırıldı.
+Ayarlardaki Canlı önizleme mevcut ses ve sessize alma durumunu, seçili medya
+kaynağının parçasını, sanatçısını, kapağını ve ilerlemesini gösterir.
+Medya yokken boş durum görünür. Bu alan izleme içindir; sistem sesi veya
+oynatma komutu göndermez. Ayarlar gizlenince önizleme saati durur.
 
 SÜRÜM DEĞİŞTİRİRKEN
 Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.

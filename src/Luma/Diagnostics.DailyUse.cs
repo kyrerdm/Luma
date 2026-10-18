@@ -39,7 +39,7 @@ internal static partial class Diagnostics
 
         Strings.SetLanguage("tr"); Palette.Apply(new AppSettings());
         var saves = 0; var selected = new AppSettings { WelcomeCompleted = true };
-        var window = new SettingsWindow(selected, () => saves++) { AllowClose = true }; window.Show();
+        var window = new SettingsWindow(selected, () => saves++) { AllowClose = true }; SeedSettingsPreview(window); window.Show();
         await Task.Delay(80);
         foreach (var page in new[] { "General", "Appearance", "Sound", "Media", "Display" })
         {

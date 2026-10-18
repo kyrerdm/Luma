@@ -83,13 +83,13 @@ public sealed partial class AppController : IDisposable
         MonitorCatalog.Changed += OnMonitorChange;
         media = new(Application.Current.Dispatcher);
         window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count);
-        media.Changed += flyout.UpdateMedia;
+        media.Changed += OnMediaChanged;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
         flyout.SeekRequested += async (source, position) => flyout.ReportMediaResult(await media.SeekAsync(position, source));
         flyout.SourceRequested += async source =>
         {
             var success = await media.SelectSourceAsync(source);
-            flyout.UpdateMedia(media.State);
+            OnMediaChanged(media.State);
             flyout.ReportSourceSelection(source, success);
         };
         flyout.SettingsRequested += ShowSettings;
@@ -120,6 +120,8 @@ public sealed partial class AppController : IDisposable
 
     public void ShowSettings()
     {
+        window.UpdatePreviewAudio(lastState);
+        window.UpdatePreviewMedia(media.State);
         window.Show();
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
         window.Activate();
@@ -177,6 +179,7 @@ public sealed partial class AppController : IDisposable
     }
     private void ShowCurrentVolume()
     {
+        window.UpdatePreviewAudio(lastState);
         flyout.ShowVolume(lastState);
         flyout.UpdateMedia(media.State);
     }
@@ -186,9 +189,17 @@ public sealed partial class AppController : IDisposable
         var current = update.State;
         var changed = current.Available && lastState.Available && (current.Volume != lastState.Volume || current.Muted != lastState.Muted);
         lastState = current;
+        window.UpdatePreviewAudio(current);
         ApplyPreferences();
         if (changed && settings.ObserveVolume) { flyout.ShowVolume(current); flyout.UpdateMedia(media.State); }
         else flyout.RefreshVolume(current);
+    }
+
+    private void OnMediaChanged(Luma.Models.MediaState state)
+    {
+        if (disposed) return;
+        flyout.UpdateMedia(state);
+        window.UpdatePreviewMedia(state);
     }
 
     private void SetBrightness(int value)
@@ -226,7 +237,7 @@ public sealed partial class AppController : IDisposable
         MonitorCatalog.Changed -= OnMonitorChange;
         external.Dispose();
         keyboard?.Dispose();
-        media.Dispose();
+        media.Changed -= OnMediaChanged; media.Dispose();
         tray.Visible = false;
         tray.ContextMenuStrip?.Dispose();
         tray.Dispose(); trayIcon.Dispose();

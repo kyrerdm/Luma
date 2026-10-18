@@ -384,19 +384,19 @@
             <TextBlock Text="İhtiyaç duyduğunda görünür, sonra çekilir." Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
           </StackPanel>
           <StackPanel Grid.Row="1" VerticalAlignment="Center">
-            <TextBlock Text="ÖRNEK GÖRÜNÜM" FontSize="9" Foreground="{DynamicResource MutedBrush}" Margin="2,0,0,12" />
-            <Border Height="56" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,0">
+            <TextBlock Text="CANLI ÖNİZLEME" FontSize="9" Foreground="{DynamicResource MutedBrush}" Margin="2,0,0,12" />
+            <Border x:Name="PreviewVolumeCard" Height="56" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,0">
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="25" />
                   <ColumnDefinition Width="*" />
                   <ColumnDefinition Width="34" />
-                  <ColumnDefinition Width="24" />
+                  <ColumnDefinition Width="30" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource Icon}" Text="" FontSize="17" />
-                <controls:SmoothSlider Style="{StaticResource FluidSlider}" Grid.Column="1" Value="40" IsHitTestVisible="False" Focusable="False" Margin="12,0,10,0" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="2" Text="40" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="3" Text="" Style="{StaticResource Icon}" FontSize="10" Margin="5,0,0,0" />
+                <TextBlock x:Name="PreviewVolumeIcon" Style="{StaticResource Icon}" Text="" FontSize="17" />
+                <controls:SmoothSlider x:Name="PreviewVolumeSlider" Style="{StaticResource FluidSlider}" Grid.Column="1" Value="0" IsHitTestVisible="False" Focusable="False" Margin="12,0,10,0" VerticalAlignment="Center" />
+                <TextBlock x:Name="PreviewVolumeValue" Grid.Column="2" Text="—" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Text="" Style="{StaticResource Icon}" FontSize="10" Width="24" Opacity="0.7" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5"><TextBlock.RenderTransform><RotateTransform x:Name="PreviewChevronRotation" /></TextBlock.RenderTransform></TextBlock>
               </Grid>
             </Border>
             <Border x:Name="MediaPreviewCard" Height="222" Margin="0,8,0,0" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" SizeChanged="PreviewCard_SizeChanged">
@@ -418,31 +418,31 @@
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="80" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
                       <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
                         <Ellipse Width="6" Height="6" Fill="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <TextBlock Text="Önizleme" FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+                        <TextBlock x:Name="PreviewAppName" Text="Medya" FontSize="10" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis" />
                       </StackPanel>
-                      <TextBlock Text="Blue hour" FontSize="14" FontWeight="SemiBold" />
-                      <TextBlock Text="Luma Sessions" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" />
+                      <TextBlock x:Name="PreviewTrackTitle" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                      <TextBlock x:Name="PreviewArtist" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                    <Border x:Name="PreviewCover" Grid.Column="1" CornerRadius="6" />
+                    <Border x:Name="PreviewCover" Grid.Column="1" CornerRadius="6" Background="{DynamicResource SelectionBrush}"><TextBlock x:Name="PreviewArtworkPlaceholder" Text="&#xE8D6;" Style="{StaticResource Icon}" FontSize="24" Foreground="{DynamicResource MutedBrush}" /></Border>
                   </Grid>
                   <Grid Grid.Row="1" Margin="0,17,0,0">
                     <Grid.RowDefinitions>
                       <RowDefinition Height="18" />
                       <RowDefinition Height="12" />
                     </Grid.RowDefinitions>
-                    <controls:SmoothSlider Style="{StaticResource TimelineSlider}" Value="32" IsHitTestVisible="False" Focusable="False" />
-                    <TextBlock Grid.Row="1" Text="1:12" FontSize="9" Foreground="{DynamicResource MutedBrush}" />
-                    <TextBlock Grid.Row="1" Text="3:42" FontSize="9" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" />
+                    <controls:SmoothSlider x:Name="PreviewTimeline" Style="{StaticResource TimelineSlider}" Value="0" IsHitTestVisible="False" Focusable="False" />
+                    <TextBlock x:Name="PreviewPosition" Grid.Row="1" Text="0:00" FontSize="9" Foreground="{DynamicResource MutedBrush}" />
+                    <TextBlock x:Name="PreviewDuration" Grid.Row="1" Text="0:00" FontSize="9" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" />
                   </Grid>
                   <Grid Grid.Row="2" VerticalAlignment="Bottom">
                     <TextBlock Text="" Style="{StaticResource Icon}" FontSize="13" HorizontalAlignment="Left" Opacity="0.45" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                       <TextBlock Text="" Style="{StaticResource Icon}" FontSize="16" Margin="0,0,25,0" />
                       <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource SelectionBrush}">
-                        <TextBlock Text="" Style="{StaticResource Icon}" FontSize="15" />
+                        <TextBlock x:Name="PreviewPlayIcon" Text="" Style="{StaticResource Icon}" FontSize="15" />
                       </Border>
                       <TextBlock Text="" Style="{StaticResource Icon}" FontSize="16" Margin="25,0,0,0" />
                     </StackPanel>
@@ -450,6 +450,9 @@
                   </Grid>
                 </Grid>
               </Grid>
+            </Border>
+            <Border x:Name="PreviewEmptyMedia" Height="112" Margin="0,8,0,0" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="18">
+              <StackPanel VerticalAlignment="Center"><TextBlock Text="Henüz medya yok" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Bir şey oynatıldığında burada görünür." FontSize="11" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,0" /></StackPanel>
             </Border>
           </StackPanel>
           <Grid Grid.Row="2">

@@ -12,6 +12,14 @@
 - Uyku dönüşünde aygıtları yeniden sorgulama, eski ses aygıtına bekleyen yazıları iptal etme.
 - Otomatik hata senaryoları ve gerçek WPF ekran görüntüleriyle doğrulama.
 
+## 0.8 — Canlı önizleme ve hizalama
+
+- Ses çıkışı okunun taşmayan, dengeli yerleşimi ve hafif vurgusu.
+- Ses kartının sağ kenarına hizalanan, konuma göre açılan ses paneli.
+- Ayarlarda mevcut ses seviyesi, sessize alma, seçili medya, kapak ve canlı ilerleme.
+- Medya/aygıt yokken doğru boş durum; gizli ayarlarda durdurulan önizleme saati.
+- Dört köşe ve üç ölçekte gerçek pencere koordinatlarıyla hizalama kontrolü.
+
 ## Donanımla doğrulanacaklar
 
 [Beta test planı](BETA_TEST_PLANI.md): Bluetooth/USB değişimleri, farklı laptop Fn tuşları, uyku dönüşü, çoklu monitör/DPI, gerçek DDC/CI yazımı ve uzun süreli bellek/CPU kullanımı. Tek bir bilgisayarın sonucu tüm donanımlar için destek iddiası oluşturmaz.

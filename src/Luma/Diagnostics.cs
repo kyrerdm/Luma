@@ -95,6 +95,7 @@ internal static partial class Diagnostics
         await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
         await VerifyReleaseFeaturesAsync(directory, Check);
         await VerifyDailyUseAsync(directory, Check);
+        await VerifyLivePreviewAsync(directory, Check);
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };
@@ -105,6 +106,7 @@ internal static partial class Diagnostics
         flyout.Prepare();
         var saved = 0;
         var window = new SettingsWindow(previewSettings, () => saved++) { AllowClose = true };
+        SeedSettingsPreview(window);
         window.SetBrightness(new(true, 65, "sample", Array.Empty<int>(), "Dahili ekran · örnek görünüm"));
         window.Show();
         flyout.ShowVolume(new(true, 40, false, "Preview"), true);
@@ -281,8 +283,9 @@ internal static partial class Diagnostics
         using (var runtime = new AppController(Path.Combine(directory, "runtime-data")))
         {
             runtime.ShowSettings();
-            await runtime.AudioReady.WaitAsync(TimeSpan.FromSeconds(5));
+            var actualAudio = await runtime.AudioReady.WaitAsync(TimeSpan.FromSeconds(5));
             Check("Normal startup creates settings and system tray", true);
+            Check("The running controller sends cached system audio to settings", ((TextBlock)runtime.DiagnosticSettings.FindName("PreviewVolumeValue")).Text == (actualAudio.Available ? actualAudio.Volume.ToString() : "—"));
             var runtimeWindow = runtime.DiagnosticSettings;
             runtimeWindow.Hide();
             runtime.OnTrayMouseClick(null, new System.Windows.Forms.MouseEventArgs(System.Windows.Forms.MouseButtons.Right, 1, 0, 0, 0));

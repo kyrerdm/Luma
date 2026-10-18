@@ -21,6 +21,7 @@ internal static class Strings
         ["Çalan parçaya yer aç."] = "Make room for your music.",
         ["Monitörler ve ekran parlaklığı."] = "Monitors and screen brightness.",
         ["Küçük. Akıcı. Yerinde."] = "Small. Fluid. Just right.",
+        ["CANLI ÖNİZLEME"] = "LIVE PREVIEW", ["Henüz medya yok"] = "No media yet", ["Bir şey oynatıldığında burada görünür."] = "Your media will appear here when you play something.", ["Başlık yok"] = "Untitled", ["Canlı"] = "Live",
         ["İhtiyaç duyduğunda görünür, sonra çekilir."] = "There when you need it, then out of the way.",
         ["ÖRNEK GÖRÜNÜM"] = "LIVE PREVIEW", ["Önizleme"] = "Preview", ["Arka planda hazır"] = "Ready in the background",
         ["Tercihlerin otomatik kaydedilir."] = "Your preferences are saved automatically.",

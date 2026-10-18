@@ -31,7 +31,7 @@ internal static partial class Diagnostics
         check("Custom colors accept RGB hex and reject ambiguous input", Palette.ValidCustomColor("#16AaBb") && !Palette.ValidCustomColor("red") && !Palette.ValidCustomColor("#FF000000") && !Palette.ValidCustomColor("#00000Z"), "");
         Palette.Apply(prefs);
         check("Light theme updates text, surfaces, accent, and opacity", ((SolidColorBrush)Application.Current.Resources["TextBrush"]).Color.R < 60 && ((SolidColorBrush)Application.Current.Resources["BackgroundBrush"]).Color.R > 230 && ((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color.G == 170 && ((SolidColorBrush)Application.Current.Resources["FlyoutBrush"]).Color.A == 204, "");
-        var settings = new SettingsWindow(prefs, () => { }) { AllowClose = true }; settings.Show();
+        var settings = new SettingsWindow(prefs, () => { }) { AllowClose = true }; SeedSettingsPreview(settings); settings.Show();
         await Task.Delay(100); Render(settings, Path.Combine(directory, "luma-light-settings.png"));
         settings.SetExternal(new[] { new ExternalBrightness("ddc:test-a", "Ekran 1 · 2560×1440", 60, true, "DDC/CI · örnek ekran"), new ExternalBrightness("ddc:test-b", "Ekran 2 · 1920×1080", 0, false, "DDC/CI kapalı veya desteklenmiyor.") });
         var externalRows = (StackPanel)settings.FindName("ExternalRows");

@@ -33,10 +33,9 @@ public partial class SettingsWindow : Window
         GeneralNav.IsChecked = true;
         MonitorCatalog.Changed += OnDisplaysChanged;
         Strings.Changed += OnLanguageChanged;
-        Loaded += (_, _) => Strings.Apply(this);
-        var sample = PreviewData.Artwork();
-        PreviewBackdrop.Source = sample;
-        PreviewCover.Background = new ImageBrush(sample) { Stretch = Stretch.UniformToFill };
+        Loaded += (_, _) => { Strings.Apply(this); RefreshLivePreview(); };
+        IsVisibleChanged += (_, _) => RefreshLivePreview();
+        previewClock.Tick += (_, _) => PaintPreviewTimeline();
         ready = true;
         SourceInitialized += (_, _) =>
         {
@@ -139,8 +138,7 @@ public partial class SettingsWindow : Window
     private void Opacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e) { if (ready) { settings.SurfaceOpacity = e.NewValue; Palette.Apply(settings); UpdateLabels(); Save(); } }
     private void UpdatePreview()
     {
-        MediaPreviewCard.Visibility = settings.ShowMedia ? Visibility.Visible : Visibility.Collapsed;
-        PreviewBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
+        RefreshLivePreview();
     }
     private void PreviewCard_SizeChanged(object sender, SizeChangedEventArgs e)
     {
@@ -192,7 +190,7 @@ public partial class SettingsWindow : Window
     private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} " + (Strings.Language == "en" ? "s" : "sn"); StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; OpacityText.Text = $"%{settings.SurfaceOpacity * 100:0}"; }
     private void Save()
     {
-        try { save(); FeedbackText.Text = Strings.T("Kaydedildi. Tercihlerin bir sonraki açılışta da burada."); }
+        try { save(); RefreshLivePreview(); FeedbackText.Text = Strings.T("Kaydedildi. Tercihlerin bir sonraki açılışta da burada."); }
         catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException) { FeedbackText.Text = "Ayarlar kaydedilemedi: " + ex.Message; }
     }
     private void Startup_Changed(object sender, RoutedEventArgs e)
@@ -208,6 +206,6 @@ public partial class SettingsWindow : Window
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Close_Click(object sender, RoutedEventArgs e) => Hide();
     protected override void OnClosing(CancelEventArgs e) { if (!AllowClose) { e.Cancel = true; Hide(); } base.OnClosing(e); }
-    protected override void OnClosed(EventArgs e) { updateCancellation?.Cancel(); MonitorCatalog.Changed -= OnDisplaysChanged; Strings.Changed -= OnLanguageChanged; base.OnClosed(e); }
+    protected override void OnClosed(EventArgs e) { previewClock.Stop(); updateCancellation?.Cancel(); MonitorCatalog.Changed -= OnDisplaysChanged; Strings.Changed -= OnLanguageChanged; base.OnClosed(e); }
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr handle, int attribute, ref int value, int size);
 }

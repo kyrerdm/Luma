@@ -57,6 +57,8 @@ public partial class FlyoutWindow : Window
     {
         this.settings = settings;
         InitializeComponent();
+        AudioPopup.CustomPopupPlacementCallback = PlaceAudioPopup;
+        UpdateOutputChevron(false);
         ApplyLanguage();
         MonitorCatalog.Changed += OnDisplaysChanged;
         fullscreenTimer.Tick += (_, _) => { if (IsVisible && SuppressForFullscreen) Dismiss(); };
@@ -228,6 +230,8 @@ public partial class FlyoutWindow : Window
 
     public void ApplyPreferences()
     {
+        if (AudioPopup.IsOpen && (audioPopupPosition != settings.Position || Math.Abs(layoutScale - settings.FlyoutScale) > 0.001)) AudioPopup.IsOpen = false;
+        UpdateOutputChevron(false);
         VolumeSlider.MotionEnabled = Motion;
         BrightnessSlider.MotionEnabled = Motion;
         TimelineSlider.MotionEnabled = false;

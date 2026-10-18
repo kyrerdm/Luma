@@ -13,7 +13,7 @@
     <EnableCompressionInSingleFile Condition="'$(PublishSingleFile)' == 'true'">true</EnableCompressionInSingleFile>
     <AssemblyName>Luma</AssemblyName>
     <RootNamespace>Luma</RootNamespace>
-    <Version>0.7.0</Version>
+    <Version>0.8.0</Version>
     <Description>Windows için sade ses, parlaklık ve medya göstergeleri.</Description>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
   </PropertyGroup>

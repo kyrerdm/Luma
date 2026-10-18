@@ -51,6 +51,7 @@ public partial class SettingsWindow
         if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(OnLanguageChanged); return; }
         Strings.Apply(this);
         UpdateLabels();
+        RefreshLivePreview();
         Navigate(CurrentSection);
     }
 
