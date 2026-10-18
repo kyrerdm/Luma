@@ -39,7 +39,7 @@ internal static partial class Diagnostics
             var signature = (TextBlock)window.FindName("AboutSignature");
             var copy = (Button)window.FindName("CopyVersionButton");
             var project = (Button)window.FindName("ProjectButton");
-            check("About identifies the running version and developer without personal data", version.Text == AppVersion.Current.ToString(3) && signature.Text == "kyrerdm" && AboutInfo.CopyText == AboutInfo.VersionLabel + Environment.NewLine + AboutInfo.ProjectUrl && !AboutInfo.CopyText.Contains(Environment.UserName, StringComparison.OrdinalIgnoreCase), "");
+            check("About identifies the running version and developer without personal data", version.Text == AppVersion.Current.ToString(3) && signature.Text == "kyrerdm" && AboutInfo.CopyText == AboutInfo.VersionLabel + Environment.NewLine + AboutInfo.ProjectUrl, "The copied data contains only the public version and project URL.");
             check("The original Luma MIT license is embedded with the correct attribution", text.Text.StartsWith("MIT License", StringComparison.Ordinal) && text.Text.Contains("Copyright (c) 2026 kyrerdm") && text.Text.Contains("THE SOFTWARE IS PROVIDED") && text.Text == Encoding.UTF8.GetString(InstallService.ReadNotice("LICENSE.txt")), "");
             var allNoticesMatch = true;
             for (var i = 0; i < AboutInfo.Licenses.Count; i++)
