@@ -42,5 +42,16 @@ public sealed partial class AppController
         if (disposed) return;
         System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(async () => { if (disposed) return; externalRevision++; external.Suspend(); if (settings.ExternalBrightness && window.IsVisible) { if (scanningExternal) rescanExternal = true; else await ScanExternal(); } }));
     }
-    private void OnResume(object sender, PowerModeChangedEventArgs e) { if (e.Mode == PowerModes.Resume && !disposed) { audio.RequestRefresh(); OnMonitorChange(); } }
+    private void OnResume(object sender, PowerModeChangedEventArgs e)
+    {
+        if (e.Mode != PowerModes.Resume || disposed) return;
+        System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (disposed) return;
+            audio.RequestRefresh(); brightness.RequestRefresh(); routing.Reset(); media.RequestRefresh();
+            MonitorCatalog.Refresh(); flyout.PlaceOnActiveMonitor();
+            if (flyout.AudioPanelOpen) _ = RefreshRouting();
+            OnMonitorChange();
+        }));
+    }
 }

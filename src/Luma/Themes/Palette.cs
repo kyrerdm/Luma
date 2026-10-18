@@ -6,9 +6,12 @@ using System.Windows.Media;
 
 namespace Luma.Themes;
 
-public sealed record AccentOption(string Id, string Name, string Hex)
+public sealed record AccentOption(string Id, string Name, string Hex) : System.ComponentModel.INotifyPropertyChanged
 {
     public Color Color => (Color)ColorConverter.ConvertFromString(Hex);
+    public string DisplayName => Luma.Services.Strings.T(Name);
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+    internal void RefreshLanguage() => PropertyChanged?.Invoke(this, new(nameof(DisplayName)));
 }
 
 public static class Palette

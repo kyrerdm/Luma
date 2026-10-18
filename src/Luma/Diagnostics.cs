@@ -94,6 +94,7 @@ internal static partial class Diagnostics
         await VerifyBrightnessAsync(directory, Check);
         await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
         await VerifyReleaseFeaturesAsync(directory, Check);
+        await VerifyDailyUseAsync(directory, Check);
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };
@@ -168,6 +169,8 @@ internal static partial class Diagnostics
         var darkMenus = true;
         foreach (var name in new[] { "PositionCombo", "MonitorCombo", "AccentCombo" })
         {
+            window.Navigate(name == "MonitorCombo" ? "Display" : "Appearance");
+            await Task.Delay(30);
             var combo = (ComboBox)window.FindName(name);
             combo.IsDropDownOpen = true;
             await Task.Delay(180);

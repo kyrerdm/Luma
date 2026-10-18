@@ -180,7 +180,8 @@ internal static partial class Diagnostics
             ((CheckBox)window.FindName("BrightnessToggle")).IsChecked = true;
             window.SetBrightness(controlDevice.Read());
             window.Show();
-            ((ScrollViewer)window.FindName("PreferencesScroll")).ScrollToVerticalOffset(230);
+            window.Navigate("Display");
+            ((ScrollViewer)window.FindName("PreferencesScroll")).ScrollToTop();
             await Task.Delay(150);
             Render(window, Path.Combine(directory, "luma-brightness-settings.png"));
         }

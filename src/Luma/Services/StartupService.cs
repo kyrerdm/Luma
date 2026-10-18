@@ -32,6 +32,13 @@ public static class StartupService
         else key.DeleteValue(ValueName, false);
     }
 
+    internal static void SetExecutable(string executable)
+    {
+        if (!System.IO.Path.IsPathFullyQualified(executable) || executable.Contains('"') || !System.IO.File.Exists(executable)) throw new InvalidOperationException("Başlangıç yolu doğrulanamadı.");
+        using var key = Registry.CurrentUser.CreateSubKey(KeyPath);
+        key.SetValue(ValueName, $"\"{executable}\" --background");
+    }
+
     public static void RefreshEnabledPath()
     {
         if (!IsEnabled()) return;

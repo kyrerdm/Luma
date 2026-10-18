@@ -40,7 +40,8 @@ internal static partial class Diagnostics
         var externalCommands = new List<string>(); settings.ExternalBrightnessRequested += (id, value) => externalCommands.Add(id + ":" + value);
         supportedSlider.Value = 65;
         check("External brightness rows only send supported monitor requests", externalCommands.SequenceEqual(new[] { "ddc:test-a:65" }) && !unsupportedSlider.IsEnabled, "");
-        ((ScrollViewer)settings.FindName("PreferencesScroll")).ScrollToVerticalOffset(500);
+        settings.Navigate("Appearance");
+        ((ScrollViewer)settings.FindName("PreferencesScroll")).ScrollToTop();
         await Task.Delay(60); Render(settings, Path.Combine(directory, "luma-light-preferences.png")); settings.Close();
 
         var sampleApp = new AudioApp("spotify", "Spotify", "output-a", new[] { "session-a" }, 55, false);

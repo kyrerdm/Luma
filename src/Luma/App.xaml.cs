@@ -45,11 +45,13 @@ public partial class App : Application
             return;
         }
 
-        if (e.Args.Contains("--install") || IsSetupExecutable(Environment.ProcessPath ?? ""))
+        if (e.Args.Contains("--install") || e.Args.Contains("--apply-update") || IsSetupExecutable(Environment.ProcessPath ?? ""))
         {
             var store = new Luma.Models.SettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumaFlyouts"));
             Palette.Apply(store.Load());
-            new InstallWindow().ShowDialog(); Shutdown(); return;
+            Strings.SetLanguage(store.Load().Language);
+            var previousIndex = Array.IndexOf(e.Args, "--previous");
+            new InstallWindow(e.Args.Contains("--apply-update"), previousIndex >= 0 && previousIndex + 1 < e.Args.Length ? e.Args[previousIndex + 1] : null).ShowDialog(); Shutdown(); return;
         }
         instanceMutex = new Mutex(true, "Local\\Luma.Flyouts.Instance", out var created);
         openSettings = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\Luma.Flyouts.OpenSettings");
@@ -76,7 +78,13 @@ public partial class App : Application
             exitSignal = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\Luma.Flyouts.Exit");
             exitRegistration = ThreadPool.RegisterWaitForSingleObject(exitSignal,
                 (_, _) => Dispatcher.BeginInvoke(new Action(() => Shutdown())), null, Timeout.Infinite, false);
-            if (!e.Args.Contains("--background")) controller.ShowSettings();
+            var readyIndex = Array.IndexOf(e.Args, "--ready-event");
+            if (readyIndex >= 0 && readyIndex + 1 < e.Args.Length && System.Text.RegularExpressions.Regex.IsMatch(e.Args[readyIndex + 1], @"^Local\\Luma\.Update\.Ready\.[a-f0-9]{32}$"))
+            {
+                var readyName = e.Args[readyIndex + 1];
+                _ = Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() => { try { using var signal = EventWaitHandle.OpenExisting(readyName); signal.Set(); } catch (WaitHandleCannotBeOpenedException) { } }));
+            }
+            if (!e.Args.Contains("--background")) controller.ShowInitial();
         }
         catch (Exception ex)
         {

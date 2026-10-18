@@ -8,5 +8,6 @@
 *.gif binary
 *.png binary
 *.ico binary
+docs/KULLANIM.txt text eol=lf
 # Keep redistributable notices byte-for-byte, including upstream whitespace.
 docs/distribution/*.txt -text -whitespace

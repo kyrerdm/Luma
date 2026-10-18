@@ -24,6 +24,7 @@ public sealed class MediaService : IDisposable
     private DispatcherTimer? timer;
     private TaskCompletionSource? refreshCompletion;
     private bool pending;
+    private bool starting;
     private volatile bool disposed;
     private MediaState state = MediaState.Empty;
     public MediaState State => Volatile.Read(ref state);
@@ -38,8 +39,26 @@ public sealed class MediaService : IDisposable
     }
 
     public Task StartAsync() => worker.RunAsync(StartCoreAsync);
+    public void RequestRefresh()
+    {
+        if (!disposed) worker.Post(async () =>
+        {
+            if (starting || disposed) return;
+            if (provider is null || Error is not null)
+            {
+                selectionRevision++;
+                foreach (var session in sessions) session.Changed -= QueueRefresh;
+                sessions = Array.Empty<IMediaSession>(); selected = null;
+                if (provider is not null) { provider.Changed -= QueueRefresh; provider.Dispose(); provider = null; }
+                await StartCoreAsync();
+            }
+            else await RefreshAsync();
+        });
+    }
     private async Task StartCoreAsync()
     {
+        if (starting || disposed) return;
+        starting = true;
         try
         {
             provider = providerFactory();
@@ -48,11 +67,18 @@ public sealed class MediaService : IDisposable
             provider.Changed += QueueRefresh;
             await RefreshAsync();
             if (disposed) return;
-            timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            timer.Tick += (_, _) => QueueRefresh();
-            timer.Start();
+            Error = null;
         }
-        catch (Exception ex) when (IsMediaError(ex)) { Error = ex.Message; Publish(MediaState.Empty); }
+        catch (Exception ex) when (IsMediaError(ex)) { Error = ex.Message; provider?.Dispose(); provider = null; Publish(MediaState.Empty); }
+        finally
+        {
+            starting = false;
+            if (!disposed)
+            {
+                if (timer is null) { timer = new DispatcherTimer(); timer.Tick += (_, _) => { timer.Interval = TimeSpan.FromSeconds(Error is null ? 1 : 5); if (provider is null || Error is not null) RequestRefresh(); else QueueRefresh(); }; }
+                timer.Interval = TimeSpan.FromSeconds(Error is null ? 1 : 5); timer.Start();
+            }
+        }
     }
 
     private void QueueRefresh()

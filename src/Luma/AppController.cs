@@ -49,6 +49,7 @@ public sealed partial class AppController : IDisposable
     {
         store = new(dataDirectory);
         settings = store.Load();
+        Strings.SetLanguage(settings.Language);
         Palette.Apply(settings);
         flyout = new(settings);
         window = new(settings, SaveSettings);
@@ -81,6 +82,7 @@ public sealed partial class AppController : IDisposable
         Microsoft.Win32.SystemEvents.PowerModeChanged += OnResume;
         MonitorCatalog.Changed += OnMonitorChange;
         media = new(Application.Current.Dispatcher);
+        window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count);
         media.Changed += flyout.UpdateMedia;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
         flyout.SeekRequested += async (source, position) => flyout.ReportMediaResult(await media.SeekAsync(position, source));
@@ -108,10 +110,11 @@ public sealed partial class AppController : IDisposable
             var color = ((System.Windows.Media.SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color;
             return Color.FromArgb(color.R, color.G, color.B);
         });
-        menu.AddAction(TrayAction.Settings, "Luma ayarları", (_, _) => ShowSettings());
-        menu.AddAction(TrayAction.Exit, "Çıkış", (_, _) => Application.Current.Shutdown());
+        menu.AddAction(TrayAction.Settings, Strings.T("Luma ayarları"), (_, _) => ShowSettings());
+        menu.AddAction(TrayAction.Exit, Strings.T("Çıkış"), (_, _) => Application.Current.Shutdown());
         tray = new Forms.NotifyIcon { Text = "Luma · ses ve klavye göstergeleri", Icon = trayIcon, ContextMenuStrip = menu, Visible = true };
         tray.MouseClick += OnTrayMouseClick;
+        Strings.Changed += OnLanguageChanged;
         _ = media.StartAsync();
     }
 
@@ -121,6 +124,17 @@ public sealed partial class AppController : IDisposable
         if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
         window.Activate();
         if (settings.ExternalBrightness) _ = ScanExternal();
+    }
+    public void ShowInitial()
+    {
+        if (!settings.WelcomeCompleted && window.ShowWelcome()) return;
+        ShowSettings();
+    }
+    private void OnLanguageChanged()
+    {
+        if (disposed) return;
+        foreach (Forms.ToolStripItem item in tray.ContextMenuStrip!.Items) item.Text = Strings.T(item.Tag is TrayAction.Settings ? "Luma ayarları" : "Çıkış");
+        flyout.ApplyLanguage();
     }
     internal void OnTrayMouseClick(object? sender, Forms.MouseEventArgs e)
     {
@@ -143,7 +157,7 @@ public sealed partial class AppController : IDisposable
             keyboard.ShowLocks = settings.LockKeys;
             keyboard.AudioAvailable = lastState.Available;
         }
-        window.SetStatus(hookError is not null ? "Tuş erişimi yok" : !lastState.Available ? "Ses aygıtı bekleniyor" : "Arka planda hazır", hookError is null && lastState.Available);
+        window.SetStatus(Strings.T(hookError is not null ? "Tuş erişimi yok" : !lastState.Available ? "Ses aygıtı bekleniyor" : "Arka planda hazır"), hookError is null && lastState.Available);
     }
     private void OnVolumePressed(VolumeCommand command, long timestamp)
     {
@@ -206,6 +220,7 @@ public sealed partial class AppController : IDisposable
     {
         if (disposed) return;
         disposed = true;
+        Strings.Changed -= OnLanguageChanged;
         Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnAppearanceChanged;
         Microsoft.Win32.SystemEvents.PowerModeChanged -= OnResume;
         MonitorCatalog.Changed -= OnMonitorChange;

@@ -25,6 +25,7 @@ public sealed class BackgroundAudioService : IDisposable
     private DispatcherTimer? timer;
     private long sequence;
     private long appliedSequence;
+    private long refreshBarrier;
     private volatile bool disposed;
     public AudioState State => Volatile.Read(ref snapshot).State;
     public Task<AudioState> Ready => ready.Task;
@@ -52,14 +53,19 @@ public sealed class BackgroundAudioService : IDisposable
     });
 
     public long SetVolume(int value) => Enqueue(() => device!.SetVolume(value));
-    public void RequestRefresh() => worker.Post(() => { if (device is AudioService native) native.InvalidateEndpoint(); Refresh(true); });
+    public void RequestRefresh()
+    {
+        var barrier = Interlocked.Increment(ref sequence);
+        Volatile.Write(ref refreshBarrier, barrier);
+        worker.Post(() => { if (disposed) return; if (device is AudioService native) native.InvalidateEndpoint(); appliedSequence = Math.Max(appliedSequence, barrier); Refresh(true); }, DispatcherPriority.Send);
+    }
 
     private long Enqueue(Action apply)
     {
         var request = Interlocked.Increment(ref sequence);
         worker.Post(() =>
         {
-            if (disposed || device is null) return;
+            if (disposed || device is null || request <= Volatile.Read(ref refreshBarrier)) return;
             apply();
             appliedSequence = request;
             Refresh(true);

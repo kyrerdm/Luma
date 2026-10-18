@@ -13,7 +13,7 @@ public partial class SettingsWindow
     private bool updatingExternal;
     public event Action? ExternalScanRequested;
     public event Action<string, int>? ExternalBrightnessRequested;
-    public void SetExternalBusy(bool busy) { ScanMonitorsButton.IsEnabled = !busy; ExternalStatusText.Text = busy ? "Monitörler sorgulanıyor…" : "Destekleyen ekranlarda monitör menüsünden DDC/CI açık olmalıdır."; }
+    public void SetExternalBusy(bool busy) { ScanMonitorsButton.IsEnabled = !busy; ExternalStatusText.Text = Strings.T(busy ? "Monitörler sorgulanıyor…" : "Destekleyen ekranlarda monitör menüsünden DDC/CI açık olmalıdır."); }
     public void SetExternal(ExternalBrightness[] displays)
     {
         updatingExternal = true; ExternalRows.Children.Clear(); externalSliders.Clear();
@@ -27,10 +27,10 @@ public partial class SettingsWindow
             AutomationProperties.SetName(slider, display.Name + " parlaklığı");
             slider.ValueChanged += (_, e) => { if (!updatingExternal && slider.IsEnabled) { value.Text = $"%{e.NewValue:0}"; ExternalBrightnessRequested?.Invoke(display.Id, (int)Math.Round(e.NewValue)); } };
             line.Children.Add(slider); line.Children.Add(value); panel.Children.Add(line);
-            var status = new TextBlock { Text = display.Status, FontSize = 10, TextWrapping = TextWrapping.Wrap, Margin = new(0, 2, 0, 0) }; status.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); panel.Children.Add(status);
+            var status = new TextBlock { Text = Strings.T(display.Status), FontSize = 10, TextWrapping = TextWrapping.Wrap, Margin = new(0, 2, 0, 0) }; status.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); panel.Children.Add(status);
             externalSliders[display.Id] = slider; ExternalRows.Children.Add(panel);
         }
-        ExternalStatusText.Text = displays.Length == 0 ? "Bağlı fiziksel monitör bulunamadı." : "Monitör desteklemiyorsa veya DDC/CI kapalıysa kaydırıcı pasif kalır.";
+        ExternalStatusText.Text = Strings.T(displays.Length == 0 ? "Bağlı fiziksel monitör bulunamadı." : "Monitör desteklemiyorsa veya DDC/CI kapalıysa kaydırıcı pasif kalır.");
         updatingExternal = false;
     }
     public void UpdateExternal(ExternalBrightness state)
@@ -40,8 +40,8 @@ public partial class SettingsWindow
         slider.IsEnabled = state.Available;
         if (!slider.IsMouseCaptureWithin) slider.Value = state.Value;
         if (slider.Parent is Grid line && line.Children[1] is TextBlock value) value.Text = state.Available ? $"%{state.Value}" : "—";
-        ExternalStatusText.Text = state.Status; updatingExternal = false;
+        ExternalStatusText.Text = Strings.T(state.Status); updatingExternal = false;
     }
-    private void External_Changed(object sender, RoutedEventArgs e) { if (!ready) return; settings.ExternalBrightness = ExternalToggle.IsChecked == true; Save(); if (settings.ExternalBrightness) ExternalScanRequested?.Invoke(); else { ExternalRows.Children.Clear(); externalSliders.Clear(); ExternalStatusText.Text = "Monitör kontrolü kapalı."; } }
+    private void External_Changed(object sender, RoutedEventArgs e) { if (!ready) return; settings.ExternalBrightness = ExternalToggle.IsChecked == true; Save(); if (settings.ExternalBrightness) ExternalScanRequested?.Invoke(); else { ExternalRows.Children.Clear(); externalSliders.Clear(); ExternalStatusText.Text = Strings.T("Monitör kontrolü kapalı."); } }
     private void ScanMonitors_Click(object sender, RoutedEventArgs e) { if (ExternalToggle.IsChecked != true) ExternalToggle.IsChecked = true; else ExternalScanRequested?.Invoke(); }
 }

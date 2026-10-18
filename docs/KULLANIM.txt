@@ -1,13 +1,13 @@
-Luma 0.6.0 — Windows 11
+Luma 0.7.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-0.6.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-0.7.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\0.6.0
+Kurulum: %LOCALAPPDATA%\Programs\Luma\0.7.0
 
-Taşınabilir kullanım için Luma-0.6.0-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-0.7.0-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
@@ -48,6 +48,12 @@ Ses şeridinde fare tekerleğiyle de sesi değiştirebilirsiniz.
 Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
 
 TERCİHLER
+Ayarlar Genel, Görünüm, Ses, Medya ve Ekran bölümlerine ayrılır.
+Genel bölümünden Türkçe/English dilini seçebilir, JSON yedeği alabilir,
+yedekten dönebilir veya onay vererek varsayılanlara sıfırlayabilirsiniz.
+Bu işlemler Windows başlangıç seçimini, canlı ses/parlaklık düzeyini değiştirmez.
+Yeni kurulumda kısa başlangıç rehberi açılır; eski tercihler korunur.
+Genel bölümündeki destek raporu kullanıcı adı, dosya yolu veya parça bilgisi içermez.
 Ayarlar ekranından konumu, süreyi, ses adımını, rengi ve animasyonları değiştirin.
 Renk örneklerinden 12 vurgu rengi seçilebilir; tercihiniz kaydedilir.
 Açık, koyu veya Windows ile aynı temayı seçebilirsiniz. Özel renk alanına
@@ -108,8 +114,11 @@ Windows ile başlat zaten açıksa yeni sürüm açılırken başlangıç yolu
 güncellenir. Kapalıysa kapalı kalır. Mevcut görünüm tercihleriniz korunur.
 Kurulu sürümü yeni Setup.exe dosyasıyla güncelleyebilirsiniz. Ayarlardaki
 Güncellemeleri denetle düğmesi GitHub'ın kararlı sürümünü kontrol eder;
-varsa İndir düğmesi indirme sayfasını açar. İndirme ve kurulum kullanıcı
-tarafından yapılır; otomatik indirme veya arka plan güncellemesi yoktur.
+varsa İndir ve güncelle ile paketi uygulama içinden alabilirsiniz. Dosya
+boyutu ve GitHub SHA-256 özeti doğrulanır; eksik/değişmiş dosya çalıştırılmaz.
+Yeni sürüm açılamazsa önceki kurulumun kayıtları geri yüklenip eski sürüm
+açılır. İndirme sırasında mevcut Luma çalışmayı sürdürür. İptal edilebilir.
+Paket doğrulama bilgisi yoksa sürüm sayfası açılır; kendiliğinden indirme yoktur.
 
 SINIRLAR
 Paket henüz dijital imzalı değildir. Bazı üreticilerin özel Fn yazılımları
@@ -117,7 +126,8 @@ farklı davranabilir; bunlarda Windows paneli de görünebilir.
 
 Ayarlar: %LOCALAPPDATA%\LumaFlyouts\settings.json
 Klavye kaydı veya telemetri yoktur. Günlük kullanım için internet gerekmez.
-Yalnızca güncelleme denetlemesine basıldığında GitHub'a ağ isteği yapılır.
+Sürüm denetimi ve İndir ve güncelle yalnızca sizin isteğinizle GitHub'a bağlanır.
+Destek raporu seçtiğiniz dosyaya kaydedilir; otomatik gönderilmez.
 
 Bu uygulama ModernFlyouts fikrinden ilham alan bağımsız bir projedir.
 ModernFlyouts'un kodunu veya görsel varlıklarını içermez.

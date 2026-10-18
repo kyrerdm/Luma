@@ -52,17 +52,30 @@ internal static class InstallService
         register(plan, desktopShortcut);
         return plan;
     }
-    private static void Register(InstallPlan plan, bool desktopShortcut)
+    internal static void Register(InstallPlan plan, bool desktopShortcut)
     {
         CreateShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Luma.lnk"), plan.Executable);
-        if (desktopShortcut) CreateShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Luma.lnk"), plan.Executable);
+        var desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Luma.lnk");
+        if (desktopShortcut || OwnShortcut(desktopPath, plan.Root)) CreateShortcut(desktopPath, plan.Executable);
         using var registration = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\LumaFlyouts");
-        registration.SetValue("DisplayName", "Luma"); registration.SetValue("DisplayVersion", AppVersion.Current.ToString(3));
+        registration.SetValue("DisplayName", "Luma"); registration.SetValue("DisplayVersion", Path.GetFileName(plan.Directory));
         registration.SetValue("Publisher", "kyrerdm"); registration.SetValue("InstallLocation", plan.Root); registration.SetValue("DisplayIcon", plan.Executable);
         registration.SetValue("URLInfoAbout", "https://github.com/kyrerdm/Luma");
         var powershell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"WindowsPowerShell\v1.0\powershell.exe");
         registration.SetValue("UninstallString", $"\"{powershell}\" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File \"{plan.UninstallScript}\"");
         registration.SetValue("NoModify", 1); registration.SetValue("NoRepair", 1);
+    }
+    private static bool OwnShortcut(string path, string root)
+    {
+        if (!File.Exists(path)) return false;
+        object? shell = null, shortcut = null;
+        try
+        {
+            shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell")!);
+            dynamic automation = shell!; shortcut = automation.CreateShortcut(path); dynamic link = shortcut;
+            return ((string)link.TargetPath).StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        }
+        finally { if (shortcut is not null) Marshal.ReleaseComObject(shortcut); if (shell is not null) Marshal.ReleaseComObject(shell); }
     }
     private static void CreateShortcut(string path, string executable)
     {

@@ -89,6 +89,7 @@ internal static partial class Diagnostics
         button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         flyout.ShowLock("Caps Lock", true);
         await Task.Delay(1150);
+        if (flyout.IsVisible) File.AppendAllText(Path.Combine(directory, "progress.log"), $"Lock dismissal state: menu={menu.IsOpen}; mouse={flyout.IsMouseOver}; capture={flyout.IsMouseCaptureWithin}; pointer={System.Windows.Forms.Cursor.Position}; location={flyout.Left},{flyout.Top}{Environment.NewLine}");
         check("Lock notice closes the source menu and expires normally", !menu.IsOpen && !flyout.IsVisible);
         await service.SelectSourceAsync(spotify.Id);
         provider.Replace(chrome);

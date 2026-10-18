@@ -26,6 +26,32 @@ public partial class SettingsWindow : Window
         this.save = save;
         InitializeComponent();
         VersionText.Text = AppVersion.Current.ToString(3);
+        if (string.Equals(Environment.ProcessPath, InstallService.Plan(InstallService.DefaultRoot, AppVersion.Current).Executable, StringComparison.OrdinalIgnoreCase)) InstallButton.Content = Strings.T("Kurulumu onar");
+        foreach (var option in Palette.Options) AccentCombo.Items.Add(new ComboBoxItem { Content = option, Tag = option.Id });
+        AccentCombo.Items.Add(new ComboBoxItem { Content = "Özel renk", Tag = "Custom" });
+        ReloadPreferences();
+        GeneralNav.IsChecked = true;
+        MonitorCatalog.Changed += OnDisplaysChanged;
+        Strings.Changed += OnLanguageChanged;
+        Loaded += (_, _) => Strings.Apply(this);
+        var sample = PreviewData.Artwork();
+        PreviewBackdrop.Source = sample;
+        PreviewCover.Background = new ImageBrush(sample) { Stretch = Stretch.UniformToFill };
+        ready = true;
+        SourceInitialized += (_, _) =>
+        {
+            var handle = new WindowInteropHelper(this).Handle;
+            var dark = Appearance.IsLight ? 0 : 1; DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
+            var round = 2; DwmSetWindowAttribute(handle, 33, ref round, sizeof(int));
+            var chrome = new System.Windows.Shell.WindowChrome { CaptionHeight = 46, ResizeBorderThickness = new Thickness(6), CornerRadius = new CornerRadius(12), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false };
+            System.Windows.Shell.WindowChrome.SetWindowChrome(this, chrome);
+        };
+    }
+
+    private void ReloadPreferences()
+    {
+        var previous = ready;
+        ready = false;
         CustomColorText.Text = settings.CustomAccent;
         OpacitySlider.Value = settings.SurfaceOpacity;
         FullscreenToggle.IsChecked = settings.HideInFullscreen;
@@ -43,26 +69,13 @@ public partial class SettingsWindow : Window
         DurationSlider.Value = settings.DurationSeconds;
         StepSlider.Value = settings.VolumeStep;
         ScaleSlider.Value = settings.FlyoutScale;
-        foreach (var option in Palette.Options) AccentCombo.Items.Add(new ComboBoxItem { Content = option, Tag = option.Id });
-        AccentCombo.Items.Add(new ComboBoxItem { Content = "Özel renk", Tag = "Custom" });
         foreach (ComboBoxItem item in PositionCombo.Items) if ((string)item.Tag == settings.Position) PositionCombo.SelectedItem = item;
         foreach (ComboBoxItem item in AccentCombo.Items) if ((string)item.Tag == settings.Accent) AccentCombo.SelectedItem = item;
         ReloadMonitors();
-        MonitorCatalog.Changed += OnDisplaysChanged;
-        var sample = PreviewData.Artwork();
-        PreviewBackdrop.Source = sample;
-        PreviewCover.Background = new ImageBrush(sample) { Stretch = Stretch.UniformToFill };
+        foreach (ComboBoxItem item in LanguageCombo.Items) if ((string)item.Tag == settings.Language) LanguageCombo.SelectedItem = item;
         UpdatePreview();
         UpdateLabels();
-        ready = true;
-        SourceInitialized += (_, _) =>
-        {
-            var handle = new WindowInteropHelper(this).Handle;
-            var dark = Appearance.IsLight ? 0 : 1; DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
-            var round = 2; DwmSetWindowAttribute(handle, 33, ref round, sizeof(int));
-            var chrome = new System.Windows.Shell.WindowChrome { CaptionHeight = 46, ResizeBorderThickness = new Thickness(6), CornerRadius = new CornerRadius(12), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false };
-            System.Windows.Shell.WindowChrome.SetWindowChrome(this, chrome);
-        };
+        ready = previous;
     }
 
     public void SetStatus(string text, bool healthy)
@@ -78,7 +91,7 @@ public partial class SettingsWindow : Window
         DisplayBrightnessSlider.IsEnabled = state.Available;
         DisplayBrightnessSlider.Value = state.Value;
         DisplayBrightnessText.Text = state.Available ? $"%{state.Value}" : "—";
-        BrightnessStatusText.Text = writeFailed ? "Parlaklık değiştirilemedi. Ekran bağlantısını kontrol edip tekrar dene." : state.Status;
+        BrightnessStatusText.Text = Strings.T(writeFailed ? "Parlaklık değiştirilemedi. Ekran bağlantısını kontrol edip tekrar dene." : state.Status);
         updatingBrightness = false;
     }
 
@@ -118,16 +131,20 @@ public partial class SettingsWindow : Window
     private void CustomColor_Click(object sender, RoutedEventArgs e)
     {
         var color = CustomColorText.Text.Trim();
-        if (!Palette.ValidCustomColor(color)) { ColorStatusText.Text = "# ile başlayan altı haneli renk kodu gir."; return; }
+        if (!Palette.ValidCustomColor(color)) { ColorStatusText.Text = Strings.T("# ile başlayan altı haneli renk kodu gir."); return; }
         settings.CustomAccent = color.ToUpperInvariant(); settings.Accent = "Custom";
         foreach (ComboBoxItem item in AccentCombo.Items) if ((string)item.Tag == "Custom") AccentCombo.SelectedItem = item;
-        Palette.Apply(settings); Save(); ColorStatusText.Text = "Özel rengin uygulandı.";
+        Palette.Apply(settings); Save(); ColorStatusText.Text = Strings.T("Özel rengin uygulandı.");
     }
     private void Opacity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e) { if (ready) { settings.SurfaceOpacity = e.NewValue; Palette.Apply(settings); UpdateLabels(); Save(); } }
     private void UpdatePreview()
     {
         MediaPreviewCard.Visibility = settings.ShowMedia ? Visibility.Visible : Visibility.Collapsed;
         PreviewBackdrop.Visibility = settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
+    }
+    private void PreviewCard_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (MediaPreviewCard.Child is Grid surface) surface.Clip = new RectangleGeometry(new Rect(0, 0, Math.Max(0, e.NewSize.Width - 2), Math.Max(0, e.NewSize.Height - 2)), 9, 9);
     }
     private void ReloadMonitors()
     {
@@ -144,6 +161,7 @@ public partial class SettingsWindow : Window
             MonitorCombo.Items.Add(selected);
         }
         MonitorCombo.SelectedItem = selected;
+        Strings.Apply(MonitorCombo);
         ready = previous;
     }
     private void OnDisplaysChanged()
@@ -171,16 +189,16 @@ public partial class SettingsWindow : Window
         if (!ready) return;
         settings.FlyoutScale = e.NewValue; UpdateLabels(); Save();
     }
-    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} sn"; StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; OpacityText.Text = $"%{settings.SurfaceOpacity * 100:0}"; }
+    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} " + (Strings.Language == "en" ? "s" : "sn"); StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; OpacityText.Text = $"%{settings.SurfaceOpacity * 100:0}"; }
     private void Save()
     {
-        try { save(); FeedbackText.Text = "Kaydedildi. Tercihlerin bir sonraki açılışta da burada."; }
+        try { save(); FeedbackText.Text = Strings.T("Kaydedildi. Tercihlerin bir sonraki açılışta da burada."); }
         catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException) { FeedbackText.Text = "Ayarlar kaydedilemedi: " + ex.Message; }
     }
     private void Startup_Changed(object sender, RoutedEventArgs e)
     {
         if (!ready) return;
-        try { StartupService.SetEnabled(StartupToggle.IsChecked == true); FeedbackText.Text = "Başlangıç tercihin kaydedildi."; }
+        try { StartupService.SetEnabled(StartupToggle.IsChecked == true); FeedbackText.Text = Strings.T("Başlangıç tercihin kaydedildi."); }
         catch (Exception ex) when (ex is UnauthorizedAccessException or System.IO.IOException or System.Security.SecurityException or InvalidOperationException)
         {
             ready = false; StartupToggle.IsChecked = StartupService.IsEnabled(); ready = true;
@@ -190,6 +208,6 @@ public partial class SettingsWindow : Window
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Close_Click(object sender, RoutedEventArgs e) => Hide();
     protected override void OnClosing(CancelEventArgs e) { if (!AllowClose) { e.Cancel = true; Hide(); } base.OnClosing(e); }
-    protected override void OnClosed(EventArgs e) { MonitorCatalog.Changed -= OnDisplaysChanged; base.OnClosed(e); }
+    protected override void OnClosed(EventArgs e) { updateCancellation?.Cancel(); MonitorCatalog.Changed -= OnDisplaysChanged; Strings.Changed -= OnLanguageChanged; base.OnClosed(e); }
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr handle, int attribute, ref int value, int size);
 }

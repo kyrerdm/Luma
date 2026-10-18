@@ -57,6 +57,7 @@ public partial class FlyoutWindow : Window
     {
         this.settings = settings;
         InitializeComponent();
+        ApplyLanguage();
         MonitorCatalog.Changed += OnDisplaysChanged;
         fullscreenTimer.Tick += (_, _) => { if (IsVisible && SuppressForFullscreen) Dismiss(); };
         IsVisibleChanged += (_, _) => { if (IsVisible && settings.HideInFullscreen) fullscreenTimer.Start(); else fullscreenTimer.Stop(); };
@@ -205,7 +206,7 @@ public partial class FlyoutWindow : Window
         VolumeSlider.IsEnabled = audioState.Available;
         VolumeSlider.Value = audioState.Volume;
         VolumeSlider.Opacity = audioState.Muted ? 0.4 : 1;
-        VolumeCard.ToolTip = preview ? "Önizleme · sistem sesi değişmez" : audioState.DeviceName + " · Ayarlar için sağ tıkla";
+        VolumeCard.ToolTip = preview ? "Önizleme · sistem sesi değişmez" : audioState.DeviceName + " · " + Strings.T("Ayarlar için sağ tıkla");
         MuteButton.IsEnabled = audioState.Available;
         OutputButton.IsEnabled = audioState.Available && !preview;
         updating = false;
@@ -257,7 +258,7 @@ public partial class FlyoutWindow : Window
         TimelineSlider.IsEnabled = media.CanSeek && !selectingSource;
         SourceButton.Visibility = media.Sources.Count > 1 || !media.AutomaticSource ? Visibility.Visible : Visibility.Collapsed;
         SourceButton.IsEnabled = !selectingSource;
-        SourceButton.ToolTip = "Medya kaynağı · " + (media.AutomaticSource ? "Otomatik" : media.AppName);
+        SourceButton.ToolTip = Strings.T("Medya kaynağı") + " · " + (media.AutomaticSource ? Strings.T("Otomatik") : media.AppName);
         TimelineSlider.MotionEnabled = false;
         TimelineSlider.Minimum = media.Start.TotalSeconds;
         TimelineSlider.Maximum = Math.Max(media.Start.TotalSeconds + 0.001, media.End.TotalSeconds);
@@ -313,7 +314,7 @@ public partial class FlyoutWindow : Window
         brightnessMode = false;
         PinMenu.IsEnabled = false;
         VolumeCard.Visibility = BrightnessCard.Visibility = Visibility.Collapsed; LockCard.Visibility = Visibility.Visible;
-        StatusText.Text = name; LockStateText.Text = enabled ? "Açık" : "Kapalı";
+        StatusText.Text = name; LockStateText.Text = Strings.Language == "en" ? (enabled ? "On" : "Off") : (enabled ? "Açık" : "Kapalı");
         LockIcon.Text = enabled ? "\uE72E" : "\uE785";
         UpdateMediaLayout(!IsVisible); Reveal();
     }
@@ -390,7 +391,7 @@ public partial class FlyoutWindow : Window
     public void ReportMediaResult(bool success)
     {
         if (success) return;
-        CommandHintText.Text = "Bu işlem şu anda kullanılamıyor.";
+        CommandHintText.Text = Strings.T("Bu işlem şu anda kullanılamıyor.");
         CommandHint.Visibility = Visibility.Visible; hintTimer.Stop(); hintTimer.Start();
     }
 
@@ -476,7 +477,7 @@ public partial class FlyoutWindow : Window
     private void BuildSourceMenu()
     {
         SourceMenu.Items.Clear();
-        var automatic = new MenuItem { Header = SourceHeader("Otomatik", "Çalan kaynağı takip et"), IsChecked = media.AutomaticSource };
+        var automatic = new MenuItem { Header = SourceHeader(Strings.T("Otomatik"), Strings.T("Çalan kaynağı takip et")), IsChecked = media.AutomaticSource };
         automatic.Click += (_, _) => SelectSource(null);
         SourceMenu.Items.Add(automatic);
         SourceMenu.Items.Add(new Separator());
@@ -484,7 +485,7 @@ public partial class FlyoutWindow : Window
         {
             var item = new MenuItem
             {
-                Tag = source.Id, Header = SourceHeader(source.Title, source.AppName + (source.IsPlaying ? " · Çalıyor" : " · Duraklatıldı")),
+                Tag = source.Id, Header = SourceHeader(source.Title, source.AppName + " · " + Strings.T(source.IsPlaying ? "Çalıyor" : "Duraklatıldı")),
                 IsChecked = !media.AutomaticSource && media.SessionId == source.Id,
                 ToolTip = source.AppName + " · " + source.Title + (string.IsNullOrWhiteSpace(source.Artist) ? "" : "\n" + source.Artist)
             };
@@ -513,7 +514,7 @@ public partial class FlyoutWindow : Window
 
     private void Sources_Opening(object sender, ContextMenuEventArgs e) => BuildSourceMenu();
     private void Sources_Opened(object sender, RoutedEventArgs e) { hideTimer.Stop(); RotateSourceArrow(90); }
-    private void Sources_Closed(object sender, RoutedEventArgs e) { RotateSourceArrow(0); RestartTimer(); }
+    private void Sources_Closed(object sender, RoutedEventArgs e) { RotateSourceArrow(0); if (volumeMode) RestartTimer(); }
     private void RotateSourceArrow(double angle)
     {
         if (Motion) SourceArrowRotation.BeginAnimation(RotateTransform.AngleProperty, new DoubleAnimation(angle, TimeSpan.FromMilliseconds(140)));
@@ -546,7 +547,7 @@ public partial class FlyoutWindow : Window
         PaintMedia(); RestartTimer();
         if (!success)
         {
-            CommandHintText.Text = "Bu kaynak artık kullanılamıyor.";
+            CommandHintText.Text = Strings.T("Bu kaynak artık kullanılamıyor.");
             CommandHint.Visibility = Visibility.Visible; hintTimer.Stop(); hintTimer.Start();
         }
     }
@@ -559,7 +560,7 @@ public partial class FlyoutWindow : Window
     {
         pinned = value; PinMenu.IsChecked = pinned;
         PinIcon.Text = pinned ? "\uE77A" : "\uE718";
-        PinButton.ToolTip = pinned ? "Otomatik gizle" : "Açık tut";
+        PinButton.ToolTip = Strings.T(pinned ? "Otomatik gizle" : "Açık tut");
         PinButton.Opacity = pinned ? 1 : 0.45; RestartTimer();
     }
     private void Dismiss_Click(object sender, RoutedEventArgs e) { SetPinned(false); Dismiss(); }

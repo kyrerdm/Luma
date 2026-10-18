@@ -1,107 +1,466 @@
-<Window x:Class="Luma.Views.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:Luma.Controls" xmlns:themes="clr-namespace:Luma.Themes"
-        Title="Luma" Icon="/Assets/Luma.ico" Style="{StaticResource {x:Type Window}}" Width="940" Height="730" MinWidth="860" MinHeight="650" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize" Background="{DynamicResource BackgroundBrush}">
+<Window xmlns:themes="clr-namespace:Luma.Themes" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:controls="clr-namespace:Luma.Controls" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Luma.Views.SettingsWindow" Title="Luma" Icon="/Assets/Luma.ico" Style="{StaticResource {x:Type Window}}" Width="1040" Height="740" MinWidth="960" MinHeight="640" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize" Background="{DynamicResource BackgroundBrush}">
   <Window.Resources>
-    <DataTemplate DataType="{x:Type themes:AccentOption}"><StackPanel Orientation="Horizontal"><Ellipse Width="8" Height="8" Fill="{Binding Hex}" Margin="0,0,8,0" VerticalAlignment="Center" /><TextBlock Text="{Binding Name}" VerticalAlignment="Center" /></StackPanel></DataTemplate>
-    <Style x:Key="RowTitle" TargetType="TextBlock"><Setter Property="FontSize" Value="12" /><Setter Property="Margin" Value="0,0,0,4" /></Style>
-    <Style x:Key="Divider" TargetType="Border"><Setter Property="Height" Value="1" /><Setter Property="Background" Value="{DynamicResource BorderBrush}" /><Setter Property="Margin" Value="0,13" /></Style>
-    <Style x:Key="SectionLabel" TargetType="TextBlock"><Setter Property="FontSize" Value="10" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="Margin" Value="0,23,0,14" /></Style>
+    <DataTemplate DataType="{x:Type themes:AccentOption}">
+      <StackPanel Orientation="Horizontal">
+        <Ellipse Width="8" Height="8" Fill="{Binding Hex}" Margin="0,0,8,0" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" />
+      </StackPanel>
+    </DataTemplate>
+    <Style x:Key="RowTitle" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+    <Style x:Key="Divider" TargetType="Border">
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="Margin" Value="0,13" />
+    </Style>
+    <Style x:Key="SectionLabel" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="10" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+      <Setter Property="Margin" Value="0,23,0,14" />
+    </Style>
+    <Style x:Key="NavigationItem" TargetType="RadioButton">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Margin" Value="0,0,0,5" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="RadioButton">
+            <Border x:Name="Surface" Background="Transparent" CornerRadius="8" Padding="15,12">
+              <Grid>
+                <Border x:Name="Mark" Width="3" Height="16" CornerRadius="1.5" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Left" Margin="-15,0,0,0" Visibility="Collapsed" />
+                <ContentPresenter />
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Surface" Property="Background" Value="{DynamicResource SelectionBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                <Setter TargetName="Mark" Property="Visibility" Value="Visible" />
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Surface" Property="Background" Value="{DynamicResource HoverBrush}" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                <Setter TargetName="Surface" Property="BorderThickness" Value="1" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </Window.Resources>
   <Grid Background="{DynamicResource BackgroundBrush}" TextOptions.TextFormattingMode="Display">
-    <Grid.RowDefinitions><RowDefinition Height="46" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-    <Border x:Name="TitleBar" Background="Transparent"><Grid>
-      <StackPanel Orientation="Horizontal" Margin="23,0" VerticalAlignment="Center"><Image Source="{StaticResource BrandSymbol}" Width="19" Height="19" VerticalAlignment="Center" Margin="0,0,7,0" /><TextBlock Text="luma" FontSize="13" Foreground="{DynamicResource TextBrush}" /></StackPanel>
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,7,0" WindowChrome.IsHitTestVisibleInChrome="True">
-        <Button x:Name="MinimizeButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Minimize_Click" ToolTip="Küçült" AutomationProperties.Name="Küçült"><TextBlock Style="{StaticResource Icon}" FontSize="10" Text="&#xE921;" /></Button>
-        <Button x:Name="CloseButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Close_Click" ToolTip="Sistem tepsisine gizle" AutomationProperties.Name="Sistem tepsisine gizle"><TextBlock Style="{StaticResource Icon}" FontSize="12" Text="&#xE8BB;" /></Button>
-      </StackPanel>
-    </Grid></Border>
-    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="424" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-      <Border BorderBrush="{DynamicResource SurfaceBrush}" BorderThickness="0,0,1,0" Background="{DynamicResource SidebarBrush}">
-        <Grid Margin="26,26,26,22"><Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-          <StackPanel><TextBlock Text="Küçük. Akıcı. Yerinde." FontSize="22" FontWeight="SemiBold" /><TextBlock Text="İhtiyaç duyduğunda görünür, sonra çekilir." Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,8,0,0" /></StackPanel>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="46" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Border x:Name="TitleBar" Background="Transparent">
+      <Grid>
+        <StackPanel Orientation="Horizontal" Margin="23,0" VerticalAlignment="Center">
+          <Image Source="{StaticResource BrandSymbol}" Width="19" Height="19" VerticalAlignment="Center" Margin="0,0,7,0" />
+          <TextBlock Text="luma" FontSize="13" Foreground="{DynamicResource TextBrush}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,7,0" WindowChrome.IsHitTestVisibleInChrome="True">
+          <Button x:Name="MinimizeButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Minimize_Click" ToolTip="Küçült" AutomationProperties.Name="Küçült">
+            <TextBlock Style="{StaticResource Icon}" FontSize="10" Text="" />
+          </Button>
+          <Button x:Name="CloseButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Close_Click" ToolTip="Sistem tepsisine gizle" AutomationProperties.Name="Sistem tepsisine gizle">
+            <TextBlock Style="{StaticResource Icon}" FontSize="12" Text="" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="174" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="300" />
+      </Grid.ColumnDefinitions>
+      <Border Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+        <StackPanel Margin="12,27,12,0">
+          <TextBlock Text="AYARLAR" FontSize="10" Foreground="{DynamicResource MutedBrush}" Margin="12,0,0,16" />
+          <RadioButton x:Name="GeneralNav" GroupName="Sections" Tag="General" Content="Genel" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
+          <RadioButton x:Name="AppearanceNav" GroupName="Sections" Tag="Appearance" Content="Görünüm" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
+          <RadioButton x:Name="SoundNav" GroupName="Sections" Tag="Sound" Content="Ses" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
+          <RadioButton x:Name="MediaNav" GroupName="Sections" Tag="Media" Content="Medya" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
+          <RadioButton x:Name="DisplayNav" GroupName="Sections" Tag="Display" Content="Ekran" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
+        </StackPanel>
+      </Border>
+      <Grid Grid.Column="1" Margin="26,25,24,18">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,24">
+          <TextBlock x:Name="PageTitle" Text="Genel" FontSize="23" FontWeight="SemiBold" />
+          <TextBlock x:Name="PageDescription" Text="Günlük kullanım, yedekler ve güncellemeler." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
+        </StackPanel>
+        <ScrollViewer x:Name="PreferencesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="0,0,8,12">
+            <StackPanel x:Name="GeneralSection" Visibility="Collapsed">
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Windows ile başlat" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Oturum açıldığında tepside hazır olsun." FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <CheckBox x:Name="StartupToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Startup_Changed" Unchecked="Startup_Changed" AutomationProperties.Name="Windows ile başlat" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Klavye kilitleri" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Caps Lock, Num Lock ve Scroll Lock." FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <CheckBox x:Name="LocksToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Klavye kilitlerini göster" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Tam ekranda göstergeleri gizle" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Gösterilecek ekranda oyun veya video tam ekranken açılmasın." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <CheckBox x:Name="FullscreenToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Tam ekranda göstergeleri gizle" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="120" />
+                  <ColumnDefinition Width="44" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Ekranda kalma süresi" FontSize="12" VerticalAlignment="Center" />
+                <Slider x:Name="DurationSlider" Grid.Column="1" Minimum="1" Maximum="8" TickFrequency="0.5" IsSnapToTickEnabled="True" ValueChanged="Duration_Changed" AutomationProperties.Name="Ekranda kalma süresi" />
+                <TextBlock x:Name="DurationText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="154" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Dil / Language" FontSize="12" VerticalAlignment="Center" />
+                <ComboBox x:Name="LanguageCombo" Grid.Column="1" SelectionChanged="Language_Changed" AutomationProperties.Name="Dil / Language">
+                  <ComboBoxItem Content="Türkçe" Tag="tr" />
+                  <ComboBoxItem Content="English" Tag="en" />
+                </ComboBox>
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <StackPanel>
+                <TextBlock Text="AYAR YEDEĞİ" Style="{StaticResource SectionLabel}" Margin="0,0,0,12" />
+                <TextBlock Text="Tercihlerini başka bir bilgisayara taşı veya varsayılana dön. Windows başlangıç ayarı, ses ve parlaklık düzeyleri değişmez." Style="{StaticResource MutedText}" FontSize="11" />
+                <WrapPanel Margin="0,12,0,0">
+                  <Button Content="Dışa aktar" Click="Export_Click" Padding="12,8" FontSize="11" Margin="0,0,6,6" />
+                  <Button Content="İçe aktar" Click="Import_Click" Padding="12,8" FontSize="11" Margin="0,0,6,6" />
+                  <Button Content="Sıfırla" Click="Reset_Click" Padding="12,8" FontSize="11" Margin="0,0,0,6" />
+                </WrapPanel>
+                <Border x:Name="ResetConfirmation" Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14" Visibility="Collapsed" Margin="0,8,0,0">
+                  <StackPanel>
+                    <TextBlock Text="Luma tercihleri varsayılana dönsün mü?" FontSize="12" TextWrapping="Wrap" />
+                    <WrapPanel Margin="0,12,0,0">
+                      <Button Content="Sıfırlamayı onayla" Click="ConfirmReset_Click" Padding="12,8" FontSize="11" Margin="0,0,6,0" />
+                      <Button Content="Vazgeç" Click="CancelReset_Click" Padding="12,8" FontSize="11" />
+                    </WrapPanel>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+              <Border Style="{StaticResource Divider}" />
+              <StackPanel>
+                <TextBlock Text="GÜNCELLEME" Style="{StaticResource SectionLabel}" Margin="0,0,0,12" />
+                <WrapPanel>
+                  <Button x:Name="CheckUpdatesButton" Content="Güncellemeleri denetle" Padding="12,8" FontSize="11" Click="CheckUpdates_Click" Margin="0,0,6,6" />
+                  <Button x:Name="InstallUpdateButton" Content="İndir ve güncelle" Padding="12,8" FontSize="11" Visibility="Collapsed" Click="InstallUpdate_Click" Margin="0,0,6,6" />
+                  <Button x:Name="CancelUpdateButton" Content="İptal" Padding="12,8" FontSize="11" Visibility="Collapsed" Click="CancelUpdate_Click" Margin="0,0,6,6" />
+                  <Button x:Name="OpenReleaseButton" Content="Sürüm sayfası" Padding="12,8" FontSize="11" Visibility="Collapsed" Click="OpenRelease_Click" Margin="0,0,0,6" />
+                </WrapPanel>
+                <ProgressBar x:Name="UpdateProgress" Height="3" Minimum="0" Maximum="100" Visibility="Collapsed" Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource SurfaceBrush}" />
+                <TextBlock x:Name="UpdateStatusText" Text="Yalnızca sen istediğinde GitHub'a bağlanır." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+                <Button x:Name="InstallButton" Content="Bu bilgisayara kur" HorizontalAlignment="Left" Padding="12,8" FontSize="11" Margin="0,12,0,0" Click="Install_Click" />
+              </StackPanel>
+              <Border Style="{StaticResource Divider}" />
+              <StackPanel>
+                <TextBlock Text="YARDIM" Style="{StaticResource SectionLabel}" Margin="0,0,0,12" />
+                <TextBlock Text="Destek raporu yalnızca teknik özet içerir. Dosya yolları, kullanıcı adı ve çalan parça bilgileri eklenmez. Rapor bilgisayarına kaydedilir; gönderilmez." Style="{StaticResource MutedText}" FontSize="11" />
+                <WrapPanel Margin="0,12,0,0">
+                  <Button Content="Destek raporu kaydet" Click="SupportReport_Click" Padding="12,8" FontSize="11" Margin="0,0,6,6" />
+                  <Button Content="Başlangıç rehberi" Click="Welcome_Click" Padding="12,8" FontSize="11" Margin="0,0,0,6" />
+                </WrapPanel>
+              </StackPanel>
+            </StackPanel>
+            <StackPanel x:Name="AppearanceSection" Visibility="Collapsed">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="154" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Tema" FontSize="12" VerticalAlignment="Center" />
+                <ComboBox x:Name="ThemeCombo" Grid.Column="1" SelectionChanged="Theme_Changed" AutomationProperties.Name="Tema">
+                  <ComboBoxItem Content="Koyu" Tag="Dark" />
+                  <ComboBoxItem Content="Açık" Tag="Light" />
+                  <ComboBoxItem Content="Windows ile aynı" Tag="System" />
+                </ComboBox>
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="154" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Vurgu rengi" FontSize="12" VerticalAlignment="Center" />
+                <ComboBox x:Name="AccentCombo" Grid.Column="1" SelectionChanged="Accent_Changed" AutomationProperties.Name="Vurgu rengi" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="96" />
+                  <ColumnDefinition Width="58" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Özel renk" FontSize="12" VerticalAlignment="Center" />
+                <TextBox x:Name="CustomColorText" Grid.Column="1" MaxLength="7" Padding="6" FontSize="12" Foreground="{DynamicResource TextBrush}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" AutomationProperties.Name="Özel renk kodu" />
+                <Button Grid.Column="2" Content="Seç" Padding="8,5" Margin="6,0,0,0" Click="CustomColor_Click" />
+              </Grid>
+              <TextBlock x:Name="ColorStatusText" Foreground="{DynamicResource MutedBrush}" FontSize="10" Text="Örnek: #81B7DB" Margin="0,5,0,0" />
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="120" />
+                  <ColumnDefinition Width="44" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Panel opaklığı" FontSize="12" VerticalAlignment="Center" />
+                <Slider x:Name="OpacitySlider" Grid.Column="1" Minimum="0.65" Maximum="1" TickFrequency="0.01" ValueChanged="Opacity_Changed" AutomationProperties.Name="Panel opaklığı" />
+                <TextBlock x:Name="OpacityText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="154" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Ekrandaki konum" FontSize="12" VerticalAlignment="Center" />
+                <ComboBox x:Name="PositionCombo" Grid.Column="1" SelectionChanged="Position_Changed" AutomationProperties.Name="Ekrandaki konum">
+                  <ComboBoxItem Content="Alt orta" Tag="BottomCenter" />
+                  <ComboBoxItem Content="Üst orta" Tag="TopCenter" />
+                  <ComboBoxItem Content="Sağ üst" Tag="TopRight" />
+                  <ComboBoxItem Content="Sağ alt" Tag="BottomRight" />
+                  <ComboBoxItem Content="Sol üst" Tag="TopLeft" />
+                  <ComboBoxItem Content="Sol alt" Tag="BottomLeft" />
+                </ComboBox>
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="120" />
+                  <ColumnDefinition Width="44" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Gösterge boyutu" FontSize="12" VerticalAlignment="Center" />
+                <Slider x:Name="ScaleSlider" Grid.Column="1" Minimum="0.75" Maximum="1.4" TickFrequency="0.05" IsSnapToTickEnabled="True" ValueChanged="Scale_Changed" AutomationProperties.Name="Gösterge boyutu" />
+                <TextBlock x:Name="ScaleText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <TextBlock Text="Yumuşak geçişler" FontSize="12" VerticalAlignment="Center" />
+                <CheckBox x:Name="AnimationsToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Yumuşak animasyonlar" />
+              </Grid>
+            </StackPanel>
+            <StackPanel x:Name="SoundSection" Visibility="Collapsed">
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Ses tuşları" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Ses açma, kısma ve sessize alma." FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <CheckBox x:Name="VolumeToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Ses tuşlarını Luma ile kullan" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Diğer ses değişiklikleri" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Ses başka bir yerden değiştirildiğinde de göster." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <CheckBox x:Name="ObserveToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Diğer ses değişikliklerini göster" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="120" />
+                  <ColumnDefinition Width="44" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Ses adımı" FontSize="12" VerticalAlignment="Center" />
+                <Slider x:Name="StepSlider" Grid.Column="1" Minimum="1" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="Step_Changed" AutomationProperties.Name="Her basışta ses değişimi" />
+                <TextBlock x:Name="StepText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <TextBlock Text="Ses şeridindeki küçük oktan ses çıkışını seçebilir ve uygulamaların sesini ayrı ayrı ayarlayabilirsin." Style="{StaticResource MutedText}" FontSize="12" />
+            </StackPanel>
+            <StackPanel x:Name="MediaSection" Visibility="Collapsed">
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Medya kartı" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Çalan parça, albüm kapağı ve oynatma kontrolleri." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <CheckBox x:Name="MediaToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Medya kartını göster" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <TextBlock Text="Albüm kapağını arka plana yansıt" FontSize="12" VerticalAlignment="Center" />
+                <CheckBox x:Name="ArtworkToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Albüm kapağını arka plana yansıt" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <TextBlock Text="Medya kartının sağ altındaki ok, Windows'un sunduğu oynatıcılar arasında geçiş yapar. Seçtiğin kaynağın bilgileri ve kontrolleri birlikte değişir." Style="{StaticResource MutedText}" FontSize="12" />
+            </StackPanel>
+            <StackPanel x:Name="DisplaySection" Visibility="Collapsed">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="190" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Gösterilecek ekran" FontSize="12" VerticalAlignment="Center" />
+                <ComboBox x:Name="MonitorCombo" Grid.Column="1" SelectionChanged="Monitor_Changed" DropDownOpened="Monitor_Opened" AutomationProperties.Name="Göstergenin açılacağı monitör" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Parlaklık göstergesi" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Fn tuşlarıyla veya Windows'tan değiştirildiğinde göster." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <CheckBox x:Name="BrightnessToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Parlaklık değişikliklerini göster" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Windows parlaklık panelini gizle" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Luma gösterirken alttaki ikinci paneli gizle." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <CheckBox x:Name="NativeBrightnessToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Windows parlaklık panelini gizle" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="150" />
+                  <ColumnDefinition Width="44" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Dahili ekran" FontSize="12" VerticalAlignment="Center" />
+                <Slider x:Name="DisplayBrightnessSlider" Grid.Column="1" Minimum="0" Maximum="100" SmallChange="5" LargeChange="10" IsEnabled="False" ValueChanged="DisplayBrightness_Changed" AutomationProperties.Name="Laptop ekran parlaklığı" />
+                <TextBlock x:Name="DisplayBrightnessText" Grid.Column="2" Text="—" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <TextBlock x:Name="BrightnessStatusText" Text="Parlaklık desteği kontrol ediliyor…" FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,9,0,0" />
+              <Border Style="{StaticResource Divider}" />
+              <Grid>
+                <StackPanel Margin="0,0,58,0">
+                  <TextBlock Text="Monitör parlaklığı (DDC/CI)" Style="{StaticResource RowTitle}" />
+                  <TextBlock Text="Destekleyen bağlı ekranları ayrı ayarla." FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+                <CheckBox x:Name="ExternalToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="External_Changed" Unchecked="External_Changed" AutomationProperties.Name="DDC/CI monitör parlaklığı" />
+              </Grid>
+              <Border Style="{StaticResource Divider}" />
+              <StackPanel x:Name="ExternalRows" Margin="0,8,0,0" />
+              <Border Style="{StaticResource Divider}" />
+              <Button x:Name="ScanMonitorsButton" Content="Monitörleri tara" HorizontalAlignment="Left" Padding="12,7" Margin="0,8,0,0" Click="ScanMonitors_Click" />
+              <Border Style="{StaticResource Divider}" />
+              <TextBlock x:Name="ExternalStatusText" Text="İsteğe bağlıdır. Açılana kadar monitör sorgusu yapılmaz." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,0" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+        <TextBlock x:Name="FeedbackText" Grid.Row="2" Text="Tercihlerin otomatik kaydedilir." Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,12,0,0" />
+      </Grid>
+      <Border BorderBrush="{DynamicResource SurfaceBrush}" BorderThickness="1,0,0,0" Background="{DynamicResource SidebarBrush}" Grid.Column="2">
+        <Grid Margin="18,26,18,22">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <StackPanel>
+            <TextBlock Text="Küçük. Akıcı. Yerinde." FontSize="17" FontWeight="SemiBold" />
+            <TextBlock Text="İhtiyaç duyduğunda görünür, sonra çekilir." Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
+          </StackPanel>
           <StackPanel Grid.Row="1" VerticalAlignment="Center">
             <TextBlock Text="ÖRNEK GÖRÜNÜM" FontSize="9" Foreground="{DynamicResource MutedBrush}" Margin="2,0,0,12" />
             <Border Height="56" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14,0">
-              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="25" /><ColumnDefinition Width="*" /><ColumnDefinition Width="34" /><ColumnDefinition Width="24" /></Grid.ColumnDefinitions>
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE767;" FontSize="17" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="25" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="34" />
+                  <ColumnDefinition Width="24" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource Icon}" Text="" FontSize="17" />
                 <controls:SmoothSlider Style="{StaticResource FluidSlider}" Grid.Column="1" Value="40" IsHitTestVisible="False" Focusable="False" Margin="12,0,10,0" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="2" Text="40" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="3" Text="&#xE70D;" Style="{StaticResource Icon}" FontSize="10" Margin="5,0,0,0" />
+                <TextBlock Grid.Column="3" Text="" Style="{StaticResource Icon}" FontSize="10" Margin="5,0,0,0" />
               </Grid>
             </Border>
-            <Border x:Name="MediaPreviewCard" Height="222" Margin="0,8,0,0" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-              <Grid ClipToBounds="True"><Grid.Clip><RectangleGeometry Rect="0,0,370,220" RadiusX="9" RadiusY="9" /></Grid.Clip>
-                <Image x:Name="PreviewBackdrop" Stretch="UniformToFill" Opacity="0.55"><Image.Effect><BlurEffect Radius="18" /></Image.Effect></Image><Border Background="{DynamicResource ArtworkOverlayBrush}" />
-                <Grid Margin="17,15"><Grid.RowDefinitions><RowDefinition Height="80" /><RowDefinition Height="50" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                  <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="80" /></Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center"><StackPanel Orientation="Horizontal" Margin="0,0,0,7"><Ellipse Width="6" Height="6" Fill="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,6,0" /><TextBlock Text="Önizleme" FontSize="10" Foreground="{DynamicResource MutedBrush}" /></StackPanel><TextBlock Text="Blue hour" FontSize="14" FontWeight="SemiBold" /><TextBlock Text="Luma Sessions" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" /></StackPanel>
+            <Border x:Name="MediaPreviewCard" Height="222" Margin="0,8,0,0" CornerRadius="10" Background="{DynamicResource FlyoutBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" SizeChanged="PreviewCard_SizeChanged">
+              <Grid ClipToBounds="True">
+                <Image x:Name="PreviewBackdrop" Stretch="UniformToFill" Opacity="0.55">
+                  <Image.Effect>
+                    <BlurEffect Radius="18" />
+                  </Image.Effect>
+                </Image>
+                <Border Background="{DynamicResource ArtworkOverlayBrush}" />
+                <Grid Margin="17,15">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                  </Grid.RowDefinitions>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                        <Ellipse Width="6" Height="6" Fill="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBlock Text="Önizleme" FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+                      </StackPanel>
+                      <TextBlock Text="Blue hour" FontSize="14" FontWeight="SemiBold" />
+                      <TextBlock Text="Luma Sessions" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
                     <Border x:Name="PreviewCover" Grid.Column="1" CornerRadius="6" />
                   </Grid>
-                  <Grid Grid.Row="1" Margin="0,17,0,0"><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="12" /></Grid.RowDefinitions><controls:SmoothSlider Style="{StaticResource TimelineSlider}" Value="32" IsHitTestVisible="False" Focusable="False" /><TextBlock Grid.Row="1" Text="1:12" FontSize="9" Foreground="{DynamicResource MutedBrush}" /><TextBlock Grid.Row="1" Text="3:42" FontSize="9" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" /></Grid>
-                  <Grid Grid.Row="2" VerticalAlignment="Bottom"><TextBlock Text="&#xE718;" Style="{StaticResource Icon}" FontSize="13" HorizontalAlignment="Left" Opacity="0.45" /><StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><TextBlock Text="&#xE892;" Style="{StaticResource Icon}" FontSize="16" Margin="0,0,25,0" /><Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource SelectionBrush}"><TextBlock Text="&#xE769;" Style="{StaticResource Icon}" FontSize="15" /></Border><TextBlock Text="&#xE893;" Style="{StaticResource Icon}" FontSize="16" Margin="25,0,0,0" /></StackPanel><TextBlock Text="&#xE76C;" Style="{StaticResource Icon}" FontSize="12" HorizontalAlignment="Right" Opacity="0.45" /></Grid>
+                  <Grid Grid.Row="1" Margin="0,17,0,0">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="18" />
+                      <RowDefinition Height="12" />
+                    </Grid.RowDefinitions>
+                    <controls:SmoothSlider Style="{StaticResource TimelineSlider}" Value="32" IsHitTestVisible="False" Focusable="False" />
+                    <TextBlock Grid.Row="1" Text="1:12" FontSize="9" Foreground="{DynamicResource MutedBrush}" />
+                    <TextBlock Grid.Row="1" Text="3:42" FontSize="9" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" />
+                  </Grid>
+                  <Grid Grid.Row="2" VerticalAlignment="Bottom">
+                    <TextBlock Text="" Style="{StaticResource Icon}" FontSize="13" HorizontalAlignment="Left" Opacity="0.45" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                      <TextBlock Text="" Style="{StaticResource Icon}" FontSize="16" Margin="0,0,25,0" />
+                      <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource SelectionBrush}">
+                        <TextBlock Text="" Style="{StaticResource Icon}" FontSize="15" />
+                      </Border>
+                      <TextBlock Text="" Style="{StaticResource Icon}" FontSize="16" Margin="25,0,0,0" />
+                    </StackPanel>
+                    <TextBlock Text="" Style="{StaticResource Icon}" FontSize="12" HorizontalAlignment="Right" Opacity="0.45" />
+                  </Grid>
                 </Grid>
               </Grid>
             </Border>
           </StackPanel>
-          <Grid Grid.Row="2"><StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Ellipse x:Name="StatusDot" Width="5" Height="5" Fill="#8CC9A0" VerticalAlignment="Center" Margin="0,0,7,0" /><TextBlock x:Name="ServiceStatus" Text="Arka planda hazır" FontSize="10" Foreground="{DynamicResource MutedBrush}" /></StackPanel><TextBlock x:Name="VersionText" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" /></Grid>
+          <Grid Grid.Row="2">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Ellipse x:Name="StatusDot" Width="5" Height="5" Fill="#8CC9A0" VerticalAlignment="Center" Margin="0,0,7,0" />
+              <TextBlock x:Name="ServiceStatus" Text="Arka planda hazır" FontSize="10" Foreground="{DynamicResource MutedBrush}" />
+            </StackPanel>
+            <TextBlock x:Name="VersionText" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" />
+          </Grid>
         </Grid>
       </Border>
-      <ScrollViewer x:Name="PreferencesScroll" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="27,25,26,24">
-          <TextBlock Text="Tercihler" FontSize="21" FontWeight="SemiBold" /><TextBlock Text="Masaüstüne uyacak birkaç küçük ayar." FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,7,0,0" />
-          <TextBlock Text="GÖSTERGELER" Style="{StaticResource SectionLabel}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Ses tuşları" Style="{StaticResource RowTitle}" /><TextBlock Text="Ses açma, kısma ve sessize alma." FontSize="10" Foreground="{DynamicResource MutedBrush}" /></StackPanel><CheckBox x:Name="VolumeToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Ses tuşlarını Luma ile kullan" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Medya kartı" Style="{StaticResource RowTitle}" /><TextBlock Text="Çalan parça, albüm kapağı ve oynatma kontrolleri." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" /></StackPanel><CheckBox x:Name="MediaToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Medya kartını göster" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Klavye kilitleri" Style="{StaticResource RowTitle}" /><TextBlock Text="Caps Lock, Num Lock ve Scroll Lock." FontSize="10" Foreground="{DynamicResource MutedBrush}" /></StackPanel><CheckBox x:Name="LocksToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Klavye kilitlerini göster" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Diğer ses değişiklikleri" Style="{StaticResource RowTitle}" /><TextBlock Text="Ses başka bir yerden değiştirildiğinde de göster." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" /></StackPanel><CheckBox x:Name="ObserveToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Diğer ses değişikliklerini göster" /></Grid>
-          <TextBlock Text="EKRAN PARLAKLIĞI" Style="{StaticResource SectionLabel}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Parlaklık göstergesi" Style="{StaticResource RowTitle}" /><TextBlock Text="Fn tuşlarıyla veya Windows'tan değiştirildiğinde göster." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" /></StackPanel><CheckBox x:Name="BrightnessToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Parlaklık değişikliklerini göster" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Windows parlaklık panelini gizle" Style="{StaticResource RowTitle}" /><TextBlock Text="Luma gösterirken alttaki ikinci paneli gizle." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" /></StackPanel><CheckBox x:Name="NativeBrightnessToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Windows parlaklık panelini gizle" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="150" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions><TextBlock Text="Dahili ekran" FontSize="12" VerticalAlignment="Center" /><Slider x:Name="DisplayBrightnessSlider" Grid.Column="1" Minimum="0" Maximum="100" SmallChange="5" LargeChange="10" IsEnabled="False" ValueChanged="DisplayBrightness_Changed" AutomationProperties.Name="Laptop ekran parlaklığı" /><TextBlock x:Name="DisplayBrightnessText" Grid.Column="2" Text="—" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
-          <TextBlock x:Name="BrightnessStatusText" Text="Parlaklık desteği kontrol ediliyor…" FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,9,0,0" />
-          <Border Style="{StaticResource Divider}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Monitör parlaklığı (DDC/CI)" Style="{StaticResource RowTitle}" /><TextBlock Text="Destekleyen bağlı ekranları ayrı ayarla." FontSize="10" Foreground="{DynamicResource MutedBrush}" /></StackPanel><CheckBox x:Name="ExternalToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="External_Changed" Unchecked="External_Changed" AutomationProperties.Name="DDC/CI monitör parlaklığı" /></Grid>
-          <StackPanel x:Name="ExternalRows" Margin="0,8,0,0" />
-          <Button x:Name="ScanMonitorsButton" Content="Monitörleri tara" HorizontalAlignment="Left" Padding="12,7" Margin="0,8,0,0" Click="ScanMonitors_Click" />
-          <TextBlock x:Name="ExternalStatusText" Text="İsteğe bağlıdır. Açılana kadar monitör sorgusu yapılmaz." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,0" />
-          <TextBlock Text="GÖRÜNÜM" Style="{StaticResource SectionLabel}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="154" /></Grid.ColumnDefinitions><TextBlock Text="Tema" FontSize="12" VerticalAlignment="Center" /><ComboBox x:Name="ThemeCombo" Grid.Column="1" SelectionChanged="Theme_Changed" AutomationProperties.Name="Tema"><ComboBoxItem Content="Koyu" Tag="Dark" /><ComboBoxItem Content="Açık" Tag="Light" /><ComboBoxItem Content="Windows ile aynı" Tag="System" /></ComboBox></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="154" /></Grid.ColumnDefinitions><TextBlock Text="Vurgu rengi" FontSize="12" VerticalAlignment="Center" /><ComboBox x:Name="AccentCombo" Grid.Column="1" SelectionChanged="Accent_Changed" AutomationProperties.Name="Vurgu rengi" /></Grid>
-          <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="96" /><ColumnDefinition Width="58" /></Grid.ColumnDefinitions><TextBlock Text="Özel renk" FontSize="12" VerticalAlignment="Center" /><TextBox x:Name="CustomColorText" Grid.Column="1" MaxLength="7" Padding="6" FontSize="12" Foreground="{DynamicResource TextBrush}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" AutomationProperties.Name="Özel renk kodu" /><Button Grid.Column="2" Content="Seç" Padding="8,5" Margin="6,0,0,0" Click="CustomColor_Click" /></Grid>
-          <TextBlock x:Name="ColorStatusText" Foreground="{DynamicResource MutedBrush}" FontSize="10" Text="Örnek: #81B7DB" Margin="0,5,0,0" />
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions><TextBlock Text="Panel opaklığı" FontSize="12" VerticalAlignment="Center" /><Slider x:Name="OpacitySlider" Grid.Column="1" Minimum="0.65" Maximum="1" TickFrequency="0.01" ValueChanged="Opacity_Changed" AutomationProperties.Name="Panel opaklığı" /><TextBlock x:Name="OpacityText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="154" /></Grid.ColumnDefinitions><TextBlock Text="Ekrandaki konum" FontSize="12" VerticalAlignment="Center" /><ComboBox x:Name="PositionCombo" Grid.Column="1" SelectionChanged="Position_Changed" AutomationProperties.Name="Ekrandaki konum"><ComboBoxItem Content="Alt orta" Tag="BottomCenter" /><ComboBoxItem Content="Üst orta" Tag="TopCenter" /><ComboBoxItem Content="Sağ üst" Tag="TopRight" /><ComboBoxItem Content="Sağ alt" Tag="BottomRight" /><ComboBoxItem Content="Sol üst" Tag="TopLeft" /><ComboBoxItem Content="Sol alt" Tag="BottomLeft" /></ComboBox></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="190" /></Grid.ColumnDefinitions><TextBlock Text="Gösterilecek ekran" FontSize="12" VerticalAlignment="Center" /><ComboBox x:Name="MonitorCombo" Grid.Column="1" SelectionChanged="Monitor_Changed" DropDownOpened="Monitor_Opened" AutomationProperties.Name="Göstergenin açılacağı monitör" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions><TextBlock Text="Gösterge boyutu" FontSize="12" VerticalAlignment="Center" /><Slider x:Name="ScaleSlider" Grid.Column="1" Minimum="0.75" Maximum="1.4" TickFrequency="0.05" IsSnapToTickEnabled="True" ValueChanged="Scale_Changed" AutomationProperties.Name="Gösterge boyutu" /><TextBlock x:Name="ScaleText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions><TextBlock Text="Ekranda kalma süresi" FontSize="12" VerticalAlignment="Center" /><Slider x:Name="DurationSlider" Grid.Column="1" Minimum="1" Maximum="8" TickFrequency="0.5" IsSnapToTickEnabled="True" ValueChanged="Duration_Changed" AutomationProperties.Name="Ekranda kalma süresi" /><TextBlock x:Name="DurationText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions><TextBlock Text="Ses adımı" FontSize="12" VerticalAlignment="Center" /><Slider x:Name="StepSlider" Grid.Column="1" Minimum="1" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="Step_Changed" AutomationProperties.Name="Her basışta ses değişimi" /><TextBlock x:Name="StepText" Grid.Column="2" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><TextBlock Text="Yumuşak geçişler" FontSize="12" VerticalAlignment="Center" /><CheckBox x:Name="AnimationsToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Yumuşak animasyonlar" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><TextBlock Text="Albüm kapağını arka plana yansıt" FontSize="12" VerticalAlignment="Center" /><CheckBox x:Name="ArtworkToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Albüm kapağını arka plana yansıt" /></Grid>
-          <TextBlock Text="GÜNLÜK KULLANIM" Style="{StaticResource SectionLabel}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Tam ekranda göstergeleri gizle" Style="{StaticResource RowTitle}" /><TextBlock Text="Gösterilecek ekranda oyun veya video tam ekranken açılmasın." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" /></StackPanel><CheckBox x:Name="FullscreenToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Tam ekranda göstergeleri gizle" /></Grid>
-          <Border Style="{StaticResource Divider}" />
-          <Grid><StackPanel Margin="0,0,58,0"><TextBlock Text="Windows ile başlat" Style="{StaticResource RowTitle}" /><TextBlock Text="Oturum açıldığında tepside hazır olsun." FontSize="10" Foreground="{DynamicResource MutedBrush}" /></StackPanel><CheckBox x:Name="StartupToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Checked="Startup_Changed" Unchecked="Startup_Changed" AutomationProperties.Name="Windows ile başlat" /></Grid>
-          <TextBlock Text="KURULUM VE GÜNCELLEME" Style="{StaticResource SectionLabel}" />
-          <StackPanel Orientation="Horizontal"><Button x:Name="CheckUpdatesButton" Content="Güncellemeleri denetle" Padding="12,8" FontSize="11" Click="CheckUpdates_Click" /><Button x:Name="OpenReleaseButton" Content="İndir" Padding="12,8" Margin="8,0,0,0" FontSize="11" Visibility="Collapsed" Click="OpenRelease_Click" /></StackPanel>
-          <TextBlock x:Name="UpdateStatusText" Text="Yalnızca bu düğmeye bastığında GitHub'a bağlanır." Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,8,0,0" />
-          <Button x:Name="InstallButton" Content="Bu bilgisayara kur" HorizontalAlignment="Left" Padding="12,8" FontSize="11" Margin="0,12,0,0" Click="Install_Click" />
-          <TextBlock x:Name="FeedbackText" Text="Tercihlerin otomatik kaydedilir." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,24,0,0" />
-        </StackPanel>
-      </ScrollViewer>
     </Grid>
   </Grid>
 </Window>

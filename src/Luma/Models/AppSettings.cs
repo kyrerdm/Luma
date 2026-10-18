@@ -26,9 +26,20 @@ public sealed class AppSettings
     public double SurfaceOpacity { get; set; } = 0.94;
     public bool HideInFullscreen { get; set; }
     public bool ExternalBrightness { get; set; }
+    public string Language { get; set; } = "tr";
+    public bool WelcomeCompleted { get; set; }
+
+    public void Apply(AppSettings source)
+    {
+        source.Normalize();
+        // Keep the shared instance: the controller and open flyouts reference it.
+        foreach (var property in typeof(AppSettings).GetProperties())
+            property.SetValue(this, property.GetValue(source));
+    }
 
     public void Normalize()
     {
+        if (Language is not ("tr" or "en")) Language = "tr";
         if (Position is not ("BottomCenter" or "TopCenter" or "TopRight" or "BottomRight" or "TopLeft" or "BottomLeft"))
             Position = "BottomCenter";
         if (!double.IsFinite(DurationSeconds)) DurationSeconds = 2.5;
@@ -56,7 +67,12 @@ public sealed class SettingsStore
     {
         try
         {
-            var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath)) ?? new();
+            var json = File.ReadAllText(FilePath);
+            var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new();
+            using var document = JsonDocument.Parse(json);
+            // Existing users should not see first-run onboarding after an upgrade.
+            if (document.RootElement.ValueKind != JsonValueKind.Object) return new();
+            if (!document.RootElement.TryGetProperty(nameof(AppSettings.WelcomeCompleted), out _)) settings.WelcomeCompleted = true;
             settings.Normalize();
             return settings;
         }

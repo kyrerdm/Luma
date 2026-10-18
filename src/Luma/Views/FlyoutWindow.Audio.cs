@@ -22,6 +22,6 @@ public partial class FlyoutWindow
         AudioPopup.IsOpen = !AudioPopup.IsOpen;
     }
     private void Audio_Opened(object sender, EventArgs e) { hideTimer.Stop(); AudioPanelOpenChanged?.Invoke(true); }
-    private void Audio_Closed(object sender, EventArgs e) { AudioPanelOpenChanged?.Invoke(false); RestartTimer(); }
+    private void Audio_Closed(object sender, EventArgs e) { AudioPanelOpenChanged?.Invoke(false); if (volumeMode) RestartTimer(); }
     private bool SuppressForFullscreen => !preview && settings.HideInFullscreen && (FullscreenProbe?.Invoke() ?? FullscreenDetector.IsTargetFullscreen(settings.TargetDisplay));
 }
