@@ -102,7 +102,7 @@
           <TextBlock x:Name="PageTitle" Text="Genel" FontSize="23" FontWeight="SemiBold" />
           <TextBlock x:Name="PageDescription" Text="Günlük kullanım, yedekler ve güncellemeler." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
         </StackPanel>
-        <ScrollViewer x:Name="PreferencesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabIndex="1" Focusable="False">
+        <ScrollViewer x:Name="PreferencesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabIndex="1" KeyboardNavigation.TabNavigation="Local" Focusable="False">
           <StackPanel Margin="0,0,8,12">
             <StackPanel x:Name="GeneralSection" Visibility="Collapsed">
               <Grid>
