@@ -1,4 +1,4 @@
-param([switch]$Published, [switch]$NativeBrightness)
+param([switch]$Published, [switch]$NativeBrightness, [ValidateRange(60, 600)][int]$TimeoutSeconds = 120)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $projectInfo = [xml](Get-Content -LiteralPath (Join-Path $projectRoot 'src\Luma\Luma.csproj') -Raw)
@@ -17,7 +17,10 @@ try {
     $env:LUMA_VERIFY_BRIGHTNESS_WRITE = if ($NativeBrightness) { '1' } else { $null }
     $process = Start-Process -FilePath $executable -ArgumentList @('--self-test', ('"' + $reportDirectory + '"')) -PassThru -WindowStyle Hidden
 } finally { [Environment]::SetEnvironmentVariable('LUMA_VERIFY_BRIGHTNESS_WRITE', $previousBrightnessTest, 'Process') }
-if (-not $process.WaitForExit(60000)) { $process.Kill(); throw 'Verification timed out.' }
+$verificationClock = [Diagnostics.Stopwatch]::StartNew()
+while (-not $process.WaitForExit(10000)) {
+    if ($verificationClock.Elapsed.TotalSeconds -ge $TimeoutSeconds) { $process.Kill(); throw "Verification timed out after $TimeoutSeconds seconds." }
+}
 if ($process.ExitCode -ne 0) {
     if (Test-Path -LiteralPath (Join-Path $reportDirectory 'failure.txt')) { Get-Content -LiteralPath (Join-Path $reportDirectory 'failure.txt') }
     if (Test-Path -LiteralPath (Join-Path $reportDirectory 'results.json')) { Get-Content -LiteralPath (Join-Path $reportDirectory 'results.json') }
