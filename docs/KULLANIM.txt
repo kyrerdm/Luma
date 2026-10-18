@@ -1,13 +1,13 @@
-Luma 0.9.0 — Windows 11
+Luma 0.9.1 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-0.9.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-0.9.1-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\0.9.0
+Kurulum: %LOCALAPPDATA%\Programs\Luma\0.9.1
 
-Taşınabilir kullanım için Luma-0.9.0-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-0.9.1-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 

@@ -65,10 +65,10 @@
           <TextBlock Text="luma" FontSize="13" Foreground="{DynamicResource TextBrush}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,7,0" WindowChrome.IsHitTestVisibleInChrome="True" KeyboardNavigation.TabIndex="100">
-          <Button x:Name="MinimizeButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Minimize_Click" ToolTip="Küçült" AutomationProperties.Name="Küçült">
+          <Button x:Name="MinimizeButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Minimize_Click" ToolTip="Küçült" AutomationProperties.Name="Küçült" KeyboardNavigation.TabIndex="98">
             <TextBlock Style="{StaticResource Icon}" FontSize="10" Text="" />
           </Button>
-          <Button x:Name="CloseButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Close_Click" ToolTip="Sistem tepsisine gizle" AutomationProperties.Name="Sistem tepsisine gizle">
+          <Button x:Name="CloseButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Close_Click" ToolTip="Sistem tepsisine gizle" AutomationProperties.Name="Sistem tepsisine gizle" KeyboardNavigation.TabIndex="99">
             <TextBlock Style="{StaticResource Icon}" FontSize="12" Text="" />
           </Button>
         </StackPanel>

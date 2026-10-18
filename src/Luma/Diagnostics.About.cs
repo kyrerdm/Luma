@@ -76,7 +76,12 @@ internal static partial class Diagnostics
                 routesCorrectly &= shortcuts[i].Key == Key.D1 + i && window.CurrentSection == names[i] && ((RadioButton)window.FindName(names[i] + "Nav")).IsChecked == true;
             }
             check("Ctrl+1 through Ctrl+6 route to all six settings sections without saving", routesCorrectly && saves == 0, "The actual shortcut commands are invoked; no global input is sent.");
-            window.Activate(); copy.Focus();
+            window.Activate();
+            var navigation = (RadioButton)window.FindName("AboutNav");
+            navigation.Focus();
+            var entered = navigation.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            check("Tab from the selected section enters its content before title-bar buttons", entered && Keyboard.FocusedElement == copy, "");
+            copy.Focus();
             var forward = copy.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             var reachedProject = Keyboard.FocusedElement == project;
             var backward = project.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
