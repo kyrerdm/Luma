@@ -1,4 +1,4 @@
-# Luma 0.8 günlük kullanım testi
+# Luma 0.9 günlük kullanım testi
 
 Amaç, birkaç farklı bilgisayarda normal kullanım sırasında kalan sorunları bulmak. Bu liste otomatik test sonuçlarının yerine geçmez; gerçek donanım kontrolleri içindir.
 

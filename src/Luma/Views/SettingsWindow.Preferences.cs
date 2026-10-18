@@ -14,6 +14,7 @@ public partial class SettingsWindow
 {
     public Func<string>? CreateSupportReport { get; set; }
     internal string CurrentSection { get; private set; } = "General";
+    private static readonly string[] SectionNames = { "General", "Appearance", "Sound", "Media", "Display", "About" };
 
     private void Navigation_Changed(object sender, RoutedEventArgs e)
     {
@@ -22,15 +23,14 @@ public partial class SettingsWindow
 
     internal void Navigate(string section)
     {
-        var pages = new[] { GeneralSection, AppearanceSection, SoundSection, MediaSection, DisplaySection };
-        var names = new[] { "General", "Appearance", "Sound", "Media", "Display" };
-        var titles = new[] { "Genel", "Görünüm", "Ses", "Medya", "Ekran" };
-        var descriptions = new[] { "Günlük kullanım, yedekler ve güncellemeler.", "Masaüstüne uyacak küçük dokunuşlar.", "Ses tuşları ve ses değişiklikleri.", "Çalan parçaya yer aç.", "Monitörler ve ekran parlaklığı." };
-        var selected = Array.IndexOf(names, section);
+        var pages = new[] { GeneralSection, AppearanceSection, SoundSection, MediaSection, DisplaySection, AboutSection };
+        var titles = new[] { "Genel", "Görünüm", "Ses", "Medya", "Ekran", "Hakkında" };
+        var descriptions = new[] { "Günlük kullanım, yedekler ve güncellemeler.", "Masaüstüne uyacak küçük dokunuşlar.", "Ses tuşları ve ses değişiklikleri.", "Çalan parçaya yer aç.", "Monitörler ve ekran parlaklığı.", "Luma'nın imzası, bağlantıları ve lisansları." };
+        var selected = Array.IndexOf(SectionNames, section);
         if (selected < 0) return;
         CurrentSection = section;
         for (var i = 0; i < pages.Length; i++) pages[i].Visibility = i == selected ? Visibility.Visible : Visibility.Collapsed;
-        var navigation = new[] { GeneralNav, AppearanceNav, SoundNav, MediaNav, DisplayNav };
+        var navigation = new[] { GeneralNav, AppearanceNav, SoundNav, MediaNav, DisplayNav, AboutNav };
         navigation[selected].IsChecked = true;
         PageTitle.Text = Strings.T(titles[selected]);
         PageDescription.Text = Strings.T(descriptions[selected]);

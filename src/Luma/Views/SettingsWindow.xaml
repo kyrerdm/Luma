@@ -28,7 +28,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
-            <Border x:Name="Surface" Background="Transparent" CornerRadius="8" Padding="15,12">
+            <Border x:Name="Surface" Background="Transparent" CornerRadius="8" Padding="14,11" BorderThickness="1" BorderBrush="Transparent">
               <Grid>
                 <Border x:Name="Mark" Width="3" Height="16" CornerRadius="1.5" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Left" Margin="-15,0,0,0" Visibility="Collapsed" />
                 <ContentPresenter />
@@ -64,7 +64,7 @@
           <Image Source="{StaticResource BrandSymbol}" Width="19" Height="19" VerticalAlignment="Center" Margin="0,0,7,0" />
           <TextBlock Text="luma" FontSize="13" Foreground="{DynamicResource TextBrush}" />
         </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,7,0" WindowChrome.IsHitTestVisibleInChrome="True">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,7,0" WindowChrome.IsHitTestVisibleInChrome="True" KeyboardNavigation.TabIndex="100">
           <Button x:Name="MinimizeButton" Style="{StaticResource QuietButton}" Width="37" Height="36" Click="Minimize_Click" ToolTip="Küçült" AutomationProperties.Name="Küçült">
             <TextBlock Style="{StaticResource Icon}" FontSize="10" Text="" />
           </Button>
@@ -81,13 +81,15 @@
         <ColumnDefinition Width="300" />
       </Grid.ColumnDefinitions>
       <Border Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
-        <StackPanel Margin="12,27,12,0">
+        <StackPanel Margin="12,27,12,0" KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Contained" KeyboardNavigation.TabIndex="0">
           <TextBlock Text="AYARLAR" FontSize="10" Foreground="{DynamicResource MutedBrush}" Margin="12,0,0,16" />
-          <RadioButton x:Name="GeneralNav" GroupName="Sections" Tag="General" Content="Genel" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
-          <RadioButton x:Name="AppearanceNav" GroupName="Sections" Tag="Appearance" Content="Görünüm" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
-          <RadioButton x:Name="SoundNav" GroupName="Sections" Tag="Sound" Content="Ses" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
-          <RadioButton x:Name="MediaNav" GroupName="Sections" Tag="Media" Content="Medya" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
-          <RadioButton x:Name="DisplayNav" GroupName="Sections" Tag="Display" Content="Ekran" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" />
+          <RadioButton x:Name="GeneralNav" GroupName="Sections" Tag="General" Content="Genel" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" ToolTip="Ctrl+1" AutomationProperties.AcceleratorKey="Ctrl+1" />
+          <RadioButton x:Name="AppearanceNav" GroupName="Sections" Tag="Appearance" Content="Görünüm" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" ToolTip="Ctrl+2" AutomationProperties.AcceleratorKey="Ctrl+2" />
+          <RadioButton x:Name="SoundNav" GroupName="Sections" Tag="Sound" Content="Ses" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" ToolTip="Ctrl+3" AutomationProperties.AcceleratorKey="Ctrl+3" />
+          <RadioButton x:Name="MediaNav" GroupName="Sections" Tag="Media" Content="Medya" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" ToolTip="Ctrl+4" AutomationProperties.AcceleratorKey="Ctrl+4" />
+          <RadioButton x:Name="DisplayNav" GroupName="Sections" Tag="Display" Content="Ekran" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" ToolTip="Ctrl+5" AutomationProperties.AcceleratorKey="Ctrl+5" />
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="12,14,12,18" />
+          <RadioButton x:Name="AboutNav" GroupName="Sections" Tag="About" Content="Hakkında" Style="{StaticResource NavigationItem}" Checked="Navigation_Changed" ToolTip="Ctrl+6" AutomationProperties.AcceleratorKey="Ctrl+6" />
         </StackPanel>
       </Border>
       <Grid Grid.Column="1" Margin="26,25,24,18">
@@ -100,7 +102,7 @@
           <TextBlock x:Name="PageTitle" Text="Genel" FontSize="23" FontWeight="SemiBold" />
           <TextBlock x:Name="PageDescription" Text="Günlük kullanım, yedekler ve güncellemeler." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
         </StackPanel>
-        <ScrollViewer x:Name="PreferencesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer x:Name="PreferencesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabIndex="1" Focusable="False">
           <StackPanel Margin="0,0,8,12">
             <StackPanel x:Name="GeneralSection" Visibility="Collapsed">
               <Grid>
@@ -368,9 +370,54 @@
               <Border Style="{StaticResource Divider}" />
               <TextBlock x:Name="ExternalStatusText" Text="İsteğe bağlıdır. Açılana kadar monitör sorgusu yapılmaz." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,0" />
             </StackPanel>
+            <StackPanel x:Name="AboutSection" Visibility="Collapsed">
+              <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="20">
+                <StackPanel>
+                  <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <Image Source="{StaticResource BrandSymbol}" Width="44" Height="44" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1">
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Luma" FontSize="26" FontWeight="SemiBold" />
+                        <Border Background="{DynamicResource SelectionBrush}" CornerRadius="5" Margin="12,0,0,0" Padding="8,4" VerticalAlignment="Center"><TextBlock x:Name="AboutVersionText" FontSize="11" Foreground="{DynamicResource AccentBrush}" /></Border>
+                      </StackPanel>
+                      <TextBlock x:Name="AboutPlatformText" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,3,0,0" />
+                    </StackPanel>
+                  </Grid>
+                  <TextBlock Text="Windows için küçük bir ışık." FontSize="14" Margin="0,19,0,0" />
+                  <TextBlock Text="Ses, medya ve parlaklık. İhtiyacın kadar, tam yerinde." Style="{StaticResource MutedText}" FontSize="11" Margin="0,7,0,0" />
+                  <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,18,0,15" />
+                  <Grid>
+                    <StackPanel>
+                      <TextBlock Text="TASARLAYAN VE GELİŞTİREN" FontSize="9" Foreground="{DynamicResource MutedBrush}" />
+                      <TextBlock x:Name="AboutSignature" FontFamily="Segoe Print, Segoe UI" FontSize="20" Foreground="{DynamicResource AccentBrush}" Margin="0,3,0,0" />
+                    </StackPanel>
+                    <Button x:Name="CopyVersionButton" Content="Sürümü kopyala" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="10,8" FontSize="11" Click="CopyVersion_Click" AutomationProperties.Name="Sürüm bilgisini kopyala" />
+                  </Grid>
+                </StackPanel>
+              </Border>
+              <WrapPanel Margin="0,16,0,0">
+                <Button x:Name="ProjectButton" Content="GitHub" Tag="Project" Click="AboutLink_Click" Padding="12,8" FontSize="11" Margin="0,0,6,6" ToolTip="https://github.com/kyrerdm/Luma" AutomationProperties.Name="GitHub projesini aç" />
+                <Button x:Name="ReleaseNotesButton" Content="Sürüm notları" Tag="Release" Click="AboutLink_Click" Padding="12,8" FontSize="11" Margin="0,0,6,6" AutomationProperties.Name="Bu sürümün notlarını aç" />
+                <Button x:Name="IssuesButton" Content="Sorun bildir" Tag="Issues" Click="AboutLink_Click" Padding="12,8" FontSize="11" Margin="0,0,0,6" AutomationProperties.Name="GitHub sorun sayfasını aç" />
+              </WrapPanel>
+              <TextBlock Text="LİSANSLAR VE TEŞEKKÜRLER" Style="{StaticResource SectionLabel}" Margin="0,20,0,10" />
+              <TextBlock Text="Luma MIT lisanslıdır. Birlikte dağıtılan bileşenlerin kendi lisans ve bildirimleri aşağıda yer alır." Style="{StaticResource MutedText}" FontSize="11" Margin="0,0,0,12" />
+              <ComboBox x:Name="LicenseCombo" SelectionChanged="License_Changed" AutomationProperties.Name="Lisansı görüntülenecek bileşen" />
+              <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,8,0,0">
+                <TextBox x:Name="LicenseText" Height="220" IsReadOnly="True" IsReadOnlyCaretVisible="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FontFamily="Consolas, Segoe UI" FontSize="11" Background="Transparent" Foreground="{DynamicResource TextBrush}" BorderThickness="0" SelectionBrush="{DynamicResource AccentBrush}" AutomationProperties.Name="Lisans metni" AutomationProperties.HelpText="Salt okunur. Seçip kopyalayabilirsin.">
+                  <TextBox.ContextMenu><ContextMenu><MenuItem Header="Kopyala" Command="ApplicationCommands.Copy" /><MenuItem Header="Tümünü seç" Command="ApplicationCommands.SelectAll" /></ContextMenu></TextBox.ContextMenu>
+                </TextBox>
+              </Border>
+              <TextBlock Text="Lisans metinleri özgün dilinde sunulur ve çevrimdışı kullanılabilir." Style="{StaticResource MutedText}" FontSize="10" Margin="0,9,0,0" />
+              <Border Style="{StaticResource Divider}" />
+              <TextBlock Text="ModernFlyouts fikrinden ilham alan bağımsız bir proje. ModernFlyouts'un kodunu veya görsellerini içermez." Style="{StaticResource MutedText}" FontSize="10" />
+              <TextBlock Text="Ctrl+1–6 ile bölümler arasında geç. Tab ile ilerle, Shift+Tab ile geri dön." Style="{StaticResource MutedText}" FontSize="10" Margin="0,12,0,0" />
+              <TextBlock Text="© 2026 kyrerdm" FontSize="10" Foreground="{DynamicResource MutedBrush}" Margin="0,18,0,0" />
+            </StackPanel>
           </StackPanel>
         </ScrollViewer>
-        <TextBlock x:Name="FeedbackText" Grid.Row="2" Text="Tercihlerin otomatik kaydedilir." Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,12,0,0" />
+        <TextBlock x:Name="FeedbackText" Grid.Row="2" Text="Tercihlerin otomatik kaydedilir." Foreground="{DynamicResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,12,0,0" AutomationProperties.LiveSetting="Polite" />
       </Grid>
       <Border BorderBrush="{DynamicResource SurfaceBrush}" BorderThickness="1,0,0,0" Background="{DynamicResource SidebarBrush}" Grid.Column="2">
         <Grid Margin="18,26,18,22">

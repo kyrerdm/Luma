@@ -15,6 +15,18 @@ internal static class Strings
     private static readonly Dictionary<string, string> English = new(StringComparer.Ordinal)
     {
         ["Genel"] = "General", ["Görünüm"] = "Appearance", ["Ses"] = "Sound", ["Medya"] = "Media", ["Ekran"] = "Display", ["AYARLAR"] = "SETTINGS",
+        ["Hakkında"] = "About", ["Luma'nın imzası, bağlantıları ve lisansları."] = "The people, links and licenses behind Luma.",
+        ["Windows için küçük bir ışık."] = "A little light for Windows.", ["Ses, medya ve parlaklık. İhtiyacın kadar, tam yerinde."] = "Volume, media and brightness. Just enough, just where you need it.",
+        ["TASARLAYAN VE GELİŞTİREN"] = "DESIGNED AND DEVELOPED BY", ["Sürümü kopyala"] = "Copy version", ["Sürüm bilgisini kopyala"] = "Copy version information",
+        ["Sürüm bilgisi kopyalandı."] = "Version information copied.", ["Panoya erişilemedi. Tekrar deneyebilirsin."] = "Couldn't access the clipboard. Try again.",
+        ["GitHub projesini aç"] = "Open GitHub project", ["Sürüm notları"] = "Release notes", ["Bu sürümün notlarını aç"] = "Open notes for this release", ["Sorun bildir"] = "Report an issue", ["GitHub sorun sayfasını aç"] = "Open GitHub issues",
+        ["LİSANSLAR VE TEŞEKKÜRLER"] = "LICENSES AND ACKNOWLEDGMENTS", ["Luma MIT lisanslıdır. Birlikte dağıtılan bileşenlerin kendi lisans ve bildirimleri aşağıda yer alır."] = "Luma is licensed under MIT. Bundled components have their own licenses and notices below.",
+        [".NET · Üçüncü taraf bildirimleri"] = ".NET · Third-party notices", ["Windows SDK · Bildirim"] = "Windows SDK · Notice", ["Lisansı görüntülenecek bileşen"] = "Component license to view", ["Lisans metni"] = "License text", ["Salt okunur. Seçip kopyalayabilirsin."] = "Read-only. You can select and copy the text.",
+        ["Lisans metinleri özgün dilinde sunulur ve çevrimdışı kullanılabilir."] = "License texts are available offline in their original language.",
+        ["Kopyala"] = "Copy", ["Tümünü seç"] = "Select all",
+        ["ModernFlyouts fikrinden ilham alan bağımsız bir proje. ModernFlyouts'un kodunu veya görsellerini içermez."] = "An independent project inspired by ModernFlyouts. It contains no ModernFlyouts code or artwork.",
+        ["Ctrl+1–6 ile bölümler arasında geç. Tab ile ilerle, Shift+Tab ile geri dön."] = "Switch sections with Ctrl+1–6. Move forward with Tab and back with Shift+Tab.",
+        ["Bağlantı açılamadı. github.com/kyrerdm/Luma adresini kullanabilirsin."] = "Couldn't open the link. You can visit github.com/kyrerdm/Luma.",
         ["Günlük kullanım, yedekler ve güncellemeler."] = "Daily use, backups and updates.",
         ["Masaüstüne uyacak küçük dokunuşlar."] = "Small touches to suit your desktop.",
         ["Ses tuşları ve ses değişiklikleri."] = "Volume keys and audio changes.",
@@ -128,6 +140,8 @@ internal static class Strings
             if (node is FrameworkElement { ToolTip: string tip } element) element.ToolTip = T(tip);
             var name = AutomationProperties.GetName(node);
             if (name.Length > 0) AutomationProperties.SetName(node, T(name));
+            var help = AutomationProperties.GetHelpText(node);
+            if (help.Length > 0) AutomationProperties.SetHelpText(node, T(help));
             foreach (var child in LogicalTreeHelper.GetChildren(node).OfType<DependencyObject>()) Visit(child);
             if (node is Visual) for (var i = 0; i < VisualTreeHelper.GetChildrenCount(node); i++) Visit(VisualTreeHelper.GetChild(node, i));
         }

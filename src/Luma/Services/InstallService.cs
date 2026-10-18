@@ -11,7 +11,7 @@ namespace Luma.Services;
 internal sealed record InstallPlan(string Root, string Directory, string Executable, string UninstallScript);
 internal static class InstallService
 {
-    internal static readonly string[] Notices = { "KULLANIM.txt", "DOTNET-LICENSE.txt", "DOTNET-THIRD-PARTY-NOTICES.txt", "WINDOWS-DESKTOP-LICENSE.txt", "WINRT-LICENSE.txt", "WINDOWS-SDK-NOTICE.txt" };
+    internal static readonly string[] Notices = { "KULLANIM.txt", "LICENSE.txt", "DOTNET-LICENSE.txt", "DOTNET-THIRD-PARTY-NOTICES.txt", "WINDOWS-DESKTOP-LICENSE.txt", "WINRT-LICENSE.txt", "WINDOWS-SDK-NOTICE.txt" };
     public static string DefaultRoot => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Luma");
     public static InstallPlan Plan(string root, Version version)
     {

@@ -20,6 +20,15 @@
 - Medya/aygıt yokken doğru boş durum; gizli ayarlarda durdurulan önizleme saati.
 - Dört köşe ve üç ölçekte gerçek pencere koordinatlarıyla hizalama kontrolü.
 
+## 0.9 — Hakkında, lisanslar ve klavye kontrolü
+
+- Logo, sürüm/platform, kyrerdm imzası ve proje bağlantılarıyla Hakkında bölümü.
+- Luma için MIT lisansı; kurulum ve ZIP paketinde aynı lisansın korunması.
+- Gömülü kaynaklardan tam metinle çalışan çevrimdışı lisans okuyucu.
+- Ctrl+1–6 bölüm kısayolları, odak göstergeleri ve TR/EN erişilebilir metinleri.
+- Salt okunur UI Automation, ileri/geri odak ve minimum pencere yerleşimi doğrulaması.
+- [1.0 öncesi klavye ve dil kontrolünün ilk turu](ERISILEBILIRLIK.md). Narrator, kontrast temaları ve gerçek cihaz testleri devam eder.
+
 ## Donanımla doğrulanacaklar
 
 [Beta test planı](BETA_TEST_PLANI.md): Bluetooth/USB değişimleri, farklı laptop Fn tuşları, uyku dönüşü, çoklu monitör/DPI, gerçek DDC/CI yazımı ve uzun süreli bellek/CPU kullanımı. Tek bir bilgisayarın sonucu tüm donanımlar için destek iddiası oluşturmaz.

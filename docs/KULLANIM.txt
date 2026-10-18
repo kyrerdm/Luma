@@ -1,13 +1,13 @@
-Luma 0.8.0 — Windows 11
+Luma 0.9.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-0.8.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-0.9.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\0.8.0
+Kurulum: %LOCALAPPDATA%\Programs\Luma\0.9.0
 
-Taşınabilir kullanım için Luma-0.8.0-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-0.9.0-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
@@ -48,7 +48,12 @@ Ses şeridinde fare tekerleğiyle de sesi değiştirebilirsiniz.
 Sağ tık menüsünden ayarları açabilir veya göstergeyi gizleyebilirsiniz.
 
 TERCİHLER
-Ayarlar Genel, Görünüm, Ses, Medya ve Ekran bölümlerine ayrılır.
+Ayarlar Genel, Görünüm, Ses, Medya, Ekran ve Hakkında bölümlerine ayrılır.
+Ctrl+1–6 ile bölümlere geçin; Tab ile ilerleyin, Shift+Tab ile geri dönün.
+Hakkında bölümünde sürüm, kyrerdm geliştirici imzası, proje bağlantıları
+ve çevrimdışı lisans okuyucu bulunur. Sürüm bilgisi kopyalanabilir.
+Luma MIT lisanslıdır; özgün lisans metni LICENSE.txt dosyasındadır.
+Bileşen lisansları kendi adlarıyla korunur; okuyucudan seçilip kopyalanabilir.
 Genel bölümünden Türkçe/English dilini seçebilir, JSON yedeği alabilir,
 yedekten dönebilir veya onay vererek varsayılanlara sıfırlayabilirsiniz.
 Bu işlemler Windows başlangıç seçimini, canlı ses/parlaklık düzeyini değiştirmez.

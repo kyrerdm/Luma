@@ -1,6 +1,6 @@
 # İmza ve Microsoft Store hazırlığı
 
-0.8 dağıtımı kullanıcı hesabına kurulan, çalışma zamanı dahil Windows 11 x64 EXE ve taşınabilir ZIP olarak devam eder. Henüz dijital imza veya Store yayını yapılmış değildir.
+0.9 dağıtımı kullanıcı hesabına kurulan, çalışma zamanı dahil Windows 11 x64 EXE ve taşınabilir ZIP olarak devam eder. Henüz dijital imza veya Store yayını yapılmış değildir.
 
 ## İmzalı GitHub sürümü
 

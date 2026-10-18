@@ -41,10 +41,10 @@ internal static partial class Diagnostics
         var saves = 0; var selected = new AppSettings { WelcomeCompleted = true };
         var window = new SettingsWindow(selected, () => saves++) { AllowClose = true }; SeedSettingsPreview(window); window.Show();
         await Task.Delay(80);
-        foreach (var page in new[] { "General", "Appearance", "Sound", "Media", "Display" })
+        foreach (var page in new[] { "General", "Appearance", "Sound", "Media", "Display", "About" })
         {
             window.Navigate(page); await Task.Delay(25);
-            var visible = new[] { "General", "Appearance", "Sound", "Media", "Display" }.Count(p => ((FrameworkElement)window.FindName(p + "Section")).Visibility == Visibility.Visible);
+            var visible = new[] { "General", "Appearance", "Sound", "Media", "Display", "About" }.Count(p => ((FrameworkElement)window.FindName(p + "Section")).Visibility == Visibility.Visible);
             check("Settings navigation shows only the selected page: " + page, visible == 1 && ((FrameworkElement)window.FindName(page + "Section")).IsVisible && saves == 0, "");
             Render(window, Path.Combine(directory, "luma-settings-" + page.ToLowerInvariant() + ".png"));
         }

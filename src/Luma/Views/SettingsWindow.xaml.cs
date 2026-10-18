@@ -25,6 +25,7 @@ public partial class SettingsWindow : Window
         this.settings = settings;
         this.save = save;
         InitializeComponent();
+        InitializeAbout();
         VersionText.Text = AppVersion.Current.ToString(3);
         if (string.Equals(Environment.ProcessPath, InstallService.Plan(InstallService.DefaultRoot, AppVersion.Current).Executable, StringComparison.OrdinalIgnoreCase)) InstallButton.Content = Strings.T("Kurulumu onar");
         foreach (var option in Palette.Options) AccentCombo.Items.Add(new ComboBoxItem { Content = option, Tag = option.Id });
