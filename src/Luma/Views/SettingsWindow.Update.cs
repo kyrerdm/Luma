@@ -48,7 +48,7 @@ public partial class SettingsWindow
     {
         if (releasePage is null) return;
         try { Process.Start(new ProcessStartInfo(releasePage.AbsoluteUri) { UseShellExecute = true }); }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { UpdateStatusText.Text = "İndirme sayfası açılamadı. github.com/kyrerdm/Luma/releases adresini kullanabilirsin."; }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { UpdateStatusText.Text = Strings.T("İndirme sayfası açılamadı. github.com/kyrerdm/Luma/releases adresini kullanabilirsin."); }
     }
     private void Install_Click(object sender, RoutedEventArgs e) => new InstallWindow { Owner = this }.ShowDialog();
 }

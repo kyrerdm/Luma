@@ -129,7 +129,8 @@ internal static partial class Diagnostics
 
         const string release = "{\"tag_name\":\"v1.0.0\",\"draft\":false,\"prerelease\":false,\"html_url\":\"https://github.com/kyrerdm/Luma/releases/tag/v1.0.0\"}";
         check("Update checks compare versions and restrict release links", UpdateService.Parse(release, new(0, 6, 0)).Available && !UpdateService.Parse(release, new(1, 0, 0)).Available && !UpdateService.Parse(release.Replace("github.com/", "example.com/"), new(0, 6, 0)).Available && !UpdateService.Parse(release.Replace("\"prerelease\":false", "\"prerelease\":true"), new(0, 6, 0)).Available, "");
-        using (var updater = new UpdateService(new DiagnosticHttpHandler(release))) check("Manual update checks handle a verified server response", (await updater.CheckAsync()).Available, "");
+        var nextVersion = new Version(AppVersion.Current.Major + 1, 0, 0).ToString(3);
+        using (var updater = new UpdateService(new DiagnosticHttpHandler(release.Replace("v1.0.0", "v" + nextVersion)))) check("Manual update checks handle a verified server response", (await updater.CheckAsync()).Available, "");
         using (var updater = new UpdateService(new DiagnosticHttpHandler("", true))) check("Offline update checks fail with a readable status", !(await updater.CheckAsync()).Available, "");
         var plan = InstallService.Plan(Path.Combine(directory, "install-example"), new(0, 6, 0));
         check("Setup downloads keep installer mode when Windows adds a duplicate suffix", App.IsSetupExecutable("Luma-0.6.0-Setup.exe") && App.IsSetupExecutable("Luma-0.6.0-Setup (1).exe") && !App.IsSetupExecutable("Luma.exe"), "");

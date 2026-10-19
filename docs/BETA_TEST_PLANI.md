@@ -1,4 +1,4 @@
-# Luma 0.10 günlük kullanım testi
+# Luma 1.0 uyumluluk ve günlük kullanım testi
 
 Amaç, birkaç farklı bilgisayarda normal kullanım sırasında kalan sorunları bulmak. Bu liste otomatik test sonuçlarının yerine geçmez; gerçek donanım kontrolleri içindir.
 

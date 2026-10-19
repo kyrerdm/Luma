@@ -89,7 +89,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             controller?.Dispose();
-            MessageBox.Show("Luma başlatılamadı.\n\n" + ex.Message, "Luma", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(Strings.T("Luma başlatılamadı.") + "\n\n" + ex.Message, "Luma", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }
     }

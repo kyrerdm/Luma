@@ -1,8 +1,11 @@
-# Kararlı sürüme geçiş
+# 1.0 yayın ve doğrulama takibi
 
-0.10, 1.0 öncesi sağlamlaştırma sürümüdür. Sürüm numarasının büyümesi, denenmemiş donanımların veya dağıtım kanallarının doğrulandığı anlamına gelmez.
+1.0.0, Windows 11 x64 için ilk kararlı GitHub sürümüdür. İngilizce yeni kurulumların varsayılan dilidir; Türkçe, Almanca, İspanyolca ve İtalyanca da sunulur. Mevcut dil tercihleri korunur. Sürüm etiketi, aşağıda açıkça bekleyen farklı donanım ve dağıtım kanalı kontrollerinin tamamlandığı anlamına gelmez.
 
 ## Bu aşamanın kapsamı
+
+- Beş dilde canlı arayüz, dilin ayarlar/yedeklerde korunması ve İngilizce başlangıç. Eski dil alanı olmayan dosyaların Türkçe davranışının korunması.
+- Her dilde 264 anahtarın, biçim parametrelerinin, erişilebilir adların ve küçük pencere yerleşiminin kontrolü; uygulama/cihaz/parça adları ve lisans gövdelerinin özgün kalması.
 
 - Ayar dosyası bozulur veya kaybolursa son geçerli yerel yedeğe dönme; iki dosya da okunamazsa kullanıcıya varsayılanlara dönüşü açıklama.
 - Başarılı kayıtlarda atomik dosya değiştirme, tek geçerli yedek ve benzersiz geçici dosyalar. Bozuk ana dosya sağlam yedeğin üzerine döndürülmez. Okumak kendiliğinden ayar kaydetmez.
@@ -14,11 +17,12 @@
 
 ## Tekrarlanabilir kontroller
 
-0.10.1 için yerel WPF doğrulamasında **223 kontrol** geçti. Ses panelini açan oka tekrar basınca kapanıp yeniden açılma hatası, gerçek fare girdileriyle tekrarlanıp düzeltildi. Dört köşede tekrarlı ve hızlı tıklama, panel içi/dışı tıklama ve erişilebilir düğme çağrısı da kapsanır. Bu sayı gerçek donanım beta planının tamamlandığı anlamına gelmez.
+1.0.0 için yerel WPF doğrulamasında **272 kontrol** geçti. Beş dil, İngilizce varsayılanı, eski tercihlerin korunması, ses panelinde tekrarlı/hızlı tıklama, medya/ses/parlaklık servisleri, ayar kurtarma ve kurulum/güncelleme hata senaryoları kapsanır. Bu sayı gerçek donanım beta planının tamamlandığı anlamına gelmez.
 
 ```powershell
+.\scripts\test-localization.ps1
 .\scripts\build.ps1 -Publish -SelfContained
-.\scripts\verify.ps1 -Published
+.\scripts\verify.ps1 -Published -TimeoutSeconds 240
 .\scripts\package.ps1
 .\scripts\test-package.ps1
 ```
@@ -35,7 +39,7 @@ Komut çalışan Luma'yı gözler; ses, medya, parlaklık ve arayüz durumunu de
 
 Gözlem arayüzün açık/gizli olmasını veya müziğin çalıp çalmadığını sınıflandırmaz; test eden kişi koşulu ayrıca not eder. Kısa gözlem bellek sızıntısı olmadığını kanıtlamaz. 30 dakika boşta ve 30 dakika medya kullanımı ayrı koşullarda yapılmalıdır.
 
-## 1.0 için devam edenler
+## Açık doğrulama alanları
 
 - [Gerçek donanım beta planı](BETA_TEST_PLANI.md): Bluetooth/USB, uyku dönüşü, farklı Fn tuşları, çoklu monitör ve DPI, DDC/CI.
 - Temiz bir Windows hesabı/makinesinde kurulum, Başlat araması, güncelleme, geri dönüş ve kaldırma.

@@ -59,6 +59,8 @@ public partial class SettingsWindow
         if (Dispatcher.HasShutdownStarted) return;
         if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(OnLanguageChanged); return; }
         Strings.Apply(this);
+        ReloadMonitors();
+        if (settings.ExternalBrightness && externalState.Length > 0) SetExternal(externalState);
         UpdateLabels();
         RefreshLivePreview();
         Navigate(CurrentSection);
@@ -93,7 +95,7 @@ public partial class SettingsWindow
         ReloadPreferences();
         ResetConfirmation.Visibility = Visibility.Collapsed;
         if (settings.ExternalBrightness) ExternalScanRequested?.Invoke();
-        else { ExternalRows.Children.Clear(); externalSliders.Clear(); }
+        else { ExternalRows.Children.Clear(); externalSliders.Clear(); externalState = Array.Empty<ExternalBrightness>(); }
     }
 
     private void Reset_Click(object sender, RoutedEventArgs e) => ResetConfirmation.Visibility = Visibility.Visible;

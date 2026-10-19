@@ -32,15 +32,15 @@ public partial class InstallWindow : Window
             {
                 var result = await UpdateActivation.ActivateAsync(installed!, previous, new NativeUpdateRuntime());
                 if (result.Updated) { installing = false; Close(); return; }
-                InstallStatusText.Text = Strings.Language == "en" ? (result.Restored ? "The update couldn't start. Your previous version was restored." : "The update couldn't start. You can open the previous version from its folder.") : (result.Restored ? "Yeni sürüm açılamadı. Önceki sürüm geri yüklendi." : "Yeni sürüm açılamadı. Önceki sürümü kendi klasöründen açabilirsin.");
+                InstallStatusText.Text = Strings.T(result.Restored ? "Yeni sürüm açılamadı. Önceki sürüm geri yüklendi." : "Yeni sürüm açılamadı. Önceki sürümü kendi klasöründen açabilirsin.");
             }
             else { InstallStatusText.Text = Strings.T("Kurulum tamamlandı. Luma'yı açarak yeni konumdan devam edebilirsin."); LaunchButton.Visibility = Visibility.Visible; }
         }
         catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.Security.SecurityException or InvalidOperationException or System.Runtime.InteropServices.COMException)
-        { if (updating && previous is not null) { try { new NativeUpdateRuntime().RestoreRegistration(previous); } catch (Exception rollback) when (rollback is System.IO.IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException or System.Security.SecurityException) { } } InstallStatusText.Text = (Strings.Language == "en" ? "Installation failed: " : "Kurulum tamamlanamadı: ") + ex.Message; InstallNowButton.IsEnabled = true; }
+        { if (updating && previous is not null) { try { new NativeUpdateRuntime().RestoreRegistration(previous); } catch (Exception rollback) when (rollback is System.IO.IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException or System.Security.SecurityException) { } } InstallStatusText.Text = Strings.T("Kurulum tamamlanamadı: ") + ex.Message; InstallNowButton.IsEnabled = true; }
         finally { installing = false; }
     }
-    private void Launch_Click(object sender, RoutedEventArgs e) { if (installed is null) return; try { App.LaunchInstalled(installed.Executable); Close(); } catch (System.ComponentModel.Win32Exception ex) { InstallStatusText.Text = "Luma açılamadı: " + ex.Message; } }
+    private void Launch_Click(object sender, RoutedEventArgs e) { if (installed is null) return; try { App.LaunchInstalled(installed.Executable); Close(); } catch (System.ComponentModel.Win32Exception ex) { InstallStatusText.Text = Strings.T("Luma açılamadı: ") + ex.Message; } }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
     protected override void OnClosing(CancelEventArgs e) { if (installing) e.Cancel = true; base.OnClosing(e); }
 }

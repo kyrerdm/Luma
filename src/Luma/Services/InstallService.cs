@@ -95,7 +95,23 @@ internal static class InstallService
         $scriptRoot = [IO.Path]::GetFullPath($PSScriptRoot).TrimEnd('\')
         if (-not [string]::Equals($installRoot, $scriptRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Kurulum klasörü doğrulanamadı.' }
         if ((Get-Item -LiteralPath $installRoot).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Kurulum klasörü bağlantı olamaz.' }
-        if ([Windows.Forms.MessageBox]::Show('Luma kaldırılsın mı? Kişisel ayarların korunacak.', 'Luma', 'YesNo', 'Question') -ne 'Yes') { exit }
+        $prompts = @{
+          tr = 'Luma kaldırılsın mı? Kişisel ayarların korunacak.'
+          en = 'Uninstall Luma? Your personal preferences will be kept.'
+          de = 'Luma deinstallieren? Deine persönlichen Einstellungen bleiben erhalten.'
+          es = '¿Desinstalar Luma? Se conservarán tus preferencias personales.'
+          it = 'Disinstallare Luma? Le preferenze personali verranno mantenute.'
+        }
+        $language = 'en'
+        try {
+          $preferencesPath = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'LumaFlyouts\settings.json'
+          if ((Test-Path -LiteralPath $preferencesPath) -and (Get-Item -LiteralPath $preferencesPath).Length -le 65536) {
+            $savedLanguage = (Get-Content -LiteralPath $preferencesPath -Raw | ConvertFrom-Json).Language
+            if ($savedLanguage -and $prompts.ContainsKey($savedLanguage)) { $language = $savedLanguage }
+            elseif (-not $savedLanguage) { $language = 'tr' }
+          }
+        } catch { }
+        if ([Windows.Forms.MessageBox]::Show($prompts[$language], 'Luma', 'YesNo', 'Question') -ne 'Yes') { exit }
         try { $signal = [Threading.EventWaitHandle]::OpenExisting('Local\Luma.Flyouts.Exit'); $signal.Set() | Out-Null; $signal.Dispose() } catch { }
         Start-Sleep -Milliseconds 800
         $prefix = $installRoot + '\'

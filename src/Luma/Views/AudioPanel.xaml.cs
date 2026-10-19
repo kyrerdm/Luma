@@ -15,14 +15,15 @@ public partial class AudioPanel : UserControl
     private readonly Dictionary<string, AppRow> rows = new();
     private string outputSignature = "";
     private bool busy;
+    private AudioRoutingState? lastState;
     public event Action<string>? OutputRequested;
     public event Action<AudioApp, int>? AppVolumeRequested;
     public event Action<AudioApp, bool>? AppMuteRequested;
     public AudioPanel() { InitializeComponent(); ApplyLanguage(); }
     internal void ApplyLanguage()
     {
-        if (Content is Border { Child: StackPanel panel })
-            foreach (var child in panel.Children) if (child is TextBlock text) text.Text = Strings.T(text.Text);
+        Strings.Apply(this);
+        if (lastState is not null) SetState(lastState);
     }
     public void SetBusy(bool value) { busy = value; OutputRows.IsEnabled = !value; }
     public void Report(bool success)
@@ -33,7 +34,8 @@ public partial class AudioPanel : UserControl
     }
     public void SetState(AudioRoutingState state)
     {
-        var signature = string.Join("\n", state.Outputs.Select(o => o.Id + o.Name + o.Selected));
+        lastState = state;
+        var signature = Strings.Language + string.Join("\n", state.Outputs.Select(o => o.Id + o.Name + o.Selected));
         if (signature != outputSignature)
         {
             outputSignature = signature; OutputRows.Children.Clear();
@@ -41,11 +43,12 @@ public partial class AudioPanel : UserControl
             {
                 var line = new Grid(); line.ColumnDefinitions.Add(new()); line.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
                 var name = new TextBlock { Text = output.Name, FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center, Margin = new(0, 0, 12, 0) };
+                Strings.Exclude(name);
                 line.Children.Add(name);
                 if (output.Selected) { var check = new TextBlock { Text = "\uE73E", FontFamily = new("Segoe Fluent Icons"), FontSize = 11 }; check.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush"); Grid.SetColumn(check, 1); line.Children.Add(check); }
                 var button = new Button { Content = line, Padding = new(9, 9, 9, 9), HorizontalContentAlignment = HorizontalAlignment.Stretch, Margin = new(0, 2, 0, 2), ToolTip = output.Name };
                 button.SetResourceReference(BackgroundProperty, output.Selected ? "SelectionBrush" : "SurfaceBrush");
-                AutomationProperties.SetName(button, output.Name + (output.Selected ? " · Seçili" : ""));
+                AutomationProperties.SetName(button, output.Name + (output.Selected ? " · " + Strings.T("Seçili") : ""));
                 button.Click += (_, _) => { if (!busy) OutputRequested?.Invoke(output.Id); };
                 OutputRows.Children.Add(button);
             }
@@ -60,6 +63,7 @@ public partial class AudioPanel : UserControl
                 root.RowDefinitions.Add(new() { Height = GridLength.Auto }); root.RowDefinitions.Add(new() { Height = new GridLength(30) });
                 root.ColumnDefinitions.Add(new() { Width = new GridLength(28) }); root.ColumnDefinitions.Add(new()); root.ColumnDefinitions.Add(new() { Width = new GridLength(34) });
                 var name = new TextBlock { FontSize = 11, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new(0, 0, 0, 3) }; Grid.SetColumnSpan(name, 3); root.Children.Add(name);
+                Strings.Exclude(name);
                 var mute = new Button { Style = (Style)FindResource("QuietButton") }; Grid.SetRow(mute, 1); root.Children.Add(mute);
                 var slider = new Slider { Minimum = 0, Maximum = 100, SmallChange = 2, LargeChange = 10, Margin = new(5, 0, 8, 0) }; Grid.SetRow(slider, 1); Grid.SetColumn(slider, 1); root.Children.Add(slider);
                 var value = new TextBlock { FontSize = 11, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center }; Grid.SetRow(value, 1); Grid.SetColumn(value, 2); root.Children.Add(value);
@@ -69,10 +73,10 @@ public partial class AudioPanel : UserControl
                 mute.Click += (_, _) => { if (captured.State is { } current) AppMuteRequested?.Invoke(current, !current.Muted); };
             }
             row.State = app; row.Updating = true;
-            row.Name.Text = app.Name; row.Name.ToolTip = app.SessionIds.Length > 1 ? (Strings.Language == "en" ? $"{app.SessionIds.Length} audio sessions are adjusted together." : $"{app.SessionIds.Length} ses oturumu birlikte ayarlanır.") : app.Name;
+            row.Name.Text = app.Name; row.Name.ToolTip = app.SessionIds.Length > 1 ? Strings.Format("{0} ses oturumu birlikte ayarlanır.", app.SessionIds.Length) : app.Name;
             row.Mute.Content = new TextBlock { Text = app.Muted ? "\uE74F" : "\uE767", FontFamily = new("Segoe Fluent Icons"), FontSize = 13 };
-            AutomationProperties.SetName(row.Mute, app.Name + (Strings.Language == "en" ? (app.Muted ? " unmute" : " mute") : (app.Muted ? " sesini aç" : " sesini kapat")));
-            AutomationProperties.SetName(row.Slider, app.Name + (Strings.Language == "en" ? " volume" : " ses düzeyi"));
+            AutomationProperties.SetName(row.Mute, Strings.Format(app.Muted ? "{0} sesini aç" : "{0} sesini kapat", app.Name));
+            AutomationProperties.SetName(row.Slider, Strings.Format("{0} ses düzeyi", app.Name));
             if (!row.Slider.IsMouseCaptureWithin) { row.Slider.Value = app.Volume; row.Value.Text = app.Volume.ToString(); }
             row.Updating = false;
         }

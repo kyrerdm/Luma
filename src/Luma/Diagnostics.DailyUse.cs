@@ -38,7 +38,7 @@ internal static partial class Diagnostics
         File.WriteAllText(migration.FilePath, "null"); check("A null settings file safely recovers", migration.Load().VolumeKeys, "");
 
         Strings.SetLanguage("tr"); Palette.Apply(new AppSettings());
-        var saves = 0; var selected = new AppSettings { WelcomeCompleted = true };
+        var saves = 0; var selected = new AppSettings { WelcomeCompleted = true, Language = "tr" };
         var window = new SettingsWindow(selected, () => saves++) { AllowClose = true }; SeedSettingsPreview(window); window.Show();
         await Task.Delay(80);
         foreach (var page in new[] { "General", "Appearance", "Sound", "Media", "Display", "About" })
@@ -49,13 +49,13 @@ internal static partial class Diagnostics
             Render(window, Path.Combine(directory, "luma-settings-" + page.ToLowerInvariant() + ".png"));
         }
         var startup = StartupService.IsEnabled();
-        window.ApplyTransferredPreferences(new AppSettings { Accent = "Rose", DurationSeconds = 4, ObserveBrightness = false, WelcomeCompleted = true });
+        window.ApplyTransferredPreferences(new AppSettings { Accent = "Rose", DurationSeconds = 4, ObserveBrightness = false, WelcomeCompleted = true, Language = "tr" });
         check("Imported preferences update shared state and controls without changing startup", selected.Accent == "Rose" && ((Slider)window.FindName("DurationSlider")).Value == 4 && ((CheckBox)window.FindName("BrightnessToggle")).IsChecked == false && saves == 1 && StartupService.IsEnabled() == startup, "");
-        ((ComboBox)window.FindName("LanguageCombo")).SelectedIndex = 1;
+        ((ComboBox)window.FindName("LanguageCombo")).SelectedItem = ((ComboBox)window.FindName("LanguageCombo")).Items.Cast<ComboBoxItem>().Single(item => (string)item.Tag == "en");
         window.Navigate("Appearance"); await Task.Delay(30);
         check("English can be selected live and is saved", Strings.Language == "en" && selected.Language == "en" && ((TextBlock)window.FindName("PageTitle")).Text == "Appearance" && ((RadioButton)window.FindName("GeneralNav")).Content is "General" && Palette.Options[0].DisplayName == "Ice", "");
         Render(window, Path.Combine(directory, "luma-settings-english.png"));
-        ((ComboBox)window.FindName("LanguageCombo")).SelectedIndex = 0;
+        ((ComboBox)window.FindName("LanguageCombo")).SelectedItem = ((ComboBox)window.FindName("LanguageCombo")).Items.Cast<ComboBoxItem>().Single(item => (string)item.Tag == "tr");
         check("Changing back to Turkish restores navigation and accent names", Strings.Language == "tr" && ((RadioButton)window.FindName("GeneralNav")).Content is "Genel" && Palette.Options[0].DisplayName == "Buz mavisi", "");
         window.Close();
         var failedSettings = new AppSettings { Accent = "Lilac", WelcomeCompleted = false };
@@ -63,11 +63,11 @@ internal static partial class Diagnostics
         try { failedWindow.ApplyTransferredPreferences(new AppSettings { Accent = "Rose" }); } catch (IOException) { }
         check("A failed import save restores the previous shared preferences and controls", failedSettings.Accent == "Lilac" && !failedSettings.WelcomeCompleted && ((ComboBoxItem)((ComboBox)failedWindow.FindName("AccentCombo")).SelectedItem).Tag is "Lilac", "");
         failedWindow.Close();
-        var firstRunSettings = new AppSettings(); var firstRunSaves = 0;
+        var firstRunSettings = new AppSettings { Language = "tr" }; var firstRunSaves = 0;
         var welcome = new WelcomeWindow(firstRunSettings, () => firstRunSaves++); welcome.Show(); await Task.Delay(40);
         Render(welcome, Path.Combine(directory, "luma-welcome.png"));
         ((ComboBox)welcome.FindName("ThemeCombo")).SelectedIndex = 1;
-        ((ComboBox)welcome.FindName("LanguageCombo")).SelectedIndex = 1;
+        ((ComboBox)welcome.FindName("LanguageCombo")).SelectedItem = ((ComboBox)welcome.FindName("LanguageCombo")).Items.Cast<ComboBoxItem>().Single(item => (string)item.Tag == "en");
         welcome.Close();
         check("Closing onboarding cancels previews without saving or altering startup", firstRunSaves == 0 && !firstRunSettings.WelcomeCompleted && firstRunSettings.Theme == "Dark" && Strings.Language == "tr" && StartupService.IsEnabled() == startup, "");
         var completedWelcome = new WelcomeWindow(firstRunSettings, () => firstRunSaves++); completedWelcome.Show();

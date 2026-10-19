@@ -29,6 +29,7 @@ internal static class PreferenceTransfer
             || !root.TryGetProperty("Settings", out var preferences) || preferences.ValueKind != JsonValueKind.Object || !preferences.TryGetProperty(nameof(AppSettings.VolumeKeys), out _))
             throw new InvalidDataException("Bu dosya desteklenen bir Luma ayar yedeği değil.");
         var settings = preferences.Deserialize<AppSettings>() ?? throw new InvalidDataException("Ayarlar okunamadı.");
+        if (!preferences.TryGetProperty(nameof(AppSettings.Language), out _)) settings.Language = "tr";
         settings.Normalize();
         settings.WelcomeCompleted = true;
         return settings;

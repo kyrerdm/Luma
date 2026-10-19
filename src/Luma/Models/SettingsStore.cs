@@ -86,6 +86,9 @@ public sealed class SettingsStore
             if (document.RootElement.ValueKind != JsonValueKind.Object) return ReadResult.Invalid;
             settings = document.RootElement.Deserialize<AppSettings>(JsonOptions);
             if (settings is null) return ReadResult.Invalid;
+            // Before language selection existed the app always used Turkish.
+            // The English default applies to fresh installs, not legacy files.
+            if (!document.RootElement.TryGetProperty(nameof(AppSettings.Language), out _)) settings.Language = "tr";
             if (!document.RootElement.TryGetProperty(nameof(AppSettings.WelcomeCompleted), out _)) settings.WelcomeCompleted = true;
             settings.Normalize();
             return ReadResult.Valid;

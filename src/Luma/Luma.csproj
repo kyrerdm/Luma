@@ -13,14 +13,15 @@
     <EnableCompressionInSingleFile Condition="'$(PublishSingleFile)' == 'true'">true</EnableCompressionInSingleFile>
     <AssemblyName>Luma</AssemblyName>
     <RootNamespace>Luma</RootNamespace>
-    <Version>0.10.1</Version>
+    <Version>1.0.0</Version>
     <Authors>kyrerdm</Authors>
     <Copyright>Copyright (c) 2026 kyrerdm</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Windows için sade ses, parlaklık ve medya göstergeleri.</Description>
+    <Description>Clean volume, brightness and media flyouts for Windows.</Description>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Localization\*.json" LogicalName="Luma.Localization.%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\..\LICENSE" LogicalName="Luma.Install.LICENSE.txt" />
     <EmbeddedResource Include="..\..\docs\KULLANIM.txt" LogicalName="Luma.Install.KULLANIM.txt" />
     <EmbeddedResource Include="..\..\docs\WINRT-LICENSE.txt" LogicalName="Luma.Install.WINRT-LICENSE.txt" />

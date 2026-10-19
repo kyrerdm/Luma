@@ -27,6 +27,7 @@ public partial class FlyoutWindow : Window
     private bool preview;
     private bool volumeMode;
     private bool brightnessMode;
+    private bool lockEnabled;
     private bool pinned;
     private bool restorePinnedVolume;
     private bool mediaExpanded;
@@ -182,7 +183,7 @@ public partial class FlyoutWindow : Window
         BrightnessSlider.IsEnabled = brightnessState.Available;
         BrightnessSlider.Value = brightnessState.Value;
         BrightnessValueText.Text = brightnessState.Available ? brightnessState.Value.ToString() : "—";
-        BrightnessCard.ToolTip = brightnessPreview ? "Önizleme · ekran parlaklığı değişmez" : brightnessState.Status;
+        BrightnessCard.ToolTip = Strings.T(brightnessPreview ? "Önizleme · ekran parlaklığı değişmez" : brightnessState.Status);
         updating = false;
     }
 
@@ -208,7 +209,7 @@ public partial class FlyoutWindow : Window
         VolumeSlider.IsEnabled = audioState.Available;
         VolumeSlider.Value = audioState.Volume;
         VolumeSlider.Opacity = audioState.Muted ? 0.4 : 1;
-        VolumeCard.ToolTip = preview ? "Önizleme · sistem sesi değişmez" : audioState.DeviceName + " · " + Strings.T("Ayarlar için sağ tıkla");
+        VolumeCard.ToolTip = preview ? Strings.T("Önizleme · sistem sesi değişmez") : audioState.DeviceName + " · " + Strings.T("Ayarlar için sağ tıkla");
         MuteButton.IsEnabled = audioState.Available;
         OutputButton.IsEnabled = audioState.Available && !preview;
         updating = false;
@@ -318,7 +319,8 @@ public partial class FlyoutWindow : Window
         brightnessMode = false;
         PinMenu.IsEnabled = false;
         VolumeCard.Visibility = BrightnessCard.Visibility = Visibility.Collapsed; LockCard.Visibility = Visibility.Visible;
-        StatusText.Text = name; LockStateText.Text = Strings.Language == "en" ? (enabled ? "On" : "Off") : (enabled ? "Açık" : "Kapalı");
+        lockEnabled = enabled;
+        StatusText.Text = name; LockStateText.Text = Strings.T(enabled ? "Etkin" : "Devre dışı");
         LockIcon.Text = enabled ? "\uE72E" : "\uE785";
         UpdateMediaLayout(!IsVisible); Reveal();
     }

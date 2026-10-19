@@ -1,5 +1,13 @@
 # Luma geliştirme planı
 
+## 1.0 — İlk kararlı GitHub sürümü
+
+- Windows 11 x64 kurucusu ve taşınabilir paket; ayarları koruyan uygulama içi güncelleme.
+- İngilizce varsayılan; Türkçe, Almanca, İspanyolca ve İtalyanca arayüz.
+- 264 anahtarlı gömülü çeviriler, canlı dil geçişi, geçmiş ayarların korunması ve dil/yerleşim kontrolleri.
+- Önceki ses paneli düzeltmesi, atomik ayar yedeği, medya/ses/parlaklık ve kişiselleştirme özelliklerinin korunması.
+- 272 yerel otomatik kontrol; GitHub'da çeviri, derleme ve paket doğrulaması.
+
 ## 0.10.1 — Ses paneli düzeltmesi
 
 - Ses çıkışı paneli açıkken oka yeniden tıklamanın paneli kapatıp geri açması giderildi.
@@ -48,7 +56,7 @@
 
 [Beta test planı](BETA_TEST_PLANI.md): Bluetooth/USB değişimleri, farklı laptop Fn tuşları, uyku dönüşü, çoklu monitör/DPI, gerçek DDC/CI yazımı ve uzun süreli bellek/CPU kullanımı. Tek bir bilgisayarın sonucu tüm donanımlar için destek iddiası oluşturmaz.
 
-## 1.0 — Dağıtım
+## Sonraki dağıtım çalışmaları
 
 [Dağıtım hazırlığı](DAGITIM.md): yayıncı kimliği ve dijital imza, Microsoft Store paketleme/uyumluluk denemesi, temiz Windows kurulumunda yükleme-güncelleme-kaldırma testi, dil ve erişilebilirlik son kontrolü.
 

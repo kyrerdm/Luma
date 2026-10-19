@@ -25,6 +25,7 @@ public partial class SettingsWindow : Window
         this.settings = settings;
         this.save = save;
         InitializeComponent();
+        foreach (var value in new DependencyObject[] { PreviewAppName, PreviewTrackTitle, PreviewArtist }) Strings.Exclude(value);
         InitializeAbout();
         VersionText.Text = AppVersion.Current.ToString(3);
         if (string.Equals(Environment.ProcessPath, InstallService.Plan(InstallService.DefaultRoot, AppVersion.Current).Executable, StringComparison.OrdinalIgnoreCase)) InstallButton.Content = Strings.T("Kurulumu onar");
@@ -91,7 +92,7 @@ public partial class SettingsWindow : Window
         updatingBrightness = true;
         DisplayBrightnessSlider.IsEnabled = state.Available;
         DisplayBrightnessSlider.Value = state.Value;
-        DisplayBrightnessText.Text = state.Available ? $"%{state.Value}" : "—";
+        DisplayBrightnessText.Text = state.Available ? Strings.Percent(state.Value) : "—";
         BrightnessStatusText.Text = Strings.T(writeFailed ? "Parlaklık değiştirilemedi. Ekran bağlantısını kontrol edip tekrar dene." : state.Status);
         updatingBrightness = false;
     }
@@ -99,7 +100,7 @@ public partial class SettingsWindow : Window
     private void DisplayBrightness_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (!ready || updatingBrightness || !DisplayBrightnessSlider.IsEnabled) return;
-        DisplayBrightnessText.Text = $"%{e.NewValue:0}";
+        DisplayBrightnessText.Text = Strings.Percent(e.NewValue);
         BrightnessRequested?.Invoke((int)Math.Round(e.NewValue));
     }
 
@@ -152,7 +153,7 @@ public partial class SettingsWindow : Window
         MonitorCombo.Items.Clear();
         MonitorCombo.Items.Add(new ComboBoxItem { Content = "İmlecin olduğu ekran", Tag = "Cursor" });
         MonitorCombo.Items.Add(new ComboBoxItem { Content = "Ana ekran", Tag = "Primary" });
-        foreach (var display in MonitorCatalog.Current) MonitorCombo.Items.Add(new ComboBoxItem { Content = display.Label, Tag = display.Id, ToolTip = display.Description });
+        foreach (var display in MonitorCatalog.Current) MonitorCombo.Items.Add(new ComboBoxItem { Content = MonitorCatalog.DisplayLabel(display), Tag = display.Id, ToolTip = MonitorCatalog.DisplayDescription(display) });
         ComboBoxItem? selected = null;
         foreach (ComboBoxItem item in MonitorCombo.Items) if ((string)item.Tag == settings.TargetDisplay) selected = item;
         if (selected is null)
@@ -189,11 +190,11 @@ public partial class SettingsWindow : Window
         if (!ready) return;
         settings.FlyoutScale = e.NewValue; UpdateLabels(); Save();
     }
-    private void UpdateLabels() { DurationText.Text = $"{settings.DurationSeconds:0.#} " + (Strings.Language == "en" ? "s" : "sn"); StepText.Text = $"%{settings.VolumeStep}"; ScaleText.Text = $"%{settings.FlyoutScale * 100:0}"; OpacityText.Text = $"%{settings.SurfaceOpacity * 100:0}"; }
+    private void UpdateLabels() { DurationText.Text = settings.DurationSeconds.ToString("0.#", Strings.Culture) + " " + Strings.T("sn"); StepText.Text = Strings.Percent(settings.VolumeStep); ScaleText.Text = Strings.Percent(settings.FlyoutScale * 100); OpacityText.Text = Strings.Percent(settings.SurfaceOpacity * 100); DisplayBrightnessText.Text = DisplayBrightnessSlider.IsEnabled ? Strings.Percent(DisplayBrightnessSlider.Value) : "—"; }
     private void Save()
     {
         try { save(); RefreshLivePreview(); FeedbackText.Text = Strings.T("Kaydedildi. Tercihlerin bir sonraki açılışta da burada."); }
-        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException) { FeedbackText.Text = "Ayarlar kaydedilemedi: " + ex.Message; }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException) { FeedbackText.Text = Strings.T("Ayarlar kaydedilemedi: ") + ex.Message; }
     }
     private void Startup_Changed(object sender, RoutedEventArgs e)
     {
@@ -202,7 +203,7 @@ public partial class SettingsWindow : Window
         catch (Exception ex) when (ex is UnauthorizedAccessException or System.IO.IOException or System.Security.SecurityException or InvalidOperationException)
         {
             ready = false; StartupToggle.IsChecked = StartupService.IsEnabled(); ready = true;
-            FeedbackText.Text = "Başlangıç ayarı değiştirilemedi: " + ex.Message;
+            FeedbackText.Text = Strings.T("Başlangıç ayarı değiştirilemedi: ") + ex.Message;
         }
     }
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;

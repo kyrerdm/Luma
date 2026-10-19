@@ -154,8 +154,11 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Dil / Language" FontSize="12" VerticalAlignment="Center" />
                 <ComboBox x:Name="LanguageCombo" Grid.Column="1" SelectionChanged="Language_Changed" AutomationProperties.Name="Dil / Language">
-                  <ComboBoxItem Content="Türkçe" Tag="tr" />
                   <ComboBoxItem Content="English" Tag="en" />
+                  <ComboBoxItem Content="Türkçe" Tag="tr" />
+                  <ComboBoxItem Content="Deutsch" Tag="de" />
+                  <ComboBoxItem Content="Español" Tag="es" />
+                  <ComboBoxItem Content="Italiano" Tag="it" />
                 </ComboBox>
               </Grid>
               <Border Style="{StaticResource Divider}" />
@@ -227,7 +230,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*" />
                   <ColumnDefinition Width="96" />
-                  <ColumnDefinition Width="58" />
+                  <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Özel renk" FontSize="12" VerticalAlignment="Center" />
                 <TextBox x:Name="CustomColorText" Grid.Column="1" MaxLength="7" Padding="6" FontSize="12" Foreground="{DynamicResource TextBrush}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" AutomationProperties.Name="Özel renk kodu" />

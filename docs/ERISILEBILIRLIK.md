@@ -1,6 +1,6 @@
 # Klavye ve dil kontrolü
 
-0.9'da 1.0 öncesi erişilebilirlik kontrolünün ilk turu yapılıyor. Bu belge bir erişilebilirlik sertifikası veya bütün yardımcı teknolojiler için uyumluluk iddiası değildir.
+1.0'da klavye, UI Automation ve beş dilde metin/yerleşim kontrolleri bulunur. Bu belge bir erişilebilirlik sertifikası veya bütün yardımcı teknolojiler için uyumluluk iddiası değildir.
 
 ## Hazır olanlar
 
@@ -19,7 +19,7 @@
 - Narrator ile bütün ayarların, açılır ses panelinin ve medya kaynaklarının duyurularını dinleme.
 - Windows kontrast temaları ve %125–%200 metin/ekran ölçeğinde kontrol.
 - Klavyeyle yedek alma, geri yükleme, güncelleme ve kurulum akışlarının baştan sona denenmesi.
-- Türkçe/İngilizce uzun aygıt ve parça adlarıyla son kontrol.
+- Beş dilde uzun aygıt ve parça adlarıyla gerçek kullanım kontrolü.
 
 Bu kontroller gerçekten yapılmadan tamamlandı işaretlenmez. Çoklu monitör ve farklı cihaz kontrolü [beta planında](BETA_TEST_PLANI.md) devam eder.
 

@@ -24,7 +24,7 @@ public sealed class AppSettings
     public double SurfaceOpacity { get; set; } = 0.94;
     public bool HideInFullscreen { get; set; }
     public bool ExternalBrightness { get; set; }
-    public string Language { get; set; } = "tr";
+    public string Language { get; set; } = Luma.Services.Strings.DefaultLanguage;
     public bool WelcomeCompleted { get; set; }
 
     public void Apply(AppSettings source)
@@ -37,7 +37,7 @@ public sealed class AppSettings
 
     public void Normalize()
     {
-        if (Language is not ("tr" or "en")) Language = "tr";
+        if (!Luma.Services.Strings.IsSupported(Language)) Language = Luma.Services.Strings.DefaultLanguage;
         if (Position is not ("BottomCenter" or "TopCenter" or "TopRight" or "BottomRight" or "TopLeft" or "BottomLeft"))
             Position = "BottomCenter";
         if (!double.IsFinite(DurationSeconds)) DurationSeconds = 2.5;

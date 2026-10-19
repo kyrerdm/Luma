@@ -1,257 +1,96 @@
 # Luma
 
-<img src="docs/images/luma-logo.png" width="72" height="72" alt="Luma mavi ve mor ışıltı logosu" />
+<img src="docs/images/luma-logo.png" width="72" height="72" alt="Luma blue and purple spark logo" />
 
-Windows 11 için sade ve akıcı ses, parlaklık, medya ve klavye göstergeleri. İnce şeritler, ayrı bir medya kartı ve ihtiyacın bittiğinde kaybolan küçük kontroller.
+Clean, animated volume, media, brightness and lock-key flyouts for Windows 11.
 
-**[Windows için indir](https://github.com/kyrerdm/Luma/releases/latest)** · [Kurulum](#kurulum) · [Özellikler](#özellikler) · [Kaynak koddan derleme](#kaynak-koddan-derleme)
+**[Download for Windows](https://github.com/kyrerdm/Luma/releases/latest)** · [Türkçe](docs/README.tr.md) · [Deutsch / Español / Italiano quick start](docs/QUICKSTART.md)
 
-![Luma'nın ses şeridi ve medya kartı](docs/images/luma-motion.gif)
+**English is the default for new installations.** Türkçe, Deutsch, Español and Italiano are available under **General → Language**. Updating keeps your existing language choice.
 
-*Görsellerdeki parça, kapak ve kaynak bilgileri örnek veridir.*
+![Luma volume bar and media card](docs/images/luma-motion.gif)
 
-## Kurulum
+*Track names, artwork and player information in the examples are fictional.*
 
-**Gereksinim:** Windows 11, 64 bit (x64). ARM64 için ayrı paket henüz yoktur.
+## Install
 
-**Kurulum paketi:** [Son sürümden](https://github.com/kyrerdm/Luma/releases/latest) **`Luma-0.10.1-Setup.exe`** dosyasını indir, aç ve **Kur → Luma'yı aç** seç. Yönetici yetkisi gerekmez. Başlat menüsü kısayolu ve Windows'un yüklü uygulamalar listesine kaldırma kaydı eklenir. Masaüstü kısayolu isteğe bağlıdır. Dosyalar `%LOCALAPPDATA%\Programs\Luma\0.10.1` klasörüne kurulur. Windows ile otomatik başlatma tercihi ayrıca ayarlardan seçilir.
+Requires **Windows 11 x64**. The required .NET Desktop Runtime is included; no separate .NET or Visual Studio installation is needed.
 
-**Taşınabilir kullanım:**
+1. Open the [latest release](https://github.com/kyrerdm/Luma/releases/latest).
+2. Download **`Luma-1.0.0-Setup.exe`** from **Assets** and run it.
+3. Choose **Install → Open Luma**. Administrator access is not required.
+4. Search for **Luma** in the Windows Start menu. Click its system tray icon once to open Settings.
 
-1. **[Son sürüm sayfasını aç](https://github.com/kyrerdm/Luma/releases/latest).**
-2. Sayfanın **Assets** bölümünden **`Luma-0.10.1-win-x64.zip`** dosyasını indir. GitHub'ın eklediği **Source code** dosyaları çalıştırılabilir uygulamayı içermez.
-3. İndirilen ZIP'e sağ tıkla ve **Tümünü ayıkla** seçeneğiyle kalıcı bir klasöre çıkar. Örneğin `C:\Users\kullanıcı\Apps\Luma`.
-4. Çıkardığın klasördeki **`Luma.exe`** dosyasını aç.
-5. Klavyeden sesi açıp kısarak göstergeyi kullan. Ayarları açmak için tepsi simgesine bir kez sol tıkla.
+Setup installs to `%LOCALAPPDATA%\Programs\Luma\1.0.0`, adds a Start menu shortcut and registers an entry in Windows Installed apps. The desktop shortcut is optional. **Start with Windows** is a separate preference under General.
 
-Paket, gereken .NET Desktop Runtime dosyalarını içerir. **Ayrıca .NET veya Visual Studio yüklemek gerekmez.** ZIP taşınabilir kullanım içindir. Kurulum isteyenler ayrı Setup.exe dosyasını kullanabilir; MSI paketi yoktur. Dosyaları ZIP'in içinden çalıştırmak yerine önce klasöre çıkar.
+For portable use, download **`Luma-1.0.0-win-x64.zip`**, extract it to a permanent folder and run `Luma.exe`. GitHub's **Source code** archives do not contain the runnable application.
 
-### Her oturumda otomatik başlatma
+## Update or uninstall
 
-Ayarlar ekranında **Windows ile başlat** seçeneğini aç. Luma sonraki oturumlarda sistem tepsisinde hazır olur. Bu ayarı açtıktan sonra uygulama klasörünü taşımadan önce seçeneği kapat; yeni konumdan açtıktan sonra tekrar etkinleştir.
+In an installed copy, choose **General → Check for updates → Download and update**, or run the new Setup. Downloads start only when requested. Luma checks the release asset's size and GitHub SHA-256 digest before running it. A failed startup restores the validated previous installation when available.
 
-### Güncelleme
+For portable updates, exit Luma from its tray menu, extract the new ZIP into a separate folder and open the new executable. An already-enabled startup entry follows the new path; a disabled one stays disabled.
 
-1. Eski Luma'nın **sistem tepsisi simgesine sağ tıkla → Çıkış** seç. Pencereyi kapatmak uygulamadan çıkmaz.
-2. Yeni ZIP'i ayrı bir klasöre çıkar ve yeni **`Luma.exe`** dosyasını aç.
-3. **Windows ile başlat** zaten açıksa yeni Luma.exe açıldığında başlangıç yolu güncellenir. Kapalıysa kapalı kalır.
+Preferences live in `%LOCALAPPDATA%\LumaFlyouts\settings.json`. A successful save maintains `settings.json.bak`; a damaged primary can recover from the last valid copy. Recovery information is shown in Settings. Loading preferences does not rewrite them.
 
-Mevcut tercihler korunur; ayarlar `%LOCALAPPDATA%\LumaFlyouts\settings.json` dosyasında saklanır.
+Uninstall through **Windows Settings → Apps → Installed apps → Luma**. The uninstaller removes Luma's installation and shortcuts while keeping personal preferences.
 
-Kurulu sürümde yeni **Setup.exe** dosyasını açıp **Kur → Luma'yı aç** seçebilirsin. 0.7 ve sonrasında **Genel → Güncellemeleri denetle → İndir ve güncelle** yolunu da kullanabilirsin. Paket yalnızca sen istediğinde indirilir; GitHub API'nin verdiği dosya boyutu ve SHA-256 özeti doğrulanır. Eksik veya değişmiş dosya çalıştırılmaz. Yeni sürüm ayrı klasöre kurulur ve açılışı beklenir; açılamazsa doğrulanmış önceki kurulumun kısayolları/başlangıç yolu geri yüklenip önceki sürüm açılır. Önceki sürüm klasörü korunur. İptal veya indirme hatası sırasında mevcut Luma çalışmayı sürdürür. Doğrulanabilir paket bilgisi yoksa sürüm sayfası sunulur; arka planda kendiliğinden denetleme veya indirme yapılmaz.
+## Features
 
-### Kaldırma
-
-**Windows ile başlat** seçeneğini kapat, tepsiden **Çıkış** seç ve Luma'yı çıkardığın klasörü sil. Tercihlerini de kaldırmak istersen `%LOCALAPPDATA%\LumaFlyouts` klasörünü silebilirsin.
-
-Kurulum paketi kullanıldıysa **Windows Ayarları → Uygulamalar → Yüklü uygulamalar → Luma → Kaldır** yolunu kullan. Kaldırıcı kurulum dosyalarını, kendisine ait kısayolları ve başlangıç kaydını temizler; kişisel tercih dosyasını korur.
-
-## Özellikler
-
-| Özellik | Açıklama |
+| Feature | What it does |
 | --- | --- |
-| İnce ses şeridi | Ses açma, kısma, sessize alma, kaydırıcı ve fare tekerleğiyle kontrol. Ok ve açılır panel sağ kenarda hizalanır. |
-| Canlı ayarlar önizlemesi | Mevcut ses, sessize alma, seçili medya, kapak ve ilerleme; pencere gizliyken önizleme saati durur. |
-| Ses çıkışı seçimi | Ses şeridinin sağındaki okla kulaklık, hoparlör ve diğer etkin çıkışlar arasında geçiş. |
-| Uygulama sesleri | Açılır panelde seçili ses çıkışının uygulamalarını ayrı ayarla veya sessize al. |
-| Laptop parlaklığı | Desteklenen dahili ekranda Fn/Windows değişikliklerini göster; ayarlardan veya parlaklık şeridinden düzeyi değiştir. |
-| Ayrı medya kartı | Windows'a medya oturumu sunan oynatıcılardan parça, sanatçı ve kapak bilgisi. |
-| Oynatma kontrolleri | Oynatıcının desteklediği ölçüde oynat/duraklat, önceki/sonraki ve zaman çizelgesi. |
-| Medya kaynağı seçimi | Sağ alttaki okla Windows'un sunduğu kaynakları listele; seçilen oynatıcının bilgileri ve düğmeleri birlikte değişir. |
-| Klavye göstergeleri | Caps Lock, Num Lock ve Scroll Lock durumu. |
-| Akıcı geçişler | Kartların açılışı, kapanışı, boyut değişimi ve ses kaydırıcısı için hafif animasyonlar. |
-| Görünüm tercihleri | Renk örnekleriyle 12 vurgu rengi; albüm kapağının bulanık arka plan yansıması. |
-| Tema ve özel renk | Açık/koyu/Windows teması, özel RGB rengi ve %65–%100 panel opaklığı. |
-| Tam ekran tercihi | Gösterilecek monitörü kaplayan oyun/video penceresinde Luma göstergelerini gizle. |
-| Harici ekran parlaklığı | İsteğe bağlı DDC/CI taramasıyla destekleyen bağlı ekranları ayrı ayarla. |
-| Kurulum ve güncelleme | Kullanıcı hesabına kurulum, kaldırıcı, doğrulanan indirme ve açılışta başarısız olursa önceki kuruluma dönüş. |
-| Düzenli ayarlar | Genel, Görünüm, Ses, Medya, Ekran ve Hakkında; Türkçe ve İngilizce dil seçimi. |
-| Hakkında ve lisanslar | Geliştirici imzası, sürüm kopyalama, proje bağlantıları; tam metinli çevrimdışı lisans okuyucu. |
-| Klavyeyle gezinme | Ctrl+1–6 bölüm kısayolları, ileri/geri sekme sırası ve görünür odak. |
-| Tercih yedekleri | Sürümlü JSON içe/dışa aktarma, onaylı sıfırlama; canlı ses/parlaklık ve Windows başlangıç tercihi korunur. |
-| Otomatik ayar kurtarma | Son geçerli yerel yedek, bozuk/eksik dosyadan geri dönüş ve ayarlarda açıklanan kurtarma durumu. |
-| Başlangıç ve destek | Yeni kullanıcılar için kısa rehber; isteğe bağlı ve yerel teknik destek raporu. |
-| Konum ve süre | Dört köşe ve üst/alt orta; %75–%140 boyut ayarı, görünme süresi ve ses adımı. |
-| Çoklu ekran | İmlecin olduğu ekran, ana ekran veya bağlı monitörlerden biri seçilebilir. Seçilen ekran çıkarılırsa ana ekran kullanılır. |
-| Sistem tepsisi | Tek sol tıkla ayarlar; sağ tık menüsünde yalnızca ayarlar ve çıkış. |
-| Işıltı logosu | Mavi–mor geçişli, yumuşak dört uçlu simge; uygulama dosyası, tepsi ve ayarlar başlığında ortak tasarım. |
+| Volume bar | Volume, mute and mouse-wheel adjustment in a compact animated strip. |
+| Audio output and app mixer | Choose an active output and adjust the apps using that output separately. The arrow toggles the panel open or closed. |
+| Media card | Track, artist, artwork, playback controls and seeking when supported by the player. Optional blurred artwork background. |
+| Media source selection | Switch between the separate media sessions Windows exposes. Controls follow the selected source. |
+| Brightness | Supported internal laptop displays, with optional DDC/CI controls for external monitors. |
+| Lock-key indicators | Temporary Caps Lock, Num Lock and Scroll Lock notifications. |
+| Placement | Four corners, top/bottom center, selectable monitor or follow-cursor placement. Scale from 75% to 140%. |
+| Appearance | Dark, light or Windows theme; 12 accents, custom RGB color, opacity and animation preferences. |
+| Live settings preview | Current volume and selected media. Read-only preview meters; the playback clock stops while hidden or minimized. |
+| Languages | English, Türkçe, Deutsch, Español and Italiano, with live switching and saved preferences. |
+| Daily use | Optional startup, settings import/export, local support reports and manual updates. |
+| About | Developer credit, public project links and a selectable offline license reader. |
 
-## Ayarları yönetme
+Settings sections support **Ctrl+1–6**. Use **Tab / Shift+Tab** to navigate. Closing Settings hides it to the tray; use the tray menu to exit Luma.
 
-Ayarlar altı bölüme ayrılır. **Genel** bölümünden dili, Windows başlangıcını, güncellemeleri ve destek araçlarını; **Görünüm** bölümünden tema/renk/konum/boyutu; **Ses**, **Medya** ve **Ekran** bölümlerinden ilgili kontrolleri yönetebilirsin. **Hakkında** bölümünde sürüm, geliştirici ve lisanslar yer alır. `Ctrl+1`–`Ctrl+6` ile bölümlere geçebilir, `Tab` ve `Shift+Tab` ile ilerleyip geri dönebilirsin. Yeni kullanıcılara kısa bir başlangıç rehberi açılır; mevcut kullanıcılar ayarlarına devam eder.
+## Scope and known limitations
 
-**Genel → Dışa aktar** bir Luma JSON yedeği oluşturur. **İçe aktar** yalnızca desteklenen Luma yedeğini kabul eder; bozuk veya daha yeni dosya biçimleri mevcut tercihleri değiştirmez. Başka bilgisayarda bulunmayan monitör tercihi ana ekrana döner. **Sıfırla** onaydan sonra varsayılanları uygular. Bu işlemler Windows başlangıç tercihini ve canlı ses/parlaklık düzeylerini değiştirmez.
+**1.0.0 is the first stable GitHub release for Windows 11 x64.** It is currently unsigned. There is no Microsoft Store or native ARM64 package yet. Physical hardware compatibility, long sessions and assistive-technology checks continue; the release label does not certify every device.
 
-Başarılı kayıtlarda son geçerli dosya aynı klasörde `settings.json.bak` olarak korunur. Ana dosya bozulur veya kaybolursa bu yedeğe dönülür; ayarlarda kurtarma bilgisi görünür. İki dosya da okunamazsa varsayılanlara dönüldüğü açıklanır. Ayarları okumak dosyaları kendiliğinden değiştirmez. Bozuk dosya sağlam yedeğin üzerine döndürülmez.
+- Brightness depends on the laptop driver or external monitor's DDC/CI support. Some Windows/vendor brightness panels can still flash briefly before being hidden.
+- Media information and commands depend on what each player exposes to Windows. Ordinary Chrome tabs may share one system media session and cannot then be selected independently. Separate Chrome/Spotify sessions can be selected.
+- Apps appear in the mixer for the selected audio output. An app routed to another output may be absent. Multiple sessions belonging to the same app are adjusted together.
+- Bluetooth/USB hotplug, sleep/resume, different laptop Fn controllers, external monitor writes, mixed DPI, Narrator and contrast themes require further real-device coverage.
 
-Geliştirme sırası: [Yol haritası](docs/ROADMAP.md) · [Donanım beta testi](docs/BETA_TEST_PLANI.md) · [Klavye ve dil kontrolü](docs/ERISILEBILIRLIK.md) · [İmza ve Store hazırlığı](docs/DAGITIM.md)
+Luma records no keystrokes and sends no telemetry. Everyday operation is offline. Only requested update checks/downloads contact GitHub. Support reports are saved locally and are never sent automatically.
 
-## Kullanım ipuçları
+## Build and verify
 
-- Ses şeridindeki hoparlör simgesi sesi kapatıp açar. Fare tekerleği, imleç şeridin üzerindeyken ses seviyesini değiştirir.
-- Ses şeridinin **sağındaki küçük ok**, ses çıkışı ve uygulama sesleri panelini açar. Panel açıkken otomatik gizleme durur. Çıkış seçimi Windows'un genel ve medya varsayılanını değiştirir; ayrı iletişim/arama aygıtı tercihi korunur. Uygulamaların yeni varsayılana geçmesi kendi ses yönlendirme davranışlarına bağlıdır.
-- Uygulama sesleri seçili çıkıştaki Windows ses oturumlarından oluşur. Aynı uygulamanın birden fazla oturumu birlikte ayarlanır. Başka çıkışa özel yönlendirilmiş uygulamalar bu listede görünmez. Medya kaynağı seçimi ayrı bir özelliktir.
-- İmleci göstergenin üzerine getirince otomatik gizleme durur. Medya kartının sol altındaki **pin** simgesi göstergeyi açık tutar; tekrar basınca otomatik gizlemeye döner. Kilit tuşu bildirimleri geçicidir; süreleri bitince sabitlenmiş ses/medya kartı geri gelir.
-- Göstergeye **sağ tıklayarak** ayarlara ulaşabilir veya göstergeyi gizleyebilirsin.
-- Medya oturumu yoksa boş medya kartı gösterilmez. Oynatıcının desteklemediği düğmeler pasif olur.
-- Medya kartının **sağ altındaki ok**, kaynak listesini açar. Listede uygulama, parça adı ve çalma durumu görünür. Kaynak değiştirmek diğer oynatıcıları durdurmaz veya başlatmaz.
-- Manuel seçimin kaynak duraklatılsa da korunur. Kaynak kapanırsa kalan oturumlara dönülür. Menüdeki **Otomatik** seçeneği çalan kaynağı takip eder; Luma yeniden açıldığında otomatik modla başlar.
-  Bu seçim Luma kartındaki medya düğmeleri için geçerlidir.
-- **Gösterilecek ekran** alanından monitör seçebilirsin. Seçtiğin ekran bağlı değilken ana ekran kullanılır; yeniden bağlandığında tercih ettiğin ekrana dönülür.
-- **Ekran parlaklığı → Dahili ekran** kaydırıcısı desteklenen laptop ekranının parlaklığını değiştirir. Donanımın desteklediği en yakın seviyeye yuvarlanır. Parlaklık şeridinin üzerindeyken fare tekerleği de kullanılabilir.
-- **Parlaklık göstergesi** tercihi, Fn tuşları veya Windows üzerinden yapılan değişikliklerde Luma'nın açılmasını kapatır; ayarlardaki kaydırıcı çalışmaya devam eder. Sabitlenmiş ses/medya kartı parlaklık bildirimi bitince geri gelir.
-- **Windows parlaklık panelini gizle** varsayılan olarak açıktır. Luma'nın parlaklık göstergesi etkinken altta çıkan ikinci Windows panelini gizler. Bu tercihi veya Parlaklık göstergesi seçeneğini kapatırsan Windows paneline müdahale edilmez.
-- Ayarlardaki **Canlı önizleme**, mevcut ses seviyesini/sessize alma durumunu ve Luma'da seçili medya kaynağını gösterir. Parça, sanatçı, kapak, oynatma durumu ve ilerleme süresi değişiklikleri takip edilir. Medya yokken boş durum görünür; ayarlar gizlendiğinde önizleme saati durur. Bu alan izleme içindir; ses veya oynatma komutu göndermez.
-- Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsin. Renk, konum ve monitör listeleri koyu tema ve arayüzle aynı yazı tipini kullanır.
-- Vurgu renkleri: buz mavisi, lila, adaçayı, gül kurusu, yakut, mercan, şeftali, kehribar, limon, turkuaz, okyanus ve gümüş. Renkler listedeki küçük örneklerle gösterilir.
-- **Tema** alanında açık, koyu veya Windows ile aynı görünümü seç. **Özel renk** alanına `#RRGGBB` biçiminde bir kod yazıp **Seç** düğmesine bas. Panel opaklığı yalnızca göstergenin zeminini değiştirir; yazılar saydamlaştırılmaz.
-- **Tam ekranda göstergeleri gizle** varsayılan olarak kapalıdır. Açıldığında hedef monitörü kaplayan ön plandaki pencerede bildirimler açılmaz; ses ve parlaklık komutları çalışmaya devam eder. Ekranı tamamen kaplayan bazı kenarlıksız pencereler de tam ekran sayılabilir. Bu tercih normal pencere/sanal masaüstü üzerinde engelleme yapmaz.
-- **Monitör parlaklığı (DDC/CI)** varsayılan olarak kapalıdır. Açıp **Monitörleri tara** ile bağlı ekranları bul. Monitör menüsünden DDC/CI açık olmalıdır; destek yoksa kaydırıcı pasif kalır. Her ekranın kaydırıcısı yalnızca o ekranı değiştirir. Laptopun Fn parlaklık tuşları dahili ekranı kontrol etmeye devam eder.
-- Ayarlar penceresini kapatmak Luma'yı tepsiye gizler. Tamamen kapatmak için tepsi simgesine sağ tıkla ve **Çıkış** seç.
-
-<details>
-<summary>Ayarlar ekranı</summary>
-
-![Luma ayarları](docs/images/luma-settings.png)
-
-![Son geçerli yedekten ayar kurtarma bilgisi](docs/images/luma-settings-recovery.png)
-
-![Hakkında ve çevrimdışı lisans okuyucu](docs/images/luma-about.png)
-
-![Başlangıç rehberi](docs/images/luma-welcome.png)
-
-![English settings](docs/images/luma-settings-english.png)
-
-</details>
-
-<details>
-<summary>Ses çıkışı, uygulama sesleri ve açık tema</summary>
-
-![Ses çıkışı ve uygulama sesleri](docs/images/luma-audio-panel.png)
-![Açık temada ses paneli](docs/images/luma-light-audio-panel.png)
-![Açık tema ayarları](docs/images/luma-light-settings.png)
-
-</details>
-
-<details>
-<summary>Tepsi menüsü ve renk seçenekleri</summary>
-
-![Koyu tepsi menüsü](docs/images/luma-tray-menu.png)
-![Renk örnekleriyle vurgu listesi](docs/images/luma-accent-menu.png)
-
-</details>
-
-<details>
-<summary>Medya kaynağı seçimi</summary>
-
-![Kaynak seçme oku](docs/images/luma-source-card.png)
-![Medya kaynakları listesi](docs/images/luma-source-menu.png)
-
-</details>
-
-<details>
-<summary>Laptop ekran parlaklığı</summary>
-
-![Parlaklık şeridi](docs/images/luma-brightness.png)
-![Parlaklık ayarları](docs/images/luma-brightness-settings.png)
-
-</details>
-
-## Mevcut durum ve sınırlamalar
-
-**0.10.1 erken bir sürümdür.** Ses, dahili ekran parlaklığı, klavye göstergeleri ve medya kartı hazırdır. Açık/koyu/sistem teması ve kullanıcı hesabına kurulum hazırdır. ARM64 paketi ve Microsoft Store yayını henüz yoktur. Paket henüz dijital olarak imzalı değildir.
-
-Parlaklık kontrolü Windows'un [WmiMonitorBrightness](https://learn.microsoft.com/en-us/windows/win32/wmicoreprov/wmimonitorbrightness) ve [WmiSetBrightness](https://learn.microsoft.com/en-us/windows/win32/wmicoreprov/wmisetbrightness-method-in-class-wmimonitorbrightnessmethods) desteğini kullanan dahili ekranlar içindir. Destek bulunmazsa kaydırıcı pasif görünür. Harici monitörlerde DDC/CI kontrolü isteğe bağlıdır; destekleyen donanım ve uygun bağlantı gerekir. Gösterilecek ekran tercihi panelin konumunu belirler. Fn tuşları ve dahili ekran kaydırıcısı laptop ekranını, DDC/CI kaydırıcıları ise adında belirtilen monitörü kontrol eder. Birden fazla dahili ekran bildirilirse mevcut aktif ekran korunur. Tanınmayan Windows pencere düzenlerinde veya üretici yazılımlarında ek panel görünebilir. Bu bilgisayarın dahili ekranında %100 → %99 → %100 okuma/yazma ve geri yükleme doğrulandı. Farklı laptop modelleri ayrıca denenmelidir.
-
-Medya bilgisi ve düğmeler oynatıcının Windows'a sunduğu özelliklere bağlıdır. Canlı yayınlarda süre veya ileri sarma olmayabilir. Windows medya API'sine erişim ve komut yönlendirmesi kontrol edildi; canlı Spotify/diğer oynatıcılarda uçtan uca kullanım henüz doğrulanmadı.
-
-Kaynak listesi [Windows'un sunduğu medya oturumlarından](https://learn.microsoft.com/en-us/uwp/api/windows.media.control.globalsystemmediatransportcontrolssessionmanager.getsessions) oluşur. Normal Chrome sekmeleri [ortak bir sistem medya oturumu kullanır](https://chromium.googlesource.com/chromium/src/%2B/HEAD/content/browser/media/system_media_controls/); bu durumda iki sekme ayrı ayrı seçilemez. Chrome–Spotify gibi ayrı oturumlar listelenebilir. Her tarayıcı sekmesini bağımsız kontrol etmek ek tarayıcı entegrasyonu gerektirir.
-
-Standart ses tuşları CoreAudio üzerinden işlenir. Bazı üreticilerin Fn yazılımları veya kumandaları farklı yollar kullanabilir; bunlarda Windows'un kendi paneli de görünebilir. Fiziksel Fn tuşları, yönetici olarak çalışan uygulamalar ve farklı DPI değerlerinde çoklu monitör kullanımı ayrıca denenmelidir.
-
-Bir sorunla karşılaşırsan **[Issues](https://github.com/kyrerdm/Luma/issues)** bölümüne Windows sürümünü, Luma sürümünü, kullandığın oynatıcıyı/donanımı ve sorunu tekrar oluşturma adımlarını ekleyebilirsin.
-
-## Gizlilik ve sistem davranışı
-
-Luma telemetri göndermez ve klavye kaydı tutmaz. **Güncellemeleri denetle** düğmesi resmi sürüm bilgisi için GitHub API'ye, **İndir ve güncelle** ise GitHub'ın sürüm dosyası sunucularına bağlanır. Bu işlemler kullanıcı tarafından başlatılır; arka planda kendiliğinden sorgu yoktur. Destek raporu yalnızca seçtiğin dosyaya teknik özet yazar; kullanıcı adı, dosya yolları, aygıt kimlikleri, uygulama adları veya çalan parça içermez ve gönderilmez. Klavye kancası ses ve kilit tuşları için kullanılır. Explorer veya Windows sistem dosyaları değiştirilmez. **Windows ile başlat** açıldığında yalnızca mevcut kullanıcının `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` alanına `LumaFlyouts` girdisi eklenir.
-
-Kurulum seçilirse kullanıcı hesabının `Programs\Luma` klasörüne dosyalar, Başlat menüsü kısayolu ve `HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\LumaFlyouts` kaydı eklenir. Masaüstü kısayolu yalnızca seçildiğinde oluşturulur. Otomatik başlatma kendiliğinden açılmaz.
-
-## Kaynak koddan derleme
-
-Son kullanıcıların bu adımlara ihtiyacı yoktur; hazır uygulama **[Releases](https://github.com/kyrerdm/Luma/releases)** bölümündedir.
-
-Geliştirme için **Windows 11**, **Git** ve **.NET SDK x64 10.0.402** gerekir; sürüm `global.json` ile sabittir. Proje WPF, Win32/CoreAudio, Microsoft Windows SDK .NET projeksiyonları ve parlaklık için Microsoft'un System.Management paketini kullanır; harici bir UI kütüphanesi içermez.
+The SDK is pinned in `global.json`. From the repository root, with PowerShell and that .NET SDK installed:
 
 ```powershell
-git clone https://github.com/kyrerdm/Luma.git
-cd Luma
-.\scripts\build.ps1
-.\scripts\verify.ps1
-```
-
-Çalışma zamanı dahil taşınabilir paket:
-
-```powershell
+.\scripts\test-localization.ps1
 .\scripts\build.ps1 -Publish -SelfContained
-.\scripts\verify.ps1 -Published
+.\scripts\verify.ps1 -Published -TimeoutSeconds 240
 .\scripts\package.ps1
 .\scripts\test-package.ps1
 ```
 
-Çıktı klasörü `artifacts\Luma-0.10.1`, paylaşılacak dosya `artifacts\Luma-0.10.1-win-x64.zip` konumundadır. SHA-256 özeti ZIP'in yanındaki `.sha256` dosyasına yazılır. Hata ayıklama sembolleri dağıtım ZIP'ine eklenmez.
+The output is `artifacts\Luma-1.0.0`. Setup and portable ZIP are placed in `artifacts`, alongside their `.sha256` files. Packaging verifies runtime notices against the restored runtime packages and includes the same licenses and guide as the installer.
 
-`build.ps1 -Publish`, çalışma zamanını dahil etmeden paket oluşturur; bu çıktı için .NET 10 Desktop Runtime gerekir. Kişisel ayarlardan ayrı bir geliştirme oturumu için:
+`verify.ps1` runs Windows/WPF, audio, media, keyboard, settings recovery, update, localization and layout checks. Mouse-input fixtures target Luma's isolated test windows. These checks require an interactive Windows desktop; the GitHub workflow runs catalog validation, compilation and package integrity checks separately.
 
-```powershell
-.\artifacts\Luma-0.10.1\Luma.exe --data-dir .\.local
-```
-
-Logo vektörü `src\Luma\Assets\Brand.xaml` dosyasındadır. Tepsi ve ayarlar aynı kaynağı kullanır. Vektör değiştiğinde uygulamanın ICO dosyasını ve PNG önizlemelerini PowerShell 7 ile yeniden üret:
+For isolated development preferences:
 
 ```powershell
-pwsh -NoProfile -STA -File scripts\New-LumaIcon.ps1
+.\artifacts\Luma-1.0.0\Luma.exe --data-dir .\.local
 ```
 
-### Tepki süresi
+See [1.0 release notes](docs/releases/v1.0.0.md), [translation guidance](docs/LOCALIZATION.md), [multilingual quick start](docs/QUICKSTART.md) and [ongoing validation](docs/KARARLI_SURUM.md).
 
-Ses aygıtı, medya sorguları ve tuş dinleyicisi arayüzden ayrı yürütülür. Gösterge ilk tuştan önce hazırlanır; yavaş bir aygıt sorgusu panelin görünmesini bekletmez. Bekleyen eski ses yanıtları yeni kullanıcı girişini geri almaz.
+## License and credit
 
-Parlaklık WMI sorguları da ayrı yürütülür. Donanım bildirimleri yavaş bir sorgunun bitmesini beklemeden arayüze aktarılır; eski bir okuma yeni bildirimin değerini geri alamaz. Windows panelini gizleme işi, arayüz kuyruğunu beklemeden doğrudan parlaklık etkinliğinden başlatılır. Sürücü bildirim sunmazsa iki saniyelik arka plan okuması kullanılır; destek bulunmayan cihazlarda kontrol aralığı on saniyedir.
+Designed and developed by **kyrerdm**. Luma's original code is licensed under [MIT](LICENSE); bundled components retain their own notices. License texts are available offline in **About** and in the distribution.
 
-Yinelenen Windows parlaklık paneli, parlaklık etkinliğinden sonraki 900 ms boyunca sınırlı bir kontrolle gizlenir. [WinEvent bildirimleri](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwineventhook) açılan pencereyi izler; [ShowWindowAsync](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindowasync) görünürlüğünü değiştirir. Pencerenin sınıfı, sistem sürecinin tam dosya yolu, stili, XAML alt penceresi ve DPI'a göre boyutu birlikte doğrulanır. Explorer yeniden başladığında pencere tekrar bulunur. Bildirimler eşzamansız ulaştığı için panel gizlenmeden önce kısa bir an görünebilir; tamamen belirmemesi garanti edilmez. Windows 11 25H2'de 0.5.1 ile fiziksel tuş denemesinde bu kısa belirme gözlendi. Farklı Windows pencere düzenleri tanınmayabilir. Üreticiye ait ayrı göstergeler bu kapsama girmez.
-
-### Doğrulama kapsamı
-
-Yeni ses panelinde gerçek CoreAudio aygıt/oturum okuması ve mevcut aygıtın ses düzeyini değiştirmeden yeniden seçilebilmesi doğrulanır. İkinci bir fiziksel ses aygıtına geçiş, Bluetooth bağlantısı, uyku sonrası kullanım ve farklı laptoplar ayrıca donanım testi gerektirir. Uygulama komutları, eski çıkış/oturumların reddi, kaydırıcı isteklerinin birleştirilmesi, açık panelde otomatik gizlemenin durması ve tema geçişleri izole senaryolarda kontrol edilir. DDC/CI için farklı monitör aralıkları, bağımsız istekler, kapatılınca bekleyen yazıların iptali ve kaynakların bırakılması benzetimlerle doğrulanır; gerçek harici monitörde parlaklık yazımı bu bilgisayarda henüz doğrulanmadı. Kurulum dosyaları ve kaldırma betiği ayrı bir test klasörüne yazılır; testte kişisel kayıt defteri ve kısayollar değiştirilmez. Güncelleme kontrolü ve indirme hata senaryoları sunucu benzetimleriyle, kurulum açılışı ise ayrıca gerçek kurulumla sınanır.
-
-**0.10.1 için 223 otomatik kontrol başarılı.** Kontroller şunları kapsar:
-
-- Ayarların kalıcılığı, son geçerli yedekten kurtarma, bozuk/eksik/aşırı büyük dosyalar ve başarısız/eşzamanlı kayıtlar.
-- Salt okunur önizleme sağlayıcıları, gerçek kaydırıcıların kullanılabilirliği, dil değişimi, klavye odağı ve gizli/küçültülmüş önizlemenin yeniden açıldığında yetişmesi.
-- Ses/medya/parlaklık servisleri, kaynaklara doğru komut yönlendirme, kapanan aygıtlar, geçici kilit bildirimleri ve yavaş sürücü benzetiminde gösterge tepkisi.
-- Ayar içe/dışa aktarımı, kurulum, eksik/değiştirilmiş/iptal edilmiş güncellemeler, güvenilir yönlendirme ve başarısız yeni sürümden geri dönüş.
-- Gerçek WPF görünümleri, Hakkında/lisans okuyucu, gömülü bildirimler, köşe/boyut yerleşimi, tepsi menüsü ve renkler.
-- Ses panelinde gerçek fare girdileriyle dört köşede aç/kapat, animasyon sırasında hızlı tıklama, panel dışına tıklama ve erişilebilir düğme çağrıları.
-
-GitHub'daki iş ayrıca Windows derlemesini ve `test-package.ps1` ile kurucu, ZIP, rehber/lisans dosyaları ve SHA-256 tutarlılığını kontrol eder. Gerçek masaüstü/ses aygıtı testleri yerel `verify.ps1` ile yapılır.
-
-Dört köşe yerleşimi, %75 / %100 / %140 ölçekleri, bağlı ekranların listelenmesi ve iki ekranlı bir benzetimde seçim/bağlantı kesilmesi davranışı kontrol edilir. Gerçek monitör takıp çıkarma ve farklı DPI kombinasyonları henüz doğrulanmadı. 1.200 ms bekleyen bir ses aygıtı benzetiminde ilk görüntü hazırlığı 250 ms sınırının altında kalır; bu değer fiziksel Fn tuşunu veya gerçek donanımın uçtan uca gecikmesini ölçmez. Testler normal Windows masaüstü erişimi gerektirir; başsız veya kısıtlı bir ortamda giriş testleri çalışmayabilir. Başlangıç kaydı değiştirilmez. Standart doğrulama gerçek ekran parlaklığını değiştirmez. Desteklenen cihazda bir seviye değiştirip eski değere dönen iki ek donanım kontrolü için verify.ps1 -Published -NativeBrightness kullanılır. Sonuçlar ve WPF'den alınan görseller `artifacts\verification` içine yazılır. Animasyon karelerini GIF'e çevirmek için Pillow bulunan bir Python ile `scripts\render-motion.py` çalıştırılabilir.
-
-## Lisans ve geliştirici
-
-Kararlı sürüm hazırlığının kapsamı, otomatik paket kontrolleri ve performans gözlemi [kararlı sürüm takibinde](docs/KARARLI_SURUM.md) açıklanır. GitHub işi Windows derlemesini ve paket bütünlüğünü kontrol eder; gerçek ses aygıtı veya kullanıcı masaüstü testlerinin yerine geçmez.
-
-Luma **kyrerdm** tarafından tasarlanıp geliştirilir. Özgün Luma kaynak kodu [MIT lisansı](LICENSE) ile sunulur. Aynı metin kurulumda ve taşınabilir pakette `LICENSE.txt` olarak yer alır. Üçüncü taraf bileşenler kendi lisans ve bildirimlerine tabidir.
-
-**Ayarlar → Hakkında** bölümünde çalışan sürümü ve geliştirici imzasını görebilir, sürüm bilgisini kopyalayabilir ve lisans metinlerini çevrimdışı okuyabilirsin.
-
-![Açık temada Hakkında](docs/images/luma-about-light.png)
-
-## İlham ve üçüncü taraf bileşenler
-
-Luma, [ModernFlyouts](https://github.com/ModernFlyouts-Community/ModernFlyouts) fikrinden ilham alan bağımsız bir projedir. ModernFlyouts'un kodunu veya görsel varlıklarını içermez; onunla bağlantılı resmi bir devam projesi değildir. Örnek albüm kapağı WPF ile çizilmiştir.
-
-Dağıtım paketindeki .NET, Windows Desktop, Windows SDK ve C#/WinRT bildirimleri uygulamanın yanındaki lisans/bilgi dosyalarında bulunur.
-
-System.Management ve System.CodeDom Microsoft'un MIT lisanslı .NET bileşenleridir; .NET lisansı ve üçüncü taraf bildirimleri pakete dahildir.
+Luma is an independent project inspired by ModernFlyouts. It contains no ModernFlyouts code or artwork. The handwritten developer credit is separate from executable code signing.

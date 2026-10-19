@@ -16,6 +16,16 @@ internal static class MonitorCatalog
     public static DisplayInfo[] Current => Volatile.Read(ref displays);
     public static event Action? Changed;
 
+    internal static string DisplayLabel(DisplayInfo display) => display.Label.StartsWith("Ekran ", StringComparison.Ordinal) ? Strings.T("Ekran") + display.Label[5..] : display.Label;
+    internal static string DisplayDescription(DisplayInfo display)
+    {
+        var description = display.Description;
+        const string primarySuffix = " · Ana ekran";
+        if (display.Primary && description.EndsWith(primarySuffix, StringComparison.Ordinal)) description = description[..^primarySuffix.Length];
+        if (description == display.Label) description = DisplayLabel(display);
+        return description + (display.Primary ? " · " + Strings.T("Ana ekran") : "");
+    }
+
     static MonitorCatalog() => SystemEvents.DisplaySettingsChanged += (_, _) => Refresh();
 
     public static void Refresh()

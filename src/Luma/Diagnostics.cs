@@ -25,6 +25,7 @@ internal static partial class Diagnostics
 {
     public static async Task<int> RunAsync(string directory)
     {
+        Strings.SetLanguage("tr"); // Existing fixtures explicitly exercise Turkish UI.
         Directory.CreateDirectory(directory);
         var results = new List<object>();
         var failures = 0;
@@ -99,6 +100,7 @@ internal static partial class Diagnostics
         await VerifyAudioPopupAsync(Check);
         await VerifyAboutAsync(directory, Check);
         await VerifyStabilityAsync(directory, Check);
+        await VerifyLocalizationAsync(directory, Check);
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };

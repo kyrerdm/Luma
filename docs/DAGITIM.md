@@ -1,6 +1,6 @@
 # İmza ve Microsoft Store hazırlığı
 
-0.10 dağıtımı kullanıcı hesabına kurulan, çalışma zamanı dahil Windows 11 x64 EXE ve taşınabilir ZIP olarak devam eder. Henüz dijital imza veya Store yayını yapılmış değildir.
+1.0 dağıtımı kullanıcı hesabına kurulan, çalışma zamanı dahil Windows 11 x64 EXE ve taşınabilir ZIP olarak devam eder. İngilizce yeni kurulumların varsayılan dilidir; beş dil desteklenir. Henüz dijital imza veya Store yayını yapılmış değildir.
 
 ## İmzalı GitHub sürümü
 
