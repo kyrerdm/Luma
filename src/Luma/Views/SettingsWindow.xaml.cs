@@ -36,6 +36,7 @@ public partial class SettingsWindow : Window
         Strings.Changed += OnLanguageChanged;
         Loaded += (_, _) => { Strings.Apply(this); RefreshLivePreview(); };
         IsVisibleChanged += (_, _) => RefreshLivePreview();
+        StateChanged += (_, _) => RefreshLivePreview();
         previewClock.Tick += (_, _) => PaintPreviewTimeline();
         ready = true;
         SourceInitialized += (_, _) =>

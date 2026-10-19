@@ -59,6 +59,14 @@ internal static partial class Diagnostics
         var stopped = !window.PreviewClockRunning && timeline.Value == frozen;
         window.Show(); await Task.Delay(40);
         check("Hidden settings stop their playback clock and catch up from cached state on reopening", stopped && window.PreviewClockRunning && title.Text == "Night drive" && volume.Text == "32" && timeline.Value >= 90, "");
+        window.WindowState = WindowState.Minimized;
+        frozen = timeline.Value;
+        window.UpdatePreviewMedia(sample with { Title = "Daybreak", Position = TimeSpan.FromSeconds(110), SampledAt = DateTimeOffset.UtcNow });
+        window.UpdatePreviewAudio(new(true, 52, false, "Sample output"));
+        await Task.Delay(300);
+        check("Minimized settings stop preview painting and the playback clock", !window.PreviewClockRunning && timeline.Value == frozen && title.Text == "Night drive" && volume.Text == "32", "");
+        window.WindowState = WindowState.Normal; await Task.Delay(40);
+        check("Restoring minimized settings paints the latest cached media and audio", window.PreviewClockRunning && title.Text == "Daybreak" && volume.Text == "52" && timeline.Value >= 110, "");
         var volumeSlider = (Luma.Controls.SmoothSlider)window.FindName("PreviewVolumeSlider");
         check("Live preview updates are observational and do not save preferences or issue commands", saves == 0 && !volumeSlider.IsHitTestVisible && !volumeSlider.Focusable && !timeline.IsHitTestVisible && !timeline.Focusable, "");
         ((CheckBox)window.FindName("ArtworkToggle")).IsChecked = false;

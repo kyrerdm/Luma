@@ -10,12 +10,13 @@ namespace Luma.Services;
 // usernames, key presses, or network transmission are included.
 internal static class SupportReport
 {
-    public static string Create(AppSettings settings, bool audioAvailable, bool brightnessAvailable, int outputCount, int appCount, int mediaCount)
+    public static string Create(AppSettings settings, bool audioAvailable, bool brightnessAvailable, int outputCount, int appCount, int mediaCount, SettingsRecovery recovery = SettingsRecovery.None)
     {
         using var process = Process.GetCurrentProcess();
         var report = new StringBuilder();
         report.AppendLine("Luma support report / Destek raporu");
         report.AppendLine($"Version: {AppVersion.Current.ToString(3)}");
+        report.AppendLine($"Preference recovery: {recovery.ToString().ToLowerInvariant()}");
         report.AppendLine($"Windows build: {Environment.OSVersion.Version}");
         report.AppendLine($"Architecture: {RuntimeInformation.ProcessArchitecture}");
         report.AppendLine($"Working set (MiB): {process.WorkingSet64 / 1048576.0:0.0}");

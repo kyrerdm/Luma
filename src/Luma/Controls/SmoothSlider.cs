@@ -8,7 +8,7 @@ namespace Luma.Controls;
 
 // The real Value changes once. Only DisplayValue animates, so animation frames never
 // write intermediate volume levels back to CoreAudio or seek a media session.
-public sealed class SmoothSlider : Slider
+public class SmoothSlider : Slider
 {
     public static readonly DependencyProperty DisplayValueProperty = DependencyProperty.Register(
         nameof(DisplayValue), typeof(double), typeof(SmoothSlider), new FrameworkPropertyMetadata(0d));

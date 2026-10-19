@@ -53,6 +53,7 @@ public sealed partial class AppController : IDisposable
         Palette.Apply(settings);
         flyout = new(settings);
         window = new(settings, SaveSettings);
+        window.SetSettingsRecovery(store.Recovery);
         flyout.Prepare();
         audio = new(Application.Current.Dispatcher, audioFactory);
         audio.Changed += OnAudioChanged;
@@ -82,7 +83,7 @@ public sealed partial class AppController : IDisposable
         Microsoft.Win32.SystemEvents.PowerModeChanged += OnResume;
         MonitorCatalog.Changed += OnMonitorChange;
         media = new(Application.Current.Dispatcher);
-        window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count);
+        window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count, store.Recovery);
         media.Changed += OnMediaChanged;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
         flyout.SeekRequested += async (source, position) => flyout.ReportMediaResult(await media.SeekAsync(position, source));
@@ -149,7 +150,7 @@ public sealed partial class AppController : IDisposable
         try { var success = await routing.RefreshAsync(); if (!disposed && flyout.AudioPanelOpen) { flyout.AudioPanel.SetState(routing.State); flyout.AudioPanel.Report(success); } }
         finally { refreshingRouting = false; }
     }
-    private void SaveSettings() { store.Save(settings); Palette.Apply(settings); window.ApplyAppearance(); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); if (!settings.ExternalBrightness) { externalRevision++; external.Suspend(); } }
+    private void SaveSettings() { store.Save(settings); window.SetSettingsRecovery(store.Recovery); Palette.Apply(settings); window.ApplyAppearance(); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); if (!settings.ExternalBrightness) { externalRevision++; external.Suspend(); } }
     private void ApplyPreferences()
     {
         nativeBrightnessOsd.SetEnabled(settings.ObserveBrightness && settings.HideNativeBrightness && lastBrightness.Available);

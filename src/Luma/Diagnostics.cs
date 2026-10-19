@@ -97,6 +97,7 @@ internal static partial class Diagnostics
         await VerifyDailyUseAsync(directory, Check);
         await VerifyLivePreviewAsync(directory, Check);
         await VerifyAboutAsync(directory, Check);
+        await VerifyStabilityAsync(directory, Check);
         var sample = PreviewData.Media();
         var now = DateTimeOffset.UtcNow;
         var timed = sample with { SampledAt = now };

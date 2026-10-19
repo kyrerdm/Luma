@@ -1,13 +1,13 @@
-Luma 0.9.1 — Windows 11
+Luma 0.10.0 — Windows 11
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-0.9.1-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-0.10.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\0.9.1
+Kurulum: %LOCALAPPDATA%\Programs\Luma\0.10.0
 
-Taşınabilir kullanım için Luma-0.9.1-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-0.10.0-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
@@ -57,6 +57,10 @@ Bileşen lisansları kendi adlarıyla korunur; okuyucudan seçilip kopyalanabili
 Genel bölümünden Türkçe/English dilini seçebilir, JSON yedeği alabilir,
 yedekten dönebilir veya onay vererek varsayılanlara sıfırlayabilirsiniz.
 Bu işlemler Windows başlangıç seçimini, canlı ses/parlaklık düzeyini değiştirmez.
+Başarılı kayıtlarda son geçerli ayar dosyası settings.json.bak olarak korunur.
+Ana dosya bozulur veya kaybolursa sağlam yedeğe dönülür; ayarlarda bilgi gösterilir.
+İki dosya da okunamazsa varsayılanlara dönüldüğü açıklanır. Dosyaları okumak
+ayarları kendiliğinden kaydetmez; bozuk dosya sağlam yedeğin üzerine yazılmaz.
 Yeni kurulumda kısa başlangıç rehberi açılır; eski tercihler korunur.
 Genel bölümündeki destek raporu kullanıcı adı, dosya yolu veya parça bilgisi içermez.
 Ayarlar ekranından konumu, süreyi, ses adımını, rengi ve animasyonları değiştirin.
@@ -114,7 +118,9 @@ Tanınmayan Windows düzenlerinde veya üretici yazılımlarında ek panel gör�
 Ayarlardaki Canlı önizleme mevcut ses ve sessize alma durumunu, seçili medya
 kaynağının parçasını, sanatçısını, kapağını ve ilerlemesini gösterir.
 Medya yokken boş durum görünür. Bu alan izleme içindir; sistem sesi veya
-oynatma komutu göndermez. Ayarlar gizlenince önizleme saati durur.
+oynatma komutu göndermez. Önizleme erişilebilirlik araçlarına da salt okunur
+gösterge olarak sunulur. Ayarlar gizlenince veya küçültülünce önizleme saati
+durur; geri açıldığında son duruma yetişir.
 
 SÜRÜM DEĞİŞTİRİRKEN
 Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi açın.

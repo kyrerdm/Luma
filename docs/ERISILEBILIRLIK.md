@@ -9,6 +9,7 @@
 - Gezinme düğmelerinin odak çerçevesi yerleşimi kaydırmaz. Ayar kaydırıcılarının klavye odağı görünürdür.
 - Yeni Hakkında işlemlerinin, lisans seçiminin ve metninin Türkçe/İngilizce erişilebilir adları vardır. Yardım metni dil değişimini izler.
 - Lisans okuyucu seçilebilir ve kopyalanabilir; UI Automation üzerinden de salt okunurdur. Metinler özgün dilinde korunur.
+- 0.10'da canlı önizleme kaydırıcıları salt okunur ilerleme göstergesi olarak sunulur. Şablondaki düğme/başparmak alt kontrolleri erişilebilirlik ağacına açılmaz; gerçek kontrol kaydırıcıları çalışmayı sürdürür. İsim ve açıklamalar dil seçimini izler.
 - Yeni bölümün koyu/açık görünümü ve en küçük ayar penceresindeki yatay yerleşimi otomatik kontrol edilir.
 
 `scripts/verify.ps1` komutunda gerçek WPF kontrolleri, UI Automation sağlayıcısı, ileri/geri odak geçişi ve kısayolların komutları kontrol edilir. Genel ses veya parlaklık komutu göndererek klavye testi yapılmaz. Yayın görselleri kurgusal medya kullanır.

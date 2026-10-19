@@ -16,6 +16,15 @@ public partial class SettingsWindow
     internal string CurrentSection { get; private set; } = "General";
     private static readonly string[] SectionNames = { "General", "Appearance", "Sound", "Media", "Display", "About" };
 
+    internal void SetSettingsRecovery(SettingsRecovery recovery)
+    {
+        RecoveryNotice.Visibility = recovery == SettingsRecovery.None ? Visibility.Collapsed : Visibility.Visible;
+        RecoveryText.Text = recovery == SettingsRecovery.Backup
+            ? Strings.T("Ayarların son geçerli yedekten kurtarıldı. Son değişikliklerini kontrol edebilirsin.")
+            : recovery == SettingsRecovery.Defaults ? Strings.T("Ayar dosyaları okunamadı; varsayılanlar yüklendi. Tercihlerini yeniden düzenleyebilirsin.") : "";
+    }
+    private void RecoveryDismiss_Click(object sender, RoutedEventArgs e) => RecoveryNotice.Visibility = Visibility.Collapsed;
+
     private void Navigation_Changed(object sender, RoutedEventArgs e)
     {
         if (sender is RadioButton { Tag: string section } && PreferencesScroll is not null) Navigate(section);

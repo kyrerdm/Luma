@@ -29,6 +29,15 @@
 - Salt okunur UI Automation, ileri/geri odak ve minimum pencere yerleşimi doğrulaması.
 - [1.0 öncesi klavye ve dil kontrolünün ilk turu](ERISILEBILIRLIK.md). Narrator, kontrast temaları ve gerçek cihaz testleri devam eder.
 
+## 0.10 — Sağlamlaştırma
+
+- Son geçerli yerel ayar yedeği, sınırlı okuma ve görülebilir kurtarma durumu.
+- Kayıt hatalarında sağlam dosyaların ve geçici dosya sahipliğinin korunması.
+- Salt okunur önizleme sağlayıcıları; gerçek kaydırıcıların kullanılabilirliğinin korunması.
+- Sabit SDK ile GitHub'da otomatik Windows derleme/paket kontrolü.
+- Gerçek çalışma zamanına göre bildirim seçimi ve paket bütünlüğü doğrulaması.
+- Yerel CPU/bellek gözlem aracı ve [1.0 doğrulama takibi](KARARLI_SURUM.md).
+
 ## Donanımla doğrulanacaklar
 
 [Beta test planı](BETA_TEST_PLANI.md): Bluetooth/USB değişimleri, farklı laptop Fn tuşları, uyku dönüşü, çoklu monitör/DPI, gerçek DDC/CI yazımı ve uzun süreli bellek/CPU kullanımı. Tek bir bilgisayarın sonucu tüm donanımlar için destek iddiası oluşturmaz.

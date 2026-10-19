@@ -9,14 +9,29 @@ Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\KULLANIM.txt') -Destination
 Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination (Join-Path $publishDirectory 'LICENSE.txt') -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\WINRT-LICENSE.txt') -Destination $publishDirectory -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot 'docs\WINDOWS-SDK-NOTICE.txt') -Destination $publishDirectory -Force
-$runtimeCache = Join-Path $projectRoot '.tools\nuget\microsoft.netcore.app.runtime.win-x64'
-$desktopCache = Join-Path $projectRoot '.tools\nuget\microsoft.windowsdesktop.app.runtime.win-x64'
-$runtimePackage = Get-ChildItem -LiteralPath $runtimeCache -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
-$desktopPackage = Get-ChildItem -LiteralPath $desktopCache -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
-if (-not $runtimePackage -or -not $desktopPackage) { throw 'Self-contained runtime packages not found.' }
-Copy-Item -LiteralPath (Join-Path $runtimePackage.FullName 'LICENSE.TXT') -Destination (Join-Path $publishDirectory 'DOTNET-LICENSE.txt') -Force
-Copy-Item -LiteralPath (Join-Path $runtimePackage.FullName 'THIRD-PARTY-NOTICES.TXT') -Destination (Join-Path $publishDirectory 'DOTNET-THIRD-PARTY-NOTICES.txt') -Force
-Copy-Item -LiteralPath (Join-Path $desktopPackage.FullName 'LICENSE') -Destination (Join-Path $publishDirectory 'WINDOWS-DESKTOP-LICENSE.txt') -Force
+$assets = Get-Content -LiteralPath (Join-Path $projectRoot 'src\Luma\obj\project.assets.json') -Raw | ConvertFrom-Json
+function Get-ResolvedRuntime([string]$name) {
+    $dependency = @($assets.project.frameworks.PSObject.Properties | ForEach-Object { $_.Value.downloadDependencies }) | Where-Object name -eq $name | Select-Object -First 1
+    if (-not $dependency -or $dependency.version -notmatch '^\[(?<release>\d+\.\d+\.\d+),\s*\k<release>\]$') { throw "No exact restored runtime version for $name. Restore a self-contained build first." }
+    $runtimeVersion = $Matches.release
+    foreach ($folder in $assets.packageFolders.PSObject.Properties.Name) {
+        $candidate = Join-Path $folder ($name.ToLowerInvariant() + '\' + $runtimeVersion)
+        if (Test-Path -LiteralPath $candidate -PathType Container) { return $candidate }
+    }
+    throw "Restored runtime package not found: $name $runtimeVersion"
+}
+$runtimePackage = Get-ResolvedRuntime 'Microsoft.NETCore.App.Runtime.win-x64'
+$desktopPackage = Get-ResolvedRuntime 'Microsoft.WindowsDesktop.App.Runtime.win-x64'
+$notices = @(
+    @{ Source = (Join-Path $runtimePackage 'LICENSE.TXT'); Name = 'DOTNET-LICENSE.txt' },
+    @{ Source = (Join-Path $runtimePackage 'THIRD-PARTY-NOTICES.TXT'); Name = 'DOTNET-THIRD-PARTY-NOTICES.txt' },
+    @{ Source = (Join-Path $desktopPackage 'LICENSE'); Name = 'WINDOWS-DESKTOP-LICENSE.txt' }
+)
+foreach ($notice in $notices) {
+    $embeddedSource = Join-Path $projectRoot ('docs\distribution\' + $notice.Name)
+    if ((Get-FileHash -LiteralPath $notice.Source).Hash -ne (Get-FileHash -LiteralPath $embeddedSource).Hash) { throw "Update the embedded notice for the restored runtime before packaging: $($notice.Name)" }
+    Copy-Item -LiteralPath $embeddedSource -Destination (Join-Path $publishDirectory $notice.Name) -Force
+}
 $files = @('Luma.exe', 'KULLANIM.txt', 'LICENSE.txt', 'DOTNET-LICENSE.txt', 'DOTNET-THIRD-PARTY-NOTICES.txt', 'WINDOWS-DESKTOP-LICENSE.txt', 'WINRT-LICENSE.txt', 'WINDOWS-SDK-NOTICE.txt') | ForEach-Object { Join-Path $publishDirectory $_ }
 $zipPath = Join-Path $projectRoot ('artifacts\Luma-' + $version + '-win-x64.zip')
 Compress-Archive -LiteralPath $files -DestinationPath $zipPath -CompressionLevel Optimal -Force

@@ -101,6 +101,13 @@
         <StackPanel Margin="0,0,0,24">
           <TextBlock x:Name="PageTitle" Text="Genel" FontSize="23" FontWeight="SemiBold" />
           <TextBlock x:Name="PageDescription" Text="Günlük kullanım, yedekler ve güncellemeler." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
+          <Border x:Name="RecoveryNotice" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,14,0,0">
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+              <TextBlock x:Name="RecoveryText" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" AutomationProperties.LiveSetting="Polite" />
+              <Button x:Name="DismissRecoveryButton" Grid.Column="1" Content="Tamam" Padding="9,6" FontSize="10" Margin="10,0,0,0" Click="RecoveryDismiss_Click" AutomationProperties.Name="Ayar kurtarma bilgisini kapat" />
+            </Grid>
+          </Border>
         </StackPanel>
         <ScrollViewer x:Name="PreferencesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabIndex="1" KeyboardNavigation.TabNavigation="Local" Focusable="False">
           <StackPanel Margin="0,0,8,12">
@@ -441,7 +448,7 @@
                   <ColumnDefinition Width="30" />
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="PreviewVolumeIcon" Style="{StaticResource Icon}" Text="" FontSize="17" />
-                <controls:SmoothSlider x:Name="PreviewVolumeSlider" Style="{StaticResource FluidSlider}" Grid.Column="1" Value="0" IsHitTestVisible="False" Focusable="False" Margin="12,0,10,0" VerticalAlignment="Center" />
+                <controls:PreviewSlider x:Name="PreviewVolumeSlider" Style="{StaticResource FluidSlider}" Grid.Column="1" Value="0" Margin="12,0,10,0" VerticalAlignment="Center" AutomationProperties.Name="Canlı ses düzeyi" AutomationProperties.HelpText="Önizleme; yalnızca gösterir." />
                 <TextBlock x:Name="PreviewVolumeValue" Grid.Column="2" Text="—" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="3" Text="" Style="{StaticResource Icon}" FontSize="10" Width="24" Opacity="0.7" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5"><TextBlock.RenderTransform><RotateTransform x:Name="PreviewChevronRotation" /></TextBlock.RenderTransform></TextBlock>
               </Grid>
@@ -480,7 +487,7 @@
                       <RowDefinition Height="18" />
                       <RowDefinition Height="12" />
                     </Grid.RowDefinitions>
-                    <controls:SmoothSlider x:Name="PreviewTimeline" Style="{StaticResource TimelineSlider}" Value="0" IsHitTestVisible="False" Focusable="False" />
+                    <controls:PreviewSlider x:Name="PreviewTimeline" Style="{StaticResource TimelineSlider}" Value="0" AutomationProperties.Name="Canlı oynatma konumu" AutomationProperties.HelpText="Önizleme; yalnızca gösterir." />
                     <TextBlock x:Name="PreviewPosition" Grid.Row="1" Text="0:00" FontSize="9" Foreground="{DynamicResource MutedBrush}" />
                     <TextBlock x:Name="PreviewDuration" Grid.Row="1" Text="0:00" FontSize="9" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right" />
                   </Grid>

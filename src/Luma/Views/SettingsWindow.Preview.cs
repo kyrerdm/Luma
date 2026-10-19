@@ -14,17 +14,18 @@ public partial class SettingsWindow
     private ImageSource? previewArtwork;
     private readonly DispatcherTimer previewClock = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(250) };
     internal bool PreviewClockRunning => previewClock.IsEnabled;
+    private bool CanPaintPreview => IsVisible && WindowState != WindowState.Minimized;
 
     internal void UpdatePreviewAudio(AudioState state)
     {
         previewAudio = state;
-        if (IsVisible) PaintPreviewAudio();
+        if (CanPaintPreview) PaintPreviewAudio();
     }
 
     internal void UpdatePreviewMedia(MediaState state)
     {
         previewMedia = state;
-        if (IsVisible) RefreshLivePreview();
+        if (CanPaintPreview) RefreshLivePreview();
     }
 
     private void RefreshLivePreview()
@@ -34,8 +35,8 @@ public partial class SettingsWindow
         PreviewEmptyMedia.Visibility = settings.ShowMedia && !previewMedia.Available ? Visibility.Visible : Visibility.Collapsed;
         PreviewBackdrop.Visibility = hasMedia && settings.ArtworkBackground ? Visibility.Visible : Visibility.Collapsed;
         PreviewChevronRotation.Angle = settings.Position.StartsWith("Top", StringComparison.Ordinal) ? 0 : 180;
-        if (IsVisible && hasMedia && previewMedia.IsPlaying && previewMedia.End > previewMedia.Start) previewClock.Start(); else previewClock.Stop();
-        if (!IsVisible) return;
+        if (CanPaintPreview && hasMedia && previewMedia.IsPlaying && previewMedia.End > previewMedia.Start) previewClock.Start(); else previewClock.Stop();
+        if (!CanPaintPreview) return;
         PaintPreviewAudio();
         PreviewAppName.Text = string.IsNullOrWhiteSpace(previewMedia.AppName) ? Strings.T("Medya") : previewMedia.AppName;
         PreviewTrackTitle.Text = string.IsNullOrWhiteSpace(previewMedia.Title) ? Strings.T("Başlık yok") : previewMedia.Title;
@@ -66,7 +67,7 @@ public partial class SettingsWindow
 
     private void PaintPreviewTimeline()
     {
-        if (!IsVisible || !previewMedia.Available) return;
+        if (!CanPaintPreview || !previewMedia.Available) return;
         PreviewTimeline.MotionEnabled = false;
         PreviewTimeline.Minimum = previewMedia.Start.TotalSeconds;
         PreviewTimeline.Maximum = Math.Max(previewMedia.Start.TotalSeconds + 0.001, previewMedia.End.TotalSeconds);

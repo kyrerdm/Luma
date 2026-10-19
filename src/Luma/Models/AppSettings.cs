@@ -1,6 +1,4 @@
 using System;
-using System.IO;
-using System.Text.Json;
 using Luma.Themes;
 
 namespace Luma.Models;
@@ -54,40 +52,5 @@ public sealed class AppSettings
         if (!double.IsFinite(FlyoutScale)) FlyoutScale = 1;
         FlyoutScale = Math.Clamp(FlyoutScale, 0.75, 1.4);
         if (string.IsNullOrWhiteSpace(TargetDisplay) || TargetDisplay.Length > 1024) TargetDisplay = "Cursor";
-    }
-}
-
-public sealed class SettingsStore
-{
-    public string DirectoryPath { get; }
-    public string FilePath => Path.Combine(DirectoryPath, "settings.json");
-    public SettingsStore(string directoryPath) => DirectoryPath = directoryPath;
-
-    public AppSettings Load()
-    {
-        try
-        {
-            var json = File.ReadAllText(FilePath);
-            var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new();
-            using var document = JsonDocument.Parse(json);
-            // Existing users should not see first-run onboarding after an upgrade.
-            if (document.RootElement.ValueKind != JsonValueKind.Object) return new();
-            if (!document.RootElement.TryGetProperty(nameof(AppSettings.WelcomeCompleted), out _)) settings.WelcomeCompleted = true;
-            settings.Normalize();
-            return settings;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
-        {
-            return new();
-        }
-    }
-
-    public void Save(AppSettings settings)
-    {
-        settings.Normalize();
-        Directory.CreateDirectory(DirectoryPath);
-        var temporary = FilePath + ".tmp";
-        File.WriteAllText(temporary, JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
-        File.Move(temporary, FilePath, true);
     }
 }

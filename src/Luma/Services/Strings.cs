@@ -16,6 +16,10 @@ internal static class Strings
     {
         ["Genel"] = "General", ["Görünüm"] = "Appearance", ["Ses"] = "Sound", ["Medya"] = "Media", ["Ekran"] = "Display", ["AYARLAR"] = "SETTINGS",
         ["Hakkında"] = "About", ["Luma'nın imzası, bağlantıları ve lisansları."] = "The people, links and licenses behind Luma.",
+        ["Ayarların son geçerli yedekten kurtarıldı. Son değişikliklerini kontrol edebilirsin."] = "Your preferences were recovered from the last valid backup. You can review your latest changes.",
+        ["Ayar dosyaları okunamadı; varsayılanlar yüklendi. Tercihlerini yeniden düzenleyebilirsin."] = "Preference files couldn't be read, so defaults were loaded. You can adjust your preferences again.",
+        ["Tamam"] = "OK", ["Ayar kurtarma bilgisini kapat"] = "Dismiss preference recovery notice",
+        ["Canlı ses düzeyi"] = "Live volume level", ["Canlı oynatma konumu"] = "Live playback position", ["Önizleme; yalnızca gösterir."] = "Preview; display only.",
         ["Windows için küçük bir ışık."] = "A little light for Windows.", ["Ses, medya ve parlaklık. İhtiyacın kadar, tam yerinde."] = "Volume, media and brightness. Just enough, just where you need it.",
         ["TASARLAYAN VE GELİŞTİREN"] = "DESIGNED AND DEVELOPED BY", ["Sürümü kopyala"] = "Copy version", ["Sürüm bilgisini kopyala"] = "Copy version information",
         ["Sürüm bilgisi kopyalandı."] = "Version information copied.", ["Panoya erişilemedi. Tekrar deneyebilirsin."] = "Couldn't access the clipboard. Try again.",
