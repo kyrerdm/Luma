@@ -14,7 +14,7 @@
 
 ## Tekrarlanabilir kontroller
 
-0.10 için yerel WPF doğrulamasında **215 kontrol** geçti. Bu sayı gerçek donanım beta planının tamamlandığı anlamına gelmez.
+0.10.1 için yerel WPF doğrulamasında **223 kontrol** geçti. Ses panelini açan oka tekrar basınca kapanıp yeniden açılma hatası, gerçek fare girdileriyle tekrarlanıp düzeltildi. Dört köşede tekrarlı ve hızlı tıklama, panel içi/dışı tıklama ve erişilebilir düğme çağrısı da kapsanır. Bu sayı gerçek donanım beta planının tamamlandığı anlamına gelmez.
 
 ```powershell
 .\scripts\build.ps1 -Publish -SelfContained

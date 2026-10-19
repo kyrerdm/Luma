@@ -569,7 +569,7 @@ public partial class FlyoutWindow : Window
     }
     private void Dismiss_Click(object sender, RoutedEventArgs e) { SetPinned(false); Dismiss(); }
     private void Settings_Click(object sender, RoutedEventArgs e) { SourceMenu.IsOpen = false; restorePinnedVolume = false; Hide(); hideTimer.Stop(); timelineTimer.Stop(); SettingsRequested?.Invoke(); }
-    protected override void OnClosed(EventArgs e) { AudioPopup.IsOpen = false; fullscreenTimer.Stop(); SourceMenu.IsOpen = false; MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
+    protected override void OnClosed(EventArgs e) { AudioPopup.IsOpen = false; InputManager.Current.PreProcessInput -= Audio_PreProcessInput; fullscreenTimer.Stop(); SourceMenu.IsOpen = false; MonitorCatalog.Changed -= OnDisplaysChanged; CompositionTarget.Rendering -= MeasureResponse; hideTimer.Stop(); timelineTimer.Stop(); hintTimer.Stop(); base.OnClosed(e); }
     private static string FormatTime(TimeSpan time) => time.TotalHours >= 1 ? time.ToString(@"h\:mm\:ss") : time.ToString(@"m\:ss");
 
     [StructLayout(LayoutKind.Sequential)] private struct Point { public int X; public int Y; }

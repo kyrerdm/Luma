@@ -14,12 +14,12 @@ Windows 11 için sade ve akıcı ses, parlaklık, medya ve klavye göstergeleri.
 
 **Gereksinim:** Windows 11, 64 bit (x64). ARM64 için ayrı paket henüz yoktur.
 
-**Kurulum paketi:** [Son sürümden](https://github.com/kyrerdm/Luma/releases/latest) **`Luma-0.10.0-Setup.exe`** dosyasını indir, aç ve **Kur → Luma'yı aç** seç. Yönetici yetkisi gerekmez. Başlat menüsü kısayolu ve Windows'un yüklü uygulamalar listesine kaldırma kaydı eklenir. Masaüstü kısayolu isteğe bağlıdır. Dosyalar `%LOCALAPPDATA%\Programs\Luma\0.10.0` klasörüne kurulur. Windows ile otomatik başlatma tercihi ayrıca ayarlardan seçilir.
+**Kurulum paketi:** [Son sürümden](https://github.com/kyrerdm/Luma/releases/latest) **`Luma-0.10.1-Setup.exe`** dosyasını indir, aç ve **Kur → Luma'yı aç** seç. Yönetici yetkisi gerekmez. Başlat menüsü kısayolu ve Windows'un yüklü uygulamalar listesine kaldırma kaydı eklenir. Masaüstü kısayolu isteğe bağlıdır. Dosyalar `%LOCALAPPDATA%\Programs\Luma\0.10.1` klasörüne kurulur. Windows ile otomatik başlatma tercihi ayrıca ayarlardan seçilir.
 
 **Taşınabilir kullanım:**
 
 1. **[Son sürüm sayfasını aç](https://github.com/kyrerdm/Luma/releases/latest).**
-2. Sayfanın **Assets** bölümünden **`Luma-0.10.0-win-x64.zip`** dosyasını indir. GitHub'ın eklediği **Source code** dosyaları çalıştırılabilir uygulamayı içermez.
+2. Sayfanın **Assets** bölümünden **`Luma-0.10.1-win-x64.zip`** dosyasını indir. GitHub'ın eklediği **Source code** dosyaları çalıştırılabilir uygulamayı içermez.
 3. İndirilen ZIP'e sağ tıkla ve **Tümünü ayıkla** seçeneğiyle kalıcı bir klasöre çıkar. Örneğin `C:\Users\kullanıcı\Apps\Luma`.
 4. Çıkardığın klasördeki **`Luma.exe`** dosyasını aç.
 5. Klavyeden sesi açıp kısarak göstergeyi kullan. Ayarları açmak için tepsi simgesine bir kez sol tıkla.
@@ -159,7 +159,7 @@ Geliştirme sırası: [Yol haritası](docs/ROADMAP.md) · [Donanım beta testi](
 
 ## Mevcut durum ve sınırlamalar
 
-**0.10.0 erken bir sürümdür.** Ses, dahili ekran parlaklığı, klavye göstergeleri ve medya kartı hazırdır. Açık/koyu/sistem teması ve kullanıcı hesabına kurulum hazırdır. ARM64 paketi ve Microsoft Store yayını henüz yoktur. Paket henüz dijital olarak imzalı değildir.
+**0.10.1 erken bir sürümdür.** Ses, dahili ekran parlaklığı, klavye göstergeleri ve medya kartı hazırdır. Açık/koyu/sistem teması ve kullanıcı hesabına kurulum hazırdır. ARM64 paketi ve Microsoft Store yayını henüz yoktur. Paket henüz dijital olarak imzalı değildir.
 
 Parlaklık kontrolü Windows'un [WmiMonitorBrightness](https://learn.microsoft.com/en-us/windows/win32/wmicoreprov/wmimonitorbrightness) ve [WmiSetBrightness](https://learn.microsoft.com/en-us/windows/win32/wmicoreprov/wmisetbrightness-method-in-class-wmimonitorbrightnessmethods) desteğini kullanan dahili ekranlar içindir. Destek bulunmazsa kaydırıcı pasif görünür. Harici monitörlerde DDC/CI kontrolü isteğe bağlıdır; destekleyen donanım ve uygun bağlantı gerekir. Gösterilecek ekran tercihi panelin konumunu belirler. Fn tuşları ve dahili ekran kaydırıcısı laptop ekranını, DDC/CI kaydırıcıları ise adında belirtilen monitörü kontrol eder. Birden fazla dahili ekran bildirilirse mevcut aktif ekran korunur. Tanınmayan Windows pencere düzenlerinde veya üretici yazılımlarında ek panel görünebilir. Bu bilgisayarın dahili ekranında %100 → %99 → %100 okuma/yazma ve geri yükleme doğrulandı. Farklı laptop modelleri ayrıca denenmelidir.
 
@@ -199,12 +199,12 @@ cd Luma
 .\scripts\test-package.ps1
 ```
 
-Çıktı klasörü `artifacts\Luma-0.10.0`, paylaşılacak dosya `artifacts\Luma-0.10.0-win-x64.zip` konumundadır. SHA-256 özeti ZIP'in yanındaki `.sha256` dosyasına yazılır. Hata ayıklama sembolleri dağıtım ZIP'ine eklenmez.
+Çıktı klasörü `artifacts\Luma-0.10.1`, paylaşılacak dosya `artifacts\Luma-0.10.1-win-x64.zip` konumundadır. SHA-256 özeti ZIP'in yanındaki `.sha256` dosyasına yazılır. Hata ayıklama sembolleri dağıtım ZIP'ine eklenmez.
 
 `build.ps1 -Publish`, çalışma zamanını dahil etmeden paket oluşturur; bu çıktı için .NET 10 Desktop Runtime gerekir. Kişisel ayarlardan ayrı bir geliştirme oturumu için:
 
 ```powershell
-.\artifacts\Luma-0.10.0\Luma.exe --data-dir .\.local
+.\artifacts\Luma-0.10.1\Luma.exe --data-dir .\.local
 ```
 
 Logo vektörü `src\Luma\Assets\Brand.xaml` dosyasındadır. Tepsi ve ayarlar aynı kaynağı kullanır. Vektör değiştiğinde uygulamanın ICO dosyasını ve PNG önizlemelerini PowerShell 7 ile yeniden üret:
@@ -225,13 +225,14 @@ Yinelenen Windows parlaklık paneli, parlaklık etkinliğinden sonraki 900 ms bo
 
 Yeni ses panelinde gerçek CoreAudio aygıt/oturum okuması ve mevcut aygıtın ses düzeyini değiştirmeden yeniden seçilebilmesi doğrulanır. İkinci bir fiziksel ses aygıtına geçiş, Bluetooth bağlantısı, uyku sonrası kullanım ve farklı laptoplar ayrıca donanım testi gerektirir. Uygulama komutları, eski çıkış/oturumların reddi, kaydırıcı isteklerinin birleştirilmesi, açık panelde otomatik gizlemenin durması ve tema geçişleri izole senaryolarda kontrol edilir. DDC/CI için farklı monitör aralıkları, bağımsız istekler, kapatılınca bekleyen yazıların iptali ve kaynakların bırakılması benzetimlerle doğrulanır; gerçek harici monitörde parlaklık yazımı bu bilgisayarda henüz doğrulanmadı. Kurulum dosyaları ve kaldırma betiği ayrı bir test klasörüne yazılır; testte kişisel kayıt defteri ve kısayollar değiştirilmez. Güncelleme kontrolü ve indirme hata senaryoları sunucu benzetimleriyle, kurulum açılışı ise ayrıca gerçek kurulumla sınanır.
 
-**0.10.0 için 215 otomatik kontrol başarılı.** Kontroller şunları kapsar:
+**0.10.1 için 223 otomatik kontrol başarılı.** Kontroller şunları kapsar:
 
 - Ayarların kalıcılığı, son geçerli yedekten kurtarma, bozuk/eksik/aşırı büyük dosyalar ve başarısız/eşzamanlı kayıtlar.
 - Salt okunur önizleme sağlayıcıları, gerçek kaydırıcıların kullanılabilirliği, dil değişimi, klavye odağı ve gizli/küçültülmüş önizlemenin yeniden açıldığında yetişmesi.
 - Ses/medya/parlaklık servisleri, kaynaklara doğru komut yönlendirme, kapanan aygıtlar, geçici kilit bildirimleri ve yavaş sürücü benzetiminde gösterge tepkisi.
 - Ayar içe/dışa aktarımı, kurulum, eksik/değiştirilmiş/iptal edilmiş güncellemeler, güvenilir yönlendirme ve başarısız yeni sürümden geri dönüş.
 - Gerçek WPF görünümleri, Hakkında/lisans okuyucu, gömülü bildirimler, köşe/boyut yerleşimi, tepsi menüsü ve renkler.
+- Ses panelinde gerçek fare girdileriyle dört köşede aç/kapat, animasyon sırasında hızlı tıklama, panel dışına tıklama ve erişilebilir düğme çağrıları.
 
 GitHub'daki iş ayrıca Windows derlemesini ve `test-package.ps1` ile kurucu, ZIP, rehber/lisans dosyaları ve SHA-256 tutarlılığını kontrol eder. Gerçek masaüstü/ses aygıtı testleri yerel `verify.ps1` ile yapılır.
 

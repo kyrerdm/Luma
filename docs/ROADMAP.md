@@ -1,5 +1,11 @@
 # Luma geliştirme planı
 
+## 0.10.1 — Ses paneli düzeltmesi
+
+- Ses çıkışı paneli açıkken oka yeniden tıklamanın paneli kapatıp geri açması giderildi.
+- WPF'nin dış tıklama yakalaması ile düğmenin aynı basışı yeniden işlemesi önlendi; dışarı tıklayarak kapatma korundu.
+- Gerçek fare girdileriyle dört köşe, animasyon sırasında hızlı tıklama ve yeniden açma; erişilebilir düğme çağrısıyla aç/kapat kontrolü.
+
 ## 0.7 — Günlük kullanım
 
 - Genel, Görünüm, Ses, Medya ve Ekran bölümleri.

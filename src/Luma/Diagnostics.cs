@@ -96,6 +96,7 @@ internal static partial class Diagnostics
         await VerifyReleaseFeaturesAsync(directory, Check);
         await VerifyDailyUseAsync(directory, Check);
         await VerifyLivePreviewAsync(directory, Check);
+        await VerifyAudioPopupAsync(Check);
         await VerifyAboutAsync(directory, Check);
         await VerifyStabilityAsync(directory, Check);
         var sample = PreviewData.Media();

@@ -13,7 +13,7 @@
     <EnableCompressionInSingleFile Condition="'$(PublishSingleFile)' == 'true'">true</EnableCompressionInSingleFile>
     <AssemblyName>Luma</AssemblyName>
     <RootNamespace>Luma</RootNamespace>
-    <Version>0.10.0</Version>
+    <Version>0.10.1</Version>
     <Authors>kyrerdm</Authors>
     <Copyright>Copyright (c) 2026 kyrerdm</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

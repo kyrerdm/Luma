@@ -16,6 +16,7 @@ Amaç, birkaç farklı bilgisayarda normal kullanım sırasında kalan sorunlar�
 | Bilgisayarı yeniden başlat; Windows ile başlat açıksa oturum aç | Luma tepside tek örnek olarak hazırdır; ayarlar penceresi kendiliğinden açılmaz | Bekliyor |
 | Başlat menüsünden Luma'yı art arda aç | Var olan ayarlar penceresi açılır; ikinci bir tepsi simgesi oluşmaz | Bekliyor |
 | Sesi hızlıca artır/azalt; sessize al | Gösterge gecikmeden tepki verir, Windows ses düzeyiyle aynı kalır | Bekliyor |
+| Ses panelini okla aç, aynı okla kapat; hızlıca tekrar et ve panel dışına tıkla | Ok her tıklamada aç/kapat durumunu değiştirir; kapatırken kendiliğinden yeniden açılmaz; dışarı tıklama da kapatır | Bekliyor |
 | Bluetooth/USB kulaklığı bağla, seç, çıkar | Aygıt listesi yenilenir; kapanan aygıta komut uygulanmaz | Bekliyor |
 | Spotify ve bir tarayıcıda medya aç | Kaynak seçimi ve oynatma düğmeleri aynı oturumu kontrol eder | Bekliyor |
 | Uykuya al ve uyandır; ardından ses/medya/parlaklığı kullan | Uygulamayı yeniden açmak gerekmez | Bekliyor |
