@@ -262,5 +262,10 @@
   "Varsayılan ses aygıtı": "Default audio device",
   "Ses aygıtı bulunamadı": "No audio device found",
   "Önizleme · sistem sesi değişmez": "Preview · system volume is unchanged",
-  "Önizleme · ekran parlaklığı değişmez": "Preview · screen brightness is unchanged"
+  "Önizleme · ekran parlaklığı değişmez": "Preview · screen brightness is unchanged",
+  "Bu sürümün güncellemeleri Microsoft Store tarafından yönetilir.": "Updates for this version are managed by Microsoft Store.",
+  "Microsoft Store'u aç": "Open Microsoft Store",
+  "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Open Microsoft Store and check for updates in Library.",
+  "Windows başlangıç görevine erişilemedi.": "The Windows startup task could not be accessed.",
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Change the startup preference in Windows Settings > Apps > Startup."
 }

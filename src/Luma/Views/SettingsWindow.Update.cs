@@ -12,15 +12,30 @@ public partial class SettingsWindow
     private Uri? releasePage;
     private UpdatePackage? updatePackage;
     private CancellationTokenSource? updateCancellation;
+    internal void ConfigureDistribution(bool packaged)
+    {
+        if (!packaged) return;
+        CheckUpdatesButton.Visibility = InstallUpdateButton.Visibility = CancelUpdateButton.Visibility = OpenReleaseButton.Visibility = InstallButton.Visibility = Visibility.Collapsed;
+        UpdateProgress.Visibility = Visibility.Collapsed;
+        StoreUpdatesButton.Visibility = Visibility.Visible;
+        UpdateStatusText.Text = Strings.T(Distribution.StoreUpdatesMessage);
+    }
+    private void OpenStoreUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        try { Process.Start(new ProcessStartInfo("ms-windows-store://downloadsandupdates") { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        { UpdateStatusText.Text = Strings.T("Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle."); }
+    }
     private async void CheckUpdates_Click(object sender, RoutedEventArgs e)
     {
+        if (Distribution.IsPackaged) { ConfigureDistribution(true); return; }
         CheckUpdatesButton.IsEnabled = false; OpenReleaseButton.Visibility = InstallUpdateButton.Visibility = Visibility.Collapsed; UpdateStatusText.Text = Strings.T("GitHub sürümü denetleniyor…");
         try { using var updates = new UpdateService(); var result = await updates.CheckAsync(); UpdateStatusText.Text = Strings.T(result.Message); releasePage = result.Page; updatePackage = result.Package; InstallUpdateButton.Visibility = result.Package is null ? Visibility.Collapsed : Visibility.Visible; OpenReleaseButton.Visibility = result.Available ? Visibility.Visible : Visibility.Collapsed; }
         finally { CheckUpdatesButton.IsEnabled = true; }
     }
     private async void InstallUpdate_Click(object sender, RoutedEventArgs e)
     {
-        if (updatePackage is null || updateCancellation is not null) return;
+        if (Distribution.IsPackaged || updatePackage is null || updateCancellation is not null) return;
         using var cancellation = new CancellationTokenSource(); updateCancellation = cancellation;
         InstallUpdateButton.IsEnabled = CheckUpdatesButton.IsEnabled = false;
         CancelUpdateButton.Visibility = UpdateProgress.Visibility = Visibility.Visible;
@@ -50,5 +65,8 @@ public partial class SettingsWindow
         try { Process.Start(new ProcessStartInfo(releasePage.AbsoluteUri) { UseShellExecute = true }); }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { UpdateStatusText.Text = Strings.T("İndirme sayfası açılamadı. github.com/kyrerdm/Luma/releases adresini kullanabilirsin."); }
     }
-    private void Install_Click(object sender, RoutedEventArgs e) => new InstallWindow { Owner = this }.ShowDialog();
+    private void Install_Click(object sender, RoutedEventArgs e)
+    {
+        if (!Distribution.IsPackaged) new InstallWindow { Owner = this }.ShowDialog();
+    }
 }

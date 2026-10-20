@@ -35,3 +35,10 @@ jobs:
         run: |
           ./scripts/package.ps1
           ./scripts/test-package.ps1
+      - name: Build and validate development MSIX (never a Store submission)
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -STA -File ./scripts/package-store.ps1 -Development
+          if ($LASTEXITCODE -ne 0) { throw 'Development MSIX build failed.' }
+          $package = Get-ChildItem artifacts/store/Development/*.msix | Select-Object -First 1
+          ./scripts/test-store-package.ps1 -Package $package.FullName

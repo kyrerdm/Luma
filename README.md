@@ -77,19 +77,21 @@ The SDK is pinned in `global.json`. From the repository root, with PowerShell an
 .\scripts\test-package.ps1
 ```
 
-The output is `artifacts\Luma-1.0.0`. Setup and portable ZIP are placed in `artifacts`, alongside their `.sha256` files. Packaging verifies runtime notices against the restored runtime packages and includes the same licenses and guide as the installer.
+The output is `artifacts\Luma-<project version>`. Setup and portable ZIP are placed in `artifacts`, alongside their `.sha256` files. Packaging verifies runtime notices against the restored runtime packages and includes the same licenses and guide as the installer.
 
 `verify.ps1` runs Windows/WPF, audio, media, keyboard, settings recovery, update, localization and layout checks. Mouse-input fixtures target Luma's isolated test windows. These checks require an interactive Windows desktop; the GitHub workflow runs catalog validation, compilation and package integrity checks separately.
 
 For isolated development preferences:
 
 ```powershell
-.\artifacts\Luma-1.0.0\Luma.exe --data-dir .\.local
+.\artifacts\Luma-1.0.1\Luma.exe --data-dir .\.local\development-preferences
 ```
 
 See [1.0 release notes](docs/releases/v1.0.0.md), [translation guidance](docs/LOCALIZATION.md), [multilingual quick start](docs/QUICKSTART.md) and [ongoing validation](docs/KARARLI_SURUM.md).
 
 ## License and credit
+
+Microsoft Store preparation is tracked separately in the [submission guide](docs/store/SUBMISSION.md), with [listing drafts in five languages](docs/store/LISTING.md). The 1.0.1 MSIX candidate is not yet published or Store-certified; the public GitHub stable release remains 1.0.0. See the [privacy policy](docs/PRIVACY.md) for local data, optional update connections and support reports.
 
 Designed and developed by **kyrerdm**. Luma's original code is licensed under [MIT](LICENSE); bundled components retain their own notices. License texts are available offline in **About** and in the distribution.
 

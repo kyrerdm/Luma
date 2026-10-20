@@ -16,6 +16,7 @@ internal static class SupportReport
         var report = new StringBuilder();
         report.AppendLine("Luma support report / Destek raporu");
         report.AppendLine($"Version: {AppVersion.Current.ToString(3)}");
+        report.AppendLine($"Distribution: {(Distribution.IsPackaged ? "msix" : "standalone")}");
         report.AppendLine($"Preference recovery: {recovery.ToString().ToLowerInvariant()}");
         report.AppendLine($"Windows build: {Environment.OSVersion.Version}");
         report.AppendLine($"Architecture: {RuntimeInformation.ProcessArchitecture}");

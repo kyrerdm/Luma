@@ -262,5 +262,10 @@
   "Varsayılan ses aygıtı": "Standard-Audiogerät",
   "Ses aygıtı bulunamadı": "Kein Audiogerät gefunden",
   "Önizleme · sistem sesi değişmez": "Vorschau · Systemlautstärke bleibt unverändert",
-  "Önizleme · ekran parlaklığı değişmez": "Vorschau · Bildschirmhelligkeit bleibt unverändert"
+  "Önizleme · ekran parlaklığı değişmez": "Vorschau · Bildschirmhelligkeit bleibt unverändert",
+  "Bu sürümün güncellemeleri Microsoft Store tarafından yönetilir.": "Updates für diese Version werden vom Microsoft Store verwaltet.",
+  "Microsoft Store'u aç": "Microsoft Store öffnen",
+  "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Öffne den Microsoft Store und suche in der Bibliothek nach Updates.",
+  "Windows başlangıç görevine erişilemedi.": "Auf die Windows-Autostartaufgabe konnte nicht zugegriffen werden.",
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Ändere die Autostarteinstellung unter Windows-Einstellungen > Apps > Autostart."
 }

@@ -23,6 +23,14 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        var artworkIndex = Array.IndexOf(e.Args, "--export-store-artwork");
+        if (artworkIndex >= 0)
+        {
+            var output = artworkIndex + 1 < e.Args.Length ? Path.GetFullPath(e.Args[artworkIndex + 1]) : Path.Combine(AppContext.BaseDirectory, "store-artwork");
+            try { Shutdown(await Diagnostics.CreateStoreArtworkAsync(output)); }
+            catch (Exception ex) { Directory.CreateDirectory(output); File.WriteAllText(Path.Combine(output, "failure.txt"), ex.ToString()); Shutdown(1); }
+            return;
+        }
         var osdIndex = Array.IndexOf(e.Args, "--diagnose-brightness-osd");
         if (osdIndex >= 0)
         {
@@ -45,7 +53,7 @@ public partial class App : Application
             return;
         }
 
-        if (e.Args.Contains("--install") || e.Args.Contains("--apply-update") || IsSetupExecutable(Environment.ProcessPath ?? ""))
+        if (!Distribution.IsPackaged && (e.Args.Contains("--install") || e.Args.Contains("--apply-update") || IsSetupExecutable(Environment.ProcessPath ?? "")))
         {
             var store = new Luma.Models.SettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumaFlyouts"));
             Palette.Apply(store.Load());
@@ -64,13 +72,14 @@ public partial class App : Application
                 if (!created) await Task.Delay(100);
             }
         }
-        if (!created) { openSettings.Set(); instanceMutex.Dispose(); instanceMutex = null; Shutdown(); return; }
+        if (!created) { if (!e.Args.Contains("--background")) openSettings.Set(); instanceMutex.Dispose(); instanceMutex = null; Shutdown(); return; }
 
         var dataIndex = Array.IndexOf(e.Args, "--data-dir");
         var dataDirectory = dataIndex >= 0 && dataIndex + 1 < e.Args.Length ? Path.GetFullPath(e.Args[dataIndex + 1])
-            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LumaFlyouts");
+            : Distribution.DataDirectory;
         try
         {
+            if (Distribution.IsPackaged && dataIndex < 0) Distribution.TryMigrateSettings(dataDirectory, Distribution.LegacyDataDirectory);
             StartupService.RefreshEnabledPath();
             controller = new AppController(dataDirectory);
             openSettingsRegistration = ThreadPool.RegisterWaitForSingleObject(openSettings,

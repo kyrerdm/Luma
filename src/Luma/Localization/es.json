@@ -262,5 +262,10 @@
   "Varsayılan ses aygıtı": "Dispositivo de audio predeterminado",
   "Ses aygıtı bulunamadı": "No se ha encontrado ningún dispositivo de audio",
   "Önizleme · sistem sesi değişmez": "Vista previa · no se modifica el volumen del sistema",
-  "Önizleme · ekran parlaklığı değişmez": "Vista previa · no se modifica el brillo de la pantalla"
+  "Önizleme · ekran parlaklığı değişmez": "Vista previa · no se modifica el brillo de la pantalla",
+  "Bu sürümün güncellemeleri Microsoft Store tarafından yönetilir.": "Microsoft Store administra las actualizaciones de esta versión.",
+  "Microsoft Store'u aç": "Abrir Microsoft Store",
+  "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Abre Microsoft Store y busca actualizaciones en Biblioteca.",
+  "Windows başlangıç görevine erişilemedi.": "No se pudo acceder a la tarea de inicio de Windows.",
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Cambia la preferencia de inicio en Configuración de Windows > Aplicaciones > Inicio."
 }

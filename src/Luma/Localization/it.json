@@ -262,5 +262,10 @@
   "Varsayılan ses aygıtı": "Dispositivo audio predefinito",
   "Ses aygıtı bulunamadı": "Nessun dispositivo audio trovato",
   "Önizleme · sistem sesi değişmez": "Anteprima · il volume di sistema non cambia",
-  "Önizleme · ekran parlaklığı değişmez": "Anteprima · la luminosità dello schermo non cambia"
+  "Önizleme · ekran parlaklığı değişmez": "Anteprima · la luminosità dello schermo non cambia",
+  "Bu sürümün güncellemeleri Microsoft Store tarafından yönetilir.": "Gli aggiornamenti di questa versione sono gestiti da Microsoft Store.",
+  "Microsoft Store'u aç": "Apri Microsoft Store",
+  "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Apri Microsoft Store e cerca gli aggiornamenti nella Raccolta.",
+  "Windows başlangıç görevine erişilemedi.": "Impossibile accedere all'attività di avvio di Windows.",
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Modifica la preferenza di avvio in Impostazioni di Windows > App > Avvio."
 }

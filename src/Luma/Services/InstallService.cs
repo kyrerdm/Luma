@@ -28,6 +28,7 @@ internal static class InstallService
     }
     public static InstallPlan Install(bool desktopShortcut)
     {
+        if (Distribution.IsPackaged) throw new InvalidOperationException(Strings.T(Distribution.StoreUpdatesMessage));
         var source = Environment.ProcessPath ?? throw new IOException("Uygulama dosyası bulunamadı.");
         if (new FileInfo(source).Length < 20 * 1024 * 1024) throw new InvalidOperationException("Kurulum için Releases bölümündeki çalışma zamanı dahil Luma paketini aç.");
         return InstallFiles(source, Plan(DefaultRoot, AppVersion.Current), desktopShortcut, Register);

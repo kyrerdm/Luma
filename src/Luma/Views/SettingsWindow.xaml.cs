@@ -17,6 +17,7 @@ public partial class SettingsWindow : Window
     private readonly Action save;
     private bool ready;
     private bool updatingBrightness;
+    private bool updatingStartup;
     public event Action<int>? BrightnessRequested;
     public bool AllowClose { get; set; }
 
@@ -32,10 +33,12 @@ public partial class SettingsWindow : Window
         foreach (var option in Palette.Options) AccentCombo.Items.Add(new ComboBoxItem { Content = option, Tag = option.Id });
         AccentCombo.Items.Add(new ComboBoxItem { Content = "Özel renk", Tag = "Custom" });
         ReloadPreferences();
+        ConfigureDistribution(Distribution.IsPackaged);
         GeneralNav.IsChecked = true;
         MonitorCatalog.Changed += OnDisplaysChanged;
         Strings.Changed += OnLanguageChanged;
         Loaded += (_, _) => { Strings.Apply(this); RefreshLivePreview(); };
+        IsVisibleChanged += async (_, _) => { if (IsVisible) await RefreshStartupAsync(); };
         IsVisibleChanged += (_, _) => RefreshLivePreview();
         StateChanged += (_, _) => RefreshLivePreview();
         previewClock.Tick += (_, _) => PaintPreviewTimeline();
@@ -196,14 +199,34 @@ public partial class SettingsWindow : Window
         try { save(); RefreshLivePreview(); FeedbackText.Text = Strings.T("Kaydedildi. Tercihlerin bir sonraki açılışta da burada."); }
         catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException) { FeedbackText.Text = Strings.T("Ayarlar kaydedilemedi: ") + ex.Message; }
     }
-    private void Startup_Changed(object sender, RoutedEventArgs e)
+    private async System.Threading.Tasks.Task RefreshStartupAsync()
     {
-        if (!ready) return;
-        try { StartupService.SetEnabled(StartupToggle.IsChecked == true); FeedbackText.Text = Strings.T("Başlangıç tercihin kaydedildi."); }
+        if (!Distribution.IsPackaged || updatingStartup) return;
+        updatingStartup = true;
+        StartupToggle.IsEnabled = false;
+        try
+        {
+            await StartupService.RefreshAsync();
+            var previous = ready; ready = false; StartupToggle.IsChecked = StartupService.IsEnabled(); ready = previous;
+        }
+        catch (InvalidOperationException ex) { FeedbackText.Text = Strings.T("Başlangıç ayarı değiştirilemedi: ") + ex.Message; }
+        finally { updatingStartup = false; StartupToggle.IsEnabled = true; }
+    }
+    private async void Startup_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!ready || updatingStartup) return;
+        updatingStartup = true;
+        StartupToggle.IsEnabled = false;
+        try { await StartupService.SetEnabledAsync(StartupToggle.IsChecked == true); FeedbackText.Text = Strings.T("Başlangıç tercihin kaydedildi."); }
         catch (Exception ex) when (ex is UnauthorizedAccessException or System.IO.IOException or System.Security.SecurityException or InvalidOperationException)
         {
             ready = false; StartupToggle.IsChecked = StartupService.IsEnabled(); ready = true;
             FeedbackText.Text = Strings.T("Başlangıç ayarı değiştirilemedi: ") + ex.Message;
+        }
+        finally
+        {
+            var previous = ready; ready = false; StartupToggle.IsChecked = StartupService.IsEnabled(); ready = previous;
+            updatingStartup = false; StartupToggle.IsEnabled = true;
         }
     }
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;

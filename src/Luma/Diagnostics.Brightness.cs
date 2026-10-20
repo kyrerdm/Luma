@@ -160,7 +160,9 @@ internal static partial class Diagnostics
         flyout.Close();
 
         var controlDevice = new DiagnosticBrightnessDevice();
-        using (var runtime = new AppController(Path.Combine(directory, "brightness-runtime-data"), () => new DelayedAudioDevice(), () => controlDevice))
+        // Use a fresh directory on every run: pre-1.0 Turkish preferences must
+        // not make fresh-install checks pass only on the developer's computer.
+        using (var runtime = new AppController(Path.Combine(directory, "brightness-runtime-" + Guid.NewGuid().ToString("N")), () => new DelayedAudioDevice(), () => controlDevice))
         {
             await runtime.BrightnessReady.WaitAsync(TimeSpan.FromSeconds(3));
             var window = runtime.DiagnosticSettings;
@@ -168,7 +170,7 @@ internal static partial class Diagnostics
             slider.Value = 83;
             await runtime.FlushBrightnessAsync().WaitAsync(TimeSpan.FromSeconds(3));
             await Task.Delay(100);
-            check("Settings brightness slider controls the service and shows the applied level", controlDevice.Writes == 1 && controlDevice.Value == 80 && slider.Value == 80 && ((TextBlock)window.FindName("DisplayBrightnessText")).Text == "%80", "");
+            check("Settings brightness slider controls the service and shows the applied level", controlDevice.Writes == 1 && controlDevice.Value == 80 && slider.Value == 80 && ((TextBlock)window.FindName("DisplayBrightnessText")).Text == "80 %", $"Writes={controlDevice.Writes}; device={controlDevice.Value}; slider={slider.Value}; language={Strings.Language}; text={((TextBlock)window.FindName("DisplayBrightnessText")).Text}");
             ((CheckBox)window.FindName("BrightnessToggle")).IsChecked = false;
             runtime.DiagnosticFlyout.Dismiss();
             controlDevice.Emit("internal-a", 60);
@@ -176,7 +178,7 @@ internal static partial class Diagnostics
             check("Brightness indicator preference disables automatic popups", !runtime.DiagnosticFlyout.IsVisible && slider.Value == 60, "");
             window.SetBrightness(BrightnessState.Unavailable());
             check("Unsupported displays disable the settings brightness slider", !slider.IsEnabled && ((TextBlock)window.FindName("DisplayBrightnessText")).Text == "—", "");
-            check("Tray menu contains only settings and exit", runtime.DiagnosticTrayMenu.Items.Count == 2 && runtime.DiagnosticTrayMenu.Items[0].Text == "Luma ayarları" && runtime.DiagnosticTrayMenu.Items[1].Text == "Çıkış", "");
+            check("Tray menu contains only settings and exit", runtime.DiagnosticTrayMenu.Items.Count == 2 && runtime.DiagnosticTrayMenu.Items[0].Name == "Settings" && runtime.DiagnosticTrayMenu.Items[1].Name == "Exit" && runtime.DiagnosticTrayMenu.Items[0].Text == "Luma settings" && runtime.DiagnosticTrayMenu.Items[1].Text == "Exit", "Fresh installations use English; Turkish localization is covered separately.");
             ((CheckBox)window.FindName("BrightnessToggle")).IsChecked = true;
             window.SetBrightness(controlDevice.Read());
             window.Show();

@@ -15,6 +15,8 @@
 
 ## Microsoft Store denemesi
 
+Store hazırlıkları `codex/store-preparation` dalında 1.0.1 adayı olarak yürütülür; bu, Store yayını veya sertifika onayı anlamına gelmez. Tekrarlanabilir MSIX üretimi, üretim kimliği gereksinimleri, geçiş adımları ve kalan kontroller için [Store gönderim rehberine](store/SUBMISSION.md) bakın. [Beş dilde mağaza metinleri](store/LISTING.md) ve [gizlilik politikası](PRIVACY.md) hazırdır.
+
 - Yayıncı hesabında Luma adı, yayıncı kimliği ve paket kimliği alınır.
 - MSIX için ayrı deneme paketi hazırlanır. Mevcut EXE kurucusu, PowerShell kaldırıcı ve uygulama içi güncelleme Store paketinin içine aynen taşınmaz.
 - Paket kimliği altında sistem tepsisi, CoreAudio/medya/WMI/DDC erişimi, klavye kancası ve otomatik başlatma davranışları gerçek Windows'ta doğrulanır.

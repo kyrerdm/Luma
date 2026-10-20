@@ -59,6 +59,7 @@ public partial class SettingsWindow
         if (Dispatcher.HasShutdownStarted) return;
         if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(OnLanguageChanged); return; }
         Strings.Apply(this);
+        ConfigureDistribution(Distribution.IsPackaged);
         ReloadMonitors();
         if (settings.ExternalBrightness && externalState.Length > 0) SetExternal(externalState);
         UpdateLabels();

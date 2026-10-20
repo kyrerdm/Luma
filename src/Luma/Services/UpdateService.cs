@@ -14,8 +14,10 @@ internal sealed record UpdateResult(bool Available, string Message, Uri? Page, U
 internal sealed class UpdateService : IDisposable
 {
     private readonly HttpClient client;
-    public UpdateService(HttpMessageHandler? handler = null)
+    private readonly bool packaged;
+    public UpdateService(HttpMessageHandler? handler = null, bool? packaged = null)
     {
+        this.packaged = packaged ?? Distribution.IsPackaged;
         client = new HttpClient(handler ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(12), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Luma/" + AppVersion.Current.ToString(3));
         client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
@@ -54,6 +56,7 @@ internal sealed class UpdateService : IDisposable
 
     public async Task<string> DownloadAsync(UpdatePackage package, string directory, IProgress<int>? progress = null, CancellationToken cancellation = default)
     {
+        if (packaged) throw new InvalidOperationException(Distribution.StoreUpdatesMessage);
         var filename = $"Luma-{package.Version.ToString(3)}-Setup.exe";
         if (!TrustedUri(package.Download, "github.com") || package.Download.Query.Length != 0 || package.Download.Fragment.Length != 0
             || package.Download.AbsolutePath != $"/kyrerdm/Luma/releases/download/v{package.Version.ToString(3)}/{filename}"
@@ -110,6 +113,7 @@ internal sealed class UpdateService : IDisposable
     }
     public async Task<UpdateResult> CheckAsync(CancellationToken cancellation = default)
     {
+        if (packaged) return new(false, Distribution.StoreUpdatesMessage, null);
         try
         {
             using var response = await client.GetAsync("https://api.github.com/repos/kyrerdm/Luma/releases/latest", cancellation);

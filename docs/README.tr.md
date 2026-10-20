@@ -253,6 +253,8 @@ Luma **kyrerdm** tarafından tasarlanıp geliştirilir. Özgün Luma kaynak kodu
 
 ## İlham ve üçüncü taraf bileşenler
 
+Microsoft Store için 1.0.1 adayının hazırlıkları [Store gönderim rehberinde](store/SUBMISSION.md), [beş dilde mağaza metinlerinde](store/LISTING.md) ve [gizlilik politikasında](PRIVACY.md) açıklanır. Henüz Store yayını veya sertifika onayı yoktur; GitHub'daki kararlı sürüm 1.0.0'dır.
+
 Luma, [ModernFlyouts](https://github.com/ModernFlyouts-Community/ModernFlyouts) fikrinden ilham alan bağımsız bir projedir. ModernFlyouts'un kodunu veya görsel varlıklarını içermez; onunla bağlantılı resmi bir devam projesi değildir. Örnek albüm kapağı WPF ile çizilmiştir.
 
 Dağıtım paketindeki .NET, Windows Desktop, Windows SDK ve C#/WinRT bildirimleri uygulamanın yanındaki lisans/bilgi dosyalarında bulunur.
