@@ -1,26 +1,26 @@
-Luma 1.0.0 — Windows 11
+Luma 1.0.1 — Windows 11
 
 QUICK START (ENGLISH)
-Windows 11 x64. Run Luma-1.0.0-Setup.exe and choose Install, then Open Luma.
+Windows 11 x64. Run Luma-1.0.1-Setup.exe and choose Install, then Open Luma.
 No administrator or separate .NET installation is needed. Search for Luma
 in Start, or click its system tray icon once to open Settings.
 New installations use English. General > Language offers English, Türkçe,
 Deutsch, Español and Italiano. Updates keep your saved language choice.
 Choose General > Check for updates > Download and update to update.
-For portable use, extract Luma-1.0.0-win-x64.zip and open Luma.exe.
+For portable use, extract Luma-1.0.1-win-x64.zip and open Luma.exe.
 The executable is currently unsigned. Device/driver support can vary.
-Multilingual guide: https://github.com/kyrerdm/Luma/blob/v1.0.0/docs/QUICKSTART.md
+Multilingual guide: https://github.com/kyrerdm/Luma/blob/v1.0.1/docs/QUICKSTART.md
 
 TÜRKÇE KULLANIM
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-1.0.0-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-1.0.1-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\1.0.0
+Kurulum: %LOCALAPPDATA%\Programs\Luma\1.0.1
 
-Taşınabilir kullanım için Luma-1.0.0-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-1.0.1-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 

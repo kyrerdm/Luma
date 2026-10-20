@@ -12,7 +12,9 @@ internal static class AboutInfo
     internal const string Author = "kyrerdm";
     internal const string ProjectUrl = "https://github.com/kyrerdm/Luma";
     internal const string IssuesUrl = ProjectUrl + "/issues";
-    internal static string ReleaseUrl => ProjectUrl + "/releases/tag/v" + AppVersion.Current.ToString(3);
+    // GitHub and Store can ship different versions. The history remains valid
+    // even when the running package has no matching GitHub release tag.
+    internal static string ReleaseUrl => ProjectUrl + "/releases";
     internal static string VersionLabel => "Luma " + AppVersion.Current.ToString(3);
     internal static string CopyText => VersionLabel + Environment.NewLine + ProjectUrl;
 

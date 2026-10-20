@@ -2,7 +2,7 @@
 
 New installations use **English**. The five UI choices are English (`en`), Türkçe (`tr`), Deutsch (`de`), Español (`es`) and Italiano (`it`). Existing saved choices survive updates. Legacy settings/backups without a language field keep their previous Turkish behavior. Invalid language codes fall back to English.
 
-The embedded catalogs are in `src/Luma/Localization`. Turkish strings are the historical source keys; `en.json`, `de.json`, `es.json` and `it.json` each provide all 264 translations. This source-key convention does not change the English default.
+The embedded catalogs are in `src/Luma/Localization`. Turkish strings are the historical source keys; `en.json`, `de.json`, `es.json` and `it.json` each cover the full shared catalog. This source-key convention does not change the English default.
 
 To contribute a correction, update the matching value while keeping the exact key and every numbered placeholder, such as `{0}`. Do not translate product names, device/app/track names, file paths or license bodies. OS-provided diagnostic details may remain in the OS language. The support report uses stable technical English labels for issue diagnosis.
 

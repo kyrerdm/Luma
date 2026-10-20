@@ -1,6 +1,6 @@
 # Microsoft Store submission preparation
 
-Status: **candidate, not published or certified**. Public GitHub stable remains 1.0.0. Store candidate is 1.0.1.0 (x64, Windows 11 22H2 / build 22621 or newer).
+Status: **candidate, not published or certified**. GitHub release: 1.0.1. Store candidate is 1.0.1.0 (x64, Windows 11 22H2 / build 22621 or newer).
 
 ## Account and identity
 

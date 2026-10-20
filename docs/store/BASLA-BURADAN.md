@@ -1,6 +1,6 @@
 # Luma'yı Microsoft Store'a gönderme
 
-Hazırlık sürümü: **1.0.1 / MSIX 1.0.1.0**. Henüz Microsoft Store'a gönderilmedi veya mağaza tarafından onaylanmadı. İstanbul'a döndüğünde bu rehberden devam edebilirsin. GitHub'daki mevcut kararlı 1.0.0 yayını değiştirilmedi.
+Hazırlık sürümü: **1.0.1 / MSIX 1.0.1.0**. Henüz Microsoft Store'a gönderilmedi veya mağaza tarafından onaylanmadı. İstanbul'a döndüğünde bu rehberden devam edebilirsin. GitHub dağıtımı 1.0.1 sürümüdür; Store gönderimi ayrı bir adımdır.
 
 ## 1. Geliştirici hesabını tamamla
 
@@ -20,7 +20,7 @@ Bunlar paket için gereken yayıncı bilgileridir; parola değildir. Ayırdığ�
 
 ## 3. Son paketi ve kurulum testlerini tamamla
 
-Codex'e “Store hesabım hazır, paket kimlikleri bunlar; Luma Store hazırlığından devam et” yazabilirsin. Çalışmalar `codex/store-preparation` dalındadır.
+Codex'e “Store hesabım hazır, paket kimlikleri bunlar; Luma Store hazırlığından devam et” yazabilirsin. Tamamlanan kaynak kodu ana daldadır.
 
 Kod ve derleme adımları [gönderim rehberinde](SUBMISSION.md) bulunur. Gerçek yayıncı kimliği `.local/StoreIdentity.json` dosyasına girilip üretim MSIX'i oluşturulur. Ardından gerçek paketli kurulum, başlangıç ayarı, ses/medya/parlaklık erişimi, güncelleme/kaldırma ve Windows App Certification Kit kontrolleri tamamlanır.
 
