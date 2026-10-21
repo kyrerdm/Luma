@@ -92,6 +92,7 @@ internal static partial class Diagnostics
             Check("Windows session identities survive a refresh", !sameApps || before.Select(s => s.Id).Order().SequenceEqual(after.Select(s => s.Id).Order()), $"Available sessions: {after.Count}; unchanged app list: {sameApps}");
         }
         await VerifyMediaSourcesAsync(directory, (name, passed) => Check(name, passed));
+        await VerifyMediaKeysAsync(directory, Check);
         await VerifyBrightnessAsync(directory, Check);
         await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
         await VerifyReleaseFeaturesAsync(directory, Check);

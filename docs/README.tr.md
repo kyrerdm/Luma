@@ -33,7 +33,7 @@ Taşınabilir kullanım için **`-win-x64.zip`** dosyasını indir, kalıcı bir
 
 ## Kullanım, güncelleme ve kaldırma
 
-Ses tuşuna basınca Luma görünür. Ses şeridindeki ok, ses çıkışı ve uygulama sesleri panelini açıp kapatır; panel dışına tıklamak da kapatır. Medya kartındaki kaynak oku Windows'un sunduğu oturumlar arasında geçiş yapar. Pin simgesi ses/medya kartını açık tutar; kilit tuşu bildirimleri geçici kalır.
+Ses tuşuna basınca Luma görünür. Klavyenin standart oynat/duraklat, sonraki, önceki ve durdur tuşları da medya kartı ayarı etkinken ve oynatıcı Windows'a medya oturumu sunuyorsa kartı gösterir; tuşların normal oynatma işlevi devam eder. Ses şeridindeki ok, ses çıkışı ve uygulama sesleri panelini açıp kapatır; panel dışına tıklamak da kapatır. Medya kartındaki kaynak oku Windows'un sunduğu oturumlar arasında geçiş yapar. Pin simgesi ses/medya kartını açık tutar; kilit tuşu bildirimleri geçici kalır.
 
 Ayarları kapatmak uygulamayı tepsiye gizler. Tamamen çıkmak için tepsi simgesine sağ tıklayıp **Çıkış** seç. Türkçe için **General → Language → Türkçe** yolunu kullan. **Windows ile başlat** tercihi Genel bölümündedir.
 

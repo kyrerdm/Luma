@@ -1,6 +1,6 @@
 # Luma'yı Microsoft Store'a gönderme
 
-Hazırlık sürümü: **1.0.1 / MSIX 1.0.1.0**. Henüz Microsoft Store'a gönderilmedi veya mağaza tarafından onaylanmadı. İstanbul'a döndüğünde bu rehberden devam edebilirsin. GitHub dağıtımı 1.0.1 sürümüdür; Store gönderimi ayrı bir adımdır.
+Hazırlık sürümü: **1.0.2 / MSIX 1.0.2.0**. Henüz Microsoft Store'a gönderilmedi veya mağaza tarafından onaylanmadı. İstanbul'a döndüğünde bu rehberden devam edebilirsin. GitHub dağıtımı 1.0.2 sürümüdür; Store gönderimi ayrı bir adımdır.
 
 ## 1. Geliştirici hesabını tamamla
 

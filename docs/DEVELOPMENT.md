@@ -23,7 +23,7 @@ Automated checks do not replace real-device validation. Bluetooth/USB hotplug, s
 For isolated development preferences:
 
 ```powershell
-./artifacts/Luma-1.0.1/Luma.exe --data-dir ./.local/development-preferences
+./artifacts/Luma-1.0.2/Luma.exe --data-dir ./.local/development-preferences
 ```
 
 Quit the running copy from its tray first; editions intentionally share a single-instance mutex. Do not use a separate data directory to try to run two active controllers at once.

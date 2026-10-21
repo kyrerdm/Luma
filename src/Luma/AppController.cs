@@ -32,12 +32,15 @@ public sealed partial class AppController : IDisposable
     private readonly string? hookError;
     private AudioState lastState = new(false, 0, false, "Ses aygıtı bekleniyor");
     private long pendingAudioSequence;
+    private long pendingMediaInput;
     private long pendingBrightnessSequence;
     private BrightnessState lastBrightness = BrightnessState.Unavailable("Parlaklık desteği kontrol ediliyor…");
     private bool disposed;
     internal Task<AudioState> AudioReady => audio.Ready;
     internal Task<BrightnessState> BrightnessReady => brightness.Ready;
     internal FlyoutWindow DiagnosticFlyout => flyout;
+    internal KeyboardService? DiagnosticKeyboard => keyboard;
+    internal Luma.Models.MediaState DiagnosticMediaState => media.State;
     internal SettingsWindow DiagnosticSettings => window;
     internal Forms.ContextMenuStrip DiagnosticTrayMenu => tray.ContextMenuStrip!;
     internal Task FlushAudioAsync() => audio.FlushAsync();
@@ -45,7 +48,8 @@ public sealed partial class AppController : IDisposable
 
     public AppController(string dataDirectory) : this(dataDirectory, null) { }
 
-    internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory, Func<IBrightnessDevice>? brightnessFactory = null)
+    internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory, Func<IBrightnessDevice>? brightnessFactory = null,
+        Func<IMediaSessionProvider>? mediaFactory = null)
     {
         store = new(dataDirectory);
         settings = store.Load();
@@ -82,7 +86,7 @@ public sealed partial class AppController : IDisposable
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnAppearanceChanged;
         Microsoft.Win32.SystemEvents.PowerModeChanged += OnResume;
         MonitorCatalog.Changed += OnMonitorChange;
-        media = new(Application.Current.Dispatcher);
+        media = mediaFactory is null ? new(Application.Current.Dispatcher) : new(Application.Current.Dispatcher, mediaFactory);
         window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count, store.Recovery);
         media.Changed += OnMediaChanged;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
@@ -100,6 +104,7 @@ public sealed partial class AppController : IDisposable
         {
             keyboard = new(Application.Current.Dispatcher);
             keyboard.VolumeInput += input => OnVolumePressed(input.Command, input.Timestamp);
+            keyboard.MediaKeyPressed += OnMediaKeyPressed;
             keyboard.LockPressed += (name, enabled) => flyout.ShowLock(name, enabled);
         }
         catch (Win32Exception ex) { hookError = ex.Message; }
@@ -159,6 +164,7 @@ public sealed partial class AppController : IDisposable
             keyboard.HandleVolume = settings.VolumeKeys;
             keyboard.ShowLocks = settings.LockKeys;
             keyboard.AudioAvailable = lastState.Available;
+            keyboard.ObserveMedia = settings.ShowMedia;
         }
         window.SetStatus(Strings.T(hookError is not null ? "Tuş erişimi yok" : !lastState.Available ? "Ses aygıtı bekleniyor" : "Arka planda hazır"), hookError is null && lastState.Available);
     }
@@ -196,11 +202,36 @@ public sealed partial class AppController : IDisposable
         else flyout.RefreshVolume(current);
     }
 
+    internal void OnMediaKeyPressed(long timestamp)
+    {
+        if (disposed || !settings.ShowMedia) return;
+        pendingMediaInput = timestamp;
+        // Observe the hardware command; sending another command would skip/toggle twice.
+        media.RequestRefresh();
+        if (!media.State.Available) return;
+        pendingMediaInput = 0;
+        flyout.TrackInput(timestamp);
+        ShowCurrentVolume();
+    }
+
     private void OnMediaChanged(Luma.Models.MediaState state)
     {
         if (disposed) return;
         flyout.UpdateMedia(state);
         window.UpdatePreviewMedia(state);
+        if (pendingMediaInput <= 0) return;
+        var timestamp = pendingMediaInput;
+        if (!settings.ShowMedia || Stopwatch.GetElapsedTime(timestamp) > TimeSpan.FromSeconds(2))
+        {
+            pendingMediaInput = 0;
+            return;
+        }
+        // Playback can create its Windows session shortly after the key press.
+        if (!state.Available) return;
+        pendingMediaInput = 0;
+        flyout.TrackInput(timestamp);
+        flyout.ShowVolume(lastState);
+        flyout.UpdateMedia(state);
     }
 
     private void SetBrightness(int value)

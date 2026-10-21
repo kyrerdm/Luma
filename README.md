@@ -33,7 +33,7 @@ For portable use, download the **`-win-x64.zip`** asset, extract it to a permane
 
 ## Use, update and uninstall
 
-Press a volume key to display Luma. The arrow on the volume bar opens and closes the audio output/app mixer panel; clicking outside also closes it. The media source arrow switches between the sessions Windows exposes. The pin keeps the volume/media card visible; lock indicators remain temporary.
+Press a volume key to display Luma. Standard keyboard play/pause, next, previous and stop keys also show the media card when enabled and a player exposes a Windows media session; the keys keep their normal playback action. The arrow on the volume bar opens and closes the audio output/app mixer panel; clicking outside also closes it. The media source arrow switches between the sessions Windows exposes. The pin keeps the volume/media card visible; lock indicators remain temporary.
 
 Settings close to the tray. Right-click the tray icon and choose **Exit** to quit. Change language under **General → Language** and startup under **General**.
 

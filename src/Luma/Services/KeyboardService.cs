@@ -17,16 +17,20 @@ public sealed class KeyboardService : IDisposable
     private readonly StaWorker worker = new("Luma keyboard");
     private IntPtr hook;
     private readonly bool[] pressedLocks = new bool[3];
+    private readonly bool[] pressedMedia = new bool[4];
     private volatile bool handleVolume = true;
     private volatile bool showLocks = true;
     private volatile bool audioAvailable;
+    private volatile bool observeMedia = true;
     private volatile bool disposed;
     public bool HandleVolume { get => handleVolume; set => handleVolume = value; }
     public bool ShowLocks { get => showLocks; set => showLocks = value; }
     public bool AudioAvailable { get => audioAvailable; set => audioAvailable = value; }
+    public bool ObserveMedia { get => observeMedia; set => observeMedia = value; }
     public event Action<VolumeCommand>? VolumePressed;
     public event Action<VolumeInput>? VolumeInput;
     public event Action<string, bool>? LockPressed;
+    public event Action<long>? MediaKeyPressed;
 
     public KeyboardService(Dispatcher dispatcher)
     {
@@ -45,11 +49,16 @@ public sealed class KeyboardService : IDisposable
 
     private IntPtr OnKeyboard(int code, IntPtr message, IntPtr data)
     {
-        if (code >= 0 && !disposed)
+        if (code >= 0 && ProcessKey(Marshal.ReadInt32(data), message == (IntPtr)0x100 || message == (IntPtr)0x104,
+                message == (IntPtr)0x101 || message == (IntPtr)0x105)) return (IntPtr)1;
+        return CallNextHookEx(hook, code, message, data);
+    }
+
+    // True means consumed. Media keys are observed only: Windows/player must receive them once.
+    internal bool ProcessKey(int key, bool down, bool up)
+    {
+        if (!disposed)
         {
-            var key = Marshal.ReadInt32(data);
-            var down = message == (IntPtr)0x100 || message == (IntPtr)0x104;
-            var up = message == (IntPtr)0x101 || message == (IntPtr)0x105;
             if (HandleVolume && AudioAvailable && key is >= 0xAD and <= 0xAF && (down || up))
             {
                 if (down)
@@ -58,7 +67,25 @@ public sealed class KeyboardService : IDisposable
                     var input = new VolumeInput(command, Stopwatch.GetTimestamp());
                     dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(() => { if (!disposed) { VolumeInput?.Invoke(input); VolumePressed?.Invoke(command); } }));
                 }
-                return (IntPtr)1;
+                return true;
+            }
+            if (key is >= 0xB0 and <= 0xB3)
+            {
+                var mediaIndex = key - 0xB0;
+                if (down && !pressedMedia[mediaIndex])
+                {
+                    pressedMedia[mediaIndex] = true;
+                    if (ObserveMedia)
+                    {
+                        var timestamp = Stopwatch.GetTimestamp();
+                        dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(() =>
+                        {
+                            if (!disposed && ObserveMedia) MediaKeyPressed?.Invoke(timestamp);
+                        }));
+                    }
+                }
+                if (up) pressedMedia[mediaIndex] = false;
+                return false;
             }
             var index = key == 0x14 ? 0 : key == 0x90 ? 1 : key == 0x91 ? 2 : -1;
             if (index >= 0)
@@ -73,7 +100,7 @@ public sealed class KeyboardService : IDisposable
                 if (up) pressedLocks[index] = false;
             }
         }
-        return CallNextHookEx(hook, code, message, data);
+        return false;
     }
 
     public void Dispose()
