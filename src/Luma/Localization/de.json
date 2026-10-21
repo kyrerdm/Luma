@@ -267,5 +267,9 @@
   "Microsoft Store'u aç": "Microsoft Store öffnen",
   "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Öffne den Microsoft Store und suche in der Bibliothek nach Updates.",
   "Windows başlangıç görevine erişilemedi.": "Auf die Windows-Autostartaufgabe konnte nicht zugegriffen werden.",
-  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Ändere die Autostarteinstellung unter Windows-Einstellungen > Apps > Autostart."
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Ändere die Autostarteinstellung unter Windows-Einstellungen > Apps > Autostart.",
+  "Güncelleme var": "Update verfügbar",
+  "Güncellemeyi aç": "Update anzeigen",
+  "Güncellemeleri otomatik denetle": "Automatisch nach Updates suchen",
+  "Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın.": "Prüft nach dem Start und alle 6 Stunden. Download und Installation startest du selbst."
 }

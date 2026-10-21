@@ -46,10 +46,10 @@ public sealed partial class AppController : IDisposable
     internal Task FlushAudioAsync() => audio.FlushAsync();
     internal Task FlushBrightnessAsync() => brightness.FlushAsync();
 
-    public AppController(string dataDirectory) : this(dataDirectory, null) { }
+    public AppController(string dataDirectory) : this(dataDirectory, null, enableAutomaticUpdates: true) { }
 
     internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory, Func<IBrightnessDevice>? brightnessFactory = null,
-        Func<IMediaSessionProvider>? mediaFactory = null)
+        Func<IMediaSessionProvider>? mediaFactory = null, UpdateMonitor? updateMonitor = null, bool enableAutomaticUpdates = false)
     {
         store = new(dataDirectory);
         settings = store.Load();
@@ -121,6 +121,11 @@ public sealed partial class AppController : IDisposable
         tray = new Forms.NotifyIcon { Text = "Luma · ses ve klavye göstergeleri", Icon = trayIcon, ContextMenuStrip = menu, Visible = true };
         tray.MouseClick += OnTrayMouseClick;
         Strings.Changed += OnLanguageChanged;
+        updates = updateMonitor ?? new UpdateMonitor(Application.Current.Dispatcher);
+        automaticUpdatesAllowed = enableAutomaticUpdates;
+        window.CheckForUpdates = updates.CheckAsync;
+        updates.Changed += OnUpdateChanged;
+        ConfigureAutomaticUpdates();
         _ = media.StartAsync();
     }
 
@@ -141,7 +146,9 @@ public sealed partial class AppController : IDisposable
     private void OnLanguageChanged()
     {
         if (disposed) return;
-        foreach (Forms.ToolStripItem item in tray.ContextMenuStrip!.Items) item.Text = Strings.T(item.Tag is TrayAction.Settings ? "Luma ayarları" : "Çıkış");
+        foreach (Forms.ToolStripItem item in tray.ContextMenuStrip!.Items)
+            item.Text = Strings.T(item.Tag is TrayAction.Settings ? "Luma ayarları" : item.Tag is TrayAction.Update ? "Güncelleme var" : "Çıkış");
+        RefreshUpdateIndicator();
         flyout.ApplyLanguage();
     }
     internal void OnTrayMouseClick(object? sender, Forms.MouseEventArgs e)
@@ -155,7 +162,7 @@ public sealed partial class AppController : IDisposable
         try { var success = await routing.RefreshAsync(); if (!disposed && flyout.AudioPanelOpen) { flyout.AudioPanel.SetState(routing.State); flyout.AudioPanel.Report(success); } }
         finally { refreshingRouting = false; }
     }
-    private void SaveSettings() { store.Save(settings); window.SetSettingsRecovery(store.Recovery); Palette.Apply(settings); window.ApplyAppearance(); ApplyPreferences(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); if (!settings.ExternalBrightness) { externalRevision++; external.Suspend(); } }
+    private void SaveSettings() { store.Save(settings); window.SetSettingsRecovery(store.Recovery); Palette.Apply(settings); window.ApplyAppearance(); ApplyPreferences(); ConfigureAutomaticUpdates(); flyout.ApplyPreferences(); flyout.PlaceOnActiveMonitor(); if (!settings.ExternalBrightness) { externalRevision++; external.Suspend(); } }
     private void ApplyPreferences()
     {
         nativeBrightnessOsd.SetEnabled(settings.ObserveBrightness && settings.HideNativeBrightness && lastBrightness.Available);
@@ -263,6 +270,8 @@ public sealed partial class AppController : IDisposable
     {
         if (disposed) return;
         disposed = true;
+        updates.Changed -= OnUpdateChanged;
+        updates.Dispose();
         Strings.Changed -= OnLanguageChanged;
         Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnAppearanceChanged;
         Microsoft.Win32.SystemEvents.PowerModeChanged -= OnResume;
@@ -273,6 +282,7 @@ public sealed partial class AppController : IDisposable
         tray.Visible = false;
         tray.ContextMenuStrip?.Dispose();
         tray.Dispose(); trayIcon.Dispose();
+        updateTrayIcon?.Dispose();
         flyout.Close();
         window.AllowClose = true; window.Close();
         audio.Dispose();

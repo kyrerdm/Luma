@@ -9,14 +9,14 @@ namespace Luma.Themes;
 
 internal static class BrandIcon
 {
-    public static Icon CreateTrayIcon()
+    public static Icon CreateTrayIcon(bool updateAvailable = false)
     {
         var source = (ImageSource)Application.Current.FindResource("BrandAppIcon");
         var sizes = new[] { 16, 20, 24, 32, 40, 48, 64 };
         var images = new byte[sizes.Length][];
         for (var i = 0; i < sizes.Length; i++)
         {
-            var bitmap = Render(source, sizes[i]);
+            var bitmap = Render(source, sizes[i], updateAvailable);
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmap));
             using var png = new MemoryStream(); encoder.Save(png); images[i] = png.ToArray();
@@ -39,10 +39,17 @@ internal static class BrandIcon
         return (Icon)icon.Clone();
     }
 
-    internal static BitmapSource Render(ImageSource source, int size)
+    internal static BitmapSource Render(ImageSource source, int size, bool updateAvailable = false)
     {
         var visual = new DrawingVisual();
-        using (var drawing = visual.RenderOpen()) drawing.DrawImage(source, new Rect(0, 0, size, size));
+        using (var drawing = visual.RenderOpen())
+        {
+            drawing.DrawImage(source, new Rect(0, 0, size, size));
+            if (updateAvailable)
+                drawing.DrawEllipse(new SolidColorBrush(System.Windows.Media.Color.FromRgb(157, 220, 178)),
+                    new System.Windows.Media.Pen(new SolidColorBrush(System.Windows.Media.Color.FromRgb(25, 28, 34)), size * 0.055),
+                    new System.Windows.Point(size * 0.79, size * 0.79), size * 0.18, size * 0.18);
+        }
         var bitmap = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(visual); bitmap.Freeze(); return bitmap;
     }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Luma.Services;
 
 internal sealed record UpdatePackage(Version Version, Uri Download, long Size, string Sha256);
-internal sealed record UpdateResult(bool Available, string Message, Uri? Page, UpdatePackage? Package = null);
+internal sealed record UpdateResult(bool Available, string Message, Uri? Page, UpdatePackage? Package = null, bool Verified = false);
 internal sealed class UpdateService : IDisposable
 {
     private readonly HttpClient client;
@@ -30,7 +30,7 @@ internal sealed class UpdateService : IDisposable
         if (!Version.TryParse(tag.TrimStart('v', 'V'), out var version) || version.Build < 0 || version.Revision > 0 || release.GetProperty("draft").GetBoolean() || release.GetProperty("prerelease").GetBoolean()) return new(false, "Kararlı sürüm bilgisi doğrulanamadı.", null);
         if (!Uri.TryCreate(release.GetProperty("html_url").GetString(), UriKind.Absolute, out var page) || !TrustedUri(page, "github.com") || page.Query.Length != 0 || page.Fragment.Length != 0 || page.AbsolutePath != "/kyrerdm/Luma/releases/tag/" + tag) return new(false, "Güncelleme bağlantısı doğrulanamadı.", null);
         var normalized = new Version(current.Major, current.Minor, Math.Max(0, current.Build));
-        if (version <= normalized) return new(false, "En güncel kararlı sürümü kullanıyorsun.", null);
+        if (version <= normalized) return new(false, "En güncel kararlı sürümü kullanıyorsun.", null, Verified: true);
         UpdatePackage? package = null;
         var filename = $"Luma-{version.ToString(3)}-Setup.exe";
         if (release.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
@@ -47,7 +47,7 @@ internal sealed class UpdateService : IDisposable
                 break;
             }
         }
-        return new(true, package is null ? "Yeni sürüm hazır. Kurulum için sürüm sayfasını aç." : "Yeni sürüm hazır. İndirip doğrulayarak kurabilirsin; tercihler korunur.", page, package);
+        return new(true, package is null ? "Yeni sürüm hazır. Kurulum için sürüm sayfasını aç." : "Yeni sürüm hazır. İndirip doğrulayarak kurabilirsin; tercihler korunur.", page, package, Verified: true);
     }
 
     internal const long MaxDownloadBytes = 250L * 1024 * 1024;

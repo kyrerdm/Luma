@@ -267,5 +267,9 @@
   "Microsoft Store'u aç": "Abrir Microsoft Store",
   "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Abre Microsoft Store y busca actualizaciones en Biblioteca.",
   "Windows başlangıç görevine erişilemedi.": "No se pudo acceder a la tarea de inicio de Windows.",
-  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Cambia la preferencia de inicio en Configuración de Windows > Aplicaciones > Inicio."
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Cambia la preferencia de inicio en Configuración de Windows > Aplicaciones > Inicio.",
+  "Güncelleme var": "Actualización disponible",
+  "Güncellemeyi aç": "Ver actualización",
+  "Güncellemeleri otomatik denetle": "Buscar actualizaciones automáticamente",
+  "Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın.": "Busca al iniciar y cada 6 horas. Tú inicias la descarga y la instalación."
 }

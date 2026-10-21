@@ -13,6 +13,7 @@ public sealed class AppSettings
     public bool Animations { get; set; } = true;
     public bool ShowMedia { get; set; } = true;
     public bool ArtworkBackground { get; set; } = true;
+    public bool AutomaticUpdateChecks { get; set; } = true;
     public string Accent { get; set; } = "Ice";
     public string Position { get; set; } = "BottomCenter";
     public double DurationSeconds { get; set; } = 2.5;

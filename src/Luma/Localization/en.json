@@ -267,5 +267,9 @@
   "Microsoft Store'u aç": "Open Microsoft Store",
   "Microsoft Store'u açıp Kitaplık bölümünden güncellemeleri denetle.": "Open Microsoft Store and check for updates in Library.",
   "Windows başlangıç görevine erişilemedi.": "The Windows startup task could not be accessed.",
-  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Change the startup preference in Windows Settings > Apps > Startup."
+  "Başlangıç tercihini Windows Ayarları > Uygulamalar > Başlangıç bölümünden değiştir.": "Change the startup preference in Windows Settings > Apps > Startup.",
+  "Güncelleme var": "Update available",
+  "Güncellemeyi aç": "View update",
+  "Güncellemeleri otomatik denetle": "Check for updates automatically",
+  "Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın.": "Checks after startup and every 6 hours. You start downloads and installation."
 }

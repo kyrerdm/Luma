@@ -62,6 +62,8 @@ internal static partial class Diagnostics
                     && ((Button)window.FindName("InstallUpdateButton")).Visibility == Visibility.Collapsed
                     && ((Button)window.FindName("InstallButton")).Visibility == Visibility.Collapsed
                     && ((Button)window.FindName("StoreUpdatesButton")).Visibility == Visibility.Visible
+                    && ((FrameworkElement)window.FindName("AutomaticUpdatesRow")).Visibility == Visibility.Collapsed
+                    && ((Button)window.FindName("UpdateBadge")).Visibility == Visibility.Collapsed
                     && ((TextBlock)window.FindName("UpdateStatusText")).Text == Strings.T(Distribution.StoreUpdatesMessage);
             }
             check("Store settings expose Store updates and hide EXE installation in all five languages", valid, "UI policy fixture; actual package identity is verified separately during deployment.");

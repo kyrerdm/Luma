@@ -1,6 +1,6 @@
 # Store listing drafts
 
-Candidate display name: **Luma**. Use only after successful name reservation. App version: 1.0.2; package version: 1.0.2.0. Intended category: Utilities & tools. Initial price: Free. Languages: English (primary), Turkish, German, Spanish and Italian.
+Candidate display name: **Luma**. Use only after successful name reservation. App version: 1.0.3; package version: 1.0.3.0. Intended category: Utilities & tools. Initial price: Free. Languages: English (primary), Turkish, German, Spanish and Italian.
 
 Website: https://github.com/kyrerdm/Luma
 

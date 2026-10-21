@@ -71,6 +71,8 @@ public partial class SettingsWindow : Window
         MediaToggle.IsChecked = settings.ShowMedia;
         ArtworkToggle.IsChecked = settings.ArtworkBackground;
         StartupToggle.IsChecked = StartupService.IsEnabled();
+        AutomaticUpdatesToggle.IsChecked = settings.AutomaticUpdateChecks;
+        RefreshUpdateText();
         DurationSlider.Value = settings.DurationSeconds;
         StepSlider.Value = settings.VolumeStep;
         ScaleSlider.Value = settings.FlyoutScale;
@@ -117,9 +119,11 @@ public partial class SettingsWindow : Window
         settings.HideNativeBrightness = NativeBrightnessToggle.IsChecked == true;
         settings.Animations = AnimationsToggle.IsChecked == true;
         settings.ShowMedia = MediaToggle.IsChecked == true;
+        settings.AutomaticUpdateChecks = AutomaticUpdatesToggle.IsChecked == true;
         settings.ArtworkBackground = ArtworkToggle.IsChecked == true;
         settings.HideInFullscreen = FullscreenToggle.IsChecked == true;
         UpdatePreview();
+        RefreshUpdateText();
         Save();
     }
     private void Position_Changed(object sender, SelectionChangedEventArgs e)

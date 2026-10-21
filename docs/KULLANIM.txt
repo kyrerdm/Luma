@@ -1,26 +1,29 @@
-Luma 1.0.2 — Windows 11
+Luma 1.0.3 — Windows 11
 
 QUICK START (ENGLISH)
-Windows 11 x64. Run Luma-1.0.2-Setup.exe and choose Install, then Open Luma.
+Windows 11 x64. Run Luma-1.0.3-Setup.exe and choose Install, then Open Luma.
 No administrator or separate .NET installation is needed. Search for Luma
 in Start, or click its system tray icon once to open Settings.
 New installations use English. General > Language offers English, Türkçe,
 Deutsch, Español and Italiano. Updates keep your saved language choice.
 Choose General > Check for updates > Download and update to update.
-For portable use, extract Luma-1.0.2-win-x64.zip and open Luma.exe.
+Automatic checks run shortly after startup and every six hours by default.
+A green tray dot and an Update available badge lead to the update section.
+You can turn automatic checks off in General; downloads start only on request.
+For portable use, extract Luma-1.0.3-win-x64.zip and open Luma.exe.
 The executable is currently unsigned. Device/driver support can vary.
-Multilingual guide: https://github.com/kyrerdm/Luma/blob/v1.0.2/docs/QUICKSTART.md
+Multilingual guide: https://github.com/kyrerdm/Luma/blob/v1.0.3/docs/QUICKSTART.md
 
 TÜRKÇE KULLANIM
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-1.0.2-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-1.0.3-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\1.0.2
+Kurulum: %LOCALAPPDATA%\Programs\Luma\1.0.3
 
-Taşınabilir kullanım için Luma-1.0.2-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-1.0.3-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
@@ -103,7 +106,8 @@ Pencereyi kapatınca Luma sistem tepsisinde çalışmaya devam eder.
 Ayarlar penceresini üst çubuğundan tutarak taşıyabilirsiniz.
 Tepsi simgesine bir kez sol tıklayın: Ayarları aç.
 Sağ tık menüsü de koyu temayı ve seçtiğiniz vurgu rengini kullanır.
-Menüde yalnızca ayarlar ve çıkış bulunur.
+Yeni sürüm bulunduğunda menüye Güncelleme var seçeneği de eklenir.
+Tepsi simgesindeki küçük yeşil nokta ve ayarlardaki işaret güncellemeyi belirtir.
 Luma'nın mavi–mor ışıltı simgesi tepside, uygulama dosyasında ve başlıkta görünür.
 Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
 
@@ -145,6 +149,9 @@ Eski Luma açıksa tepsi simgesinden Çıkış seçin, sonra yeni Luma.exe'yi a�
 Windows ile başlat zaten açıksa yeni sürüm açılırken başlangıç yolu
 güncellenir. Kapalıysa kapalı kalır. Mevcut görünüm tercihleriniz korunur.
 Kurulu sürümü yeni Setup.exe dosyasıyla güncelleyebilirsiniz. Ayarlardaki
+otomatik güncelleme denetimi varsayılan olarak açıktır: açılıştan yaklaşık
+15 saniye sonra ve uygulama çalışırken 6 saatte bir kararlı sürümü kontrol eder.
+Genel bölümünden kapatılabilir. Bu kontrol paket indirmez veya kurmaz.
 Güncellemeleri denetle düğmesi GitHub'ın kararlı sürümünü kontrol eder;
 varsa İndir ve güncelle ile paketi uygulama içinden alabilirsiniz. Dosya
 boyutu ve GitHub SHA-256 özeti doğrulanır; eksik/değişmiş dosya çalıştırılmaz.
@@ -158,7 +165,8 @@ farklı davranabilir; bunlarda Windows paneli de görünebilir.
 
 Ayarlar: %LOCALAPPDATA%\LumaFlyouts\settings.json
 Klavye kaydı veya telemetri yoktur. Günlük kullanım için internet gerekmez.
-Sürüm denetimi ve İndir ve güncelle yalnızca sizin isteğinizle GitHub'a bağlanır.
+Otomatik denetim açıkken GitHub'a sürüm bilgisi için bağlanılır. Elle denetim
+ve İndir ve güncelle seçenekleri de GitHub'a bağlanır. İndirme isteğe bağlıdır.
 Destek raporu seçtiğiniz dosyaya kaydedilir; otomatik gönderilmez.
 
 Bu uygulama ModernFlyouts fikrinden ilham alan bağımsız bir projedir.

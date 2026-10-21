@@ -99,7 +99,15 @@
           <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,24">
-          <TextBlock x:Name="PageTitle" Text="Genel" FontSize="23" FontWeight="SemiBold" />
+          <WrapPanel VerticalAlignment="Center">
+            <TextBlock x:Name="PageTitle" Text="Genel" FontSize="23" FontWeight="SemiBold" Margin="0,0,12,0" />
+            <Button x:Name="UpdateBadge" Visibility="Collapsed" Background="{DynamicResource SelectionBrush}" BorderThickness="0" Padding="9,6" FontSize="10" VerticalAlignment="Center" Click="UpdateBadge_Click" ToolTip="Güncellemeyi aç" AutomationProperties.Name="Güncellemeyi aç">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE895;" FontFamily="Segoe Fluent Icons" Foreground="{DynamicResource AccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                <TextBlock Text="Güncelleme var" Foreground="{DynamicResource TextBrush}" AutomationProperties.LiveSetting="Polite" />
+              </StackPanel>
+            </Button>
+          </WrapPanel>
           <TextBlock x:Name="PageDescription" Text="Günlük kullanım, yedekler ve güncellemeler." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,7,0,0" />
           <Border x:Name="RecoveryNotice" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,14,0,0">
             <Grid>
@@ -181,8 +189,15 @@
                 </Border>
               </StackPanel>
               <Border Style="{StaticResource Divider}" />
-              <StackPanel>
+              <StackPanel x:Name="UpdatesSection">
                 <TextBlock Text="GÜNCELLEME" Style="{StaticResource SectionLabel}" Margin="0,0,0,12" />
+                <Grid x:Name="AutomaticUpdatesRow" Margin="0,0,0,14">
+                  <StackPanel Margin="0,0,58,0">
+                    <TextBlock Text="Güncellemeleri otomatik denetle" Style="{StaticResource RowTitle}" />
+                    <TextBlock Text="Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın." FontSize="10" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                  </StackPanel>
+                  <CheckBox x:Name="AutomaticUpdatesToggle" Style="{StaticResource Toggle}" HorizontalAlignment="Right" VerticalAlignment="Top" Checked="Preference_Changed" Unchecked="Preference_Changed" AutomationProperties.Name="Güncellemeleri otomatik denetle" />
+                </Grid>
                 <WrapPanel>
                   <Button x:Name="CheckUpdatesButton" Content="Güncellemeleri denetle" Padding="12,8" FontSize="11" Click="CheckUpdates_Click" Margin="0,0,6,6" />
                   <Button x:Name="InstallUpdateButton" Content="İndir ve güncelle" Padding="12,8" FontSize="11" Visibility="Collapsed" Click="InstallUpdate_Click" Margin="0,0,6,6" />
@@ -191,7 +206,7 @@
                   <Button x:Name="StoreUpdatesButton" Content="Microsoft Store'u aç" Padding="12,8" FontSize="11" Visibility="Collapsed" Click="OpenStoreUpdates_Click" Margin="0,0,0,6" />
                 </WrapPanel>
                 <ProgressBar x:Name="UpdateProgress" Height="3" Minimum="0" Maximum="100" Visibility="Collapsed" Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource SurfaceBrush}" />
-                <TextBlock x:Name="UpdateStatusText" Text="Yalnızca sen istediğinde GitHub'a bağlanır." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+                <TextBlock x:Name="UpdateStatusText" Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
                 <Button x:Name="InstallButton" Content="Bu bilgisayara kur" HorizontalAlignment="Left" Padding="12,8" FontSize="11" Margin="0,12,0,0" Click="Install_Click" />
               </StackPanel>
               <Border Style="{StaticResource Divider}" />

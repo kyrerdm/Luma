@@ -1,6 +1,6 @@
 # Luma privacy policy
 
-Last updated: 20 October 2026
+Last updated: 21 October 2026
 
 Luma is an open-source Windows utility maintained by kyrerdm. It displays and controls volume, supported display brightness and media sessions exposed by Windows. This policy covers Luma's Microsoft Store and GitHub editions.
 
@@ -8,7 +8,7 @@ Luma is an open-source Windows utility maintained by kyrerdm. It displays and co
 
 Luma reads audio device and application session information to show output devices and application volume controls. It reads media information provided by Windows, such as the player name, track title, artist, artwork and playback position. It reads display information and, when supported and enabled, brightness information.
 
-Luma uses a Windows keyboard hook to handle volume keys and show Caps Lock, Num Lock and Scroll Lock indicators. It does not record typed text or save a keystroke history. Ordinary typing is passed to Windows and other applications.
+Luma uses a Windows keyboard hook to handle volume keys, observe standard media keys and show Caps Lock, Num Lock and Scroll Lock indicators. It does not record typed text or save a keystroke history. Media keys and ordinary typing are passed to Windows and other applications.
 
 These features operate locally. Luma does not send your media titles, artwork, device identifiers, keyboard events or preferences to its developer. It has no advertising, analytics, telemetry service or automatic crash-report upload.
 
@@ -24,7 +24,7 @@ Uninstalling the Store edition removes its package-managed application data thro
 
 The Store edition receives updates through Microsoft Store. It does not use Luma's GitHub EXE updater. Microsoft handles Store account, download, update and diagnostic information under its own privacy policies.
 
-In the GitHub edition, selecting the update-check action connects to GitHub's release API. Downloading an update connects to GitHub's download infrastructure. GitHub receives normal connection information, such as the IP address and an application-version user agent. Luma does not attach your preferences, media information or support report.
+In the GitHub edition, automatic update checks are enabled by default. Luma checks GitHub's release API about 15 seconds after startup and every six hours while running. You can turn these checks off under General; the manual update-check action remains available. Checks request release metadata only. They do not download or install an update. Choosing Download and update connects to GitHub's download infrastructure. GitHub receives normal connection information, such as the IP address and an application-version user agent. Luma does not attach your preferences, media information or support report.
 
 Selecting project, release or support links opens your browser or Microsoft Store. Those services process information under their own policies. Luma does not require a Luma account. If you voluntarily post an issue or attach a file to GitHub, the information you submit can be public.
 
@@ -36,11 +36,11 @@ For privacy questions, open an issue at [github.com/kyrerdm/Luma/issues](https:/
 
 # Luma gizlilik politikası
 
-Son güncelleme: 20 Ekim 2026
+Son güncelleme: 21 Ekim 2026
 
 Luma, kyrerdm tarafından geliştirilen açık kaynaklı bir Windows yardımcı uygulamasıdır. Ses düzeyi, desteklenen ekran parlaklığı ve Windows'un sunduğu medya oturumlarını görüntüler ve kontrol eder. Bu politika Microsoft Store ve GitHub sürümlerini kapsar.
 
-Ses aygıtları, uygulama ses oturumları, oynatıcı adı, parça başlığı, sanatçı, kapak, oynatma konumu ve ekran bilgileri ilgili özellikleri göstermek için bilgisayarında kullanılır. Ses tuşları ile Caps Lock, Num Lock ve Scroll Lock göstergeleri için Windows klavye kancası kullanılır. Yazdığın metin veya tuş geçmişi kaydedilmez; normal yazı girişi Windows'a ve diğer uygulamalara iletilir.
+Ses aygıtları, uygulama ses oturumları, oynatıcı adı, parça başlığı, sanatçı, kapak, oynatma konumu ve ekran bilgileri ilgili özellikleri göstermek için bilgisayarında kullanılır. Ses tuşları, standart medya tuşları ile Caps Lock, Num Lock ve Scroll Lock göstergeleri için Windows klavye kancası kullanılır. Yazdığın metin veya tuş geçmişi kaydedilmez; medya tuşları ve normal yazı girişi Windows'a ve diğer uygulamalara iletilir.
 
 Medya bilgileri, kapaklar, aygıt kimlikleri, tuş olayları ve tercihler geliştiriciye gönderilmez. Reklam, analiz, telemetri hizmeti veya otomatik hata raporu yüklemesi bulunmaz.
 
@@ -48,7 +48,7 @@ Tercihler ve kurtarma kopyası yerel olarak saklanır. Store sürümü kendine a
 
 Ayar dışa aktarma ve destek raporu yalnızca sen istediğinde oluşturulur. Destek raporu uygulama sürümü, Windows derlemesi, mimari, ekran boyutları, özelliklerin kullanılabilirliği ve kaynak kullanımı gibi teknik bilgiler içerir. Kullanıcı adı, dosya yolu, parça başlığı ve uygulama/aygıt adları eklenmez. Rapor otomatik gönderilmez; paylaşmadan önce inceleyebilirsin.
 
-Store sürümünün güncellemelerini Microsoft Store yönetir. GitHub sürümünde güncelleme denetimini seçtiğinde GitHub sürüm API'sine, indirmeyi seçtiğinde GitHub indirme altyapısına bağlanılır. Bu bağlantılarda IP adresi ve uygulama sürümünü içeren istemci başlığı gibi normal bağlantı bilgileri karşı tarafa ulaşır. Tercihler, medya bilgileri ve destek raporu eklenmez.
+Store sürümünün güncellemelerini Microsoft Store yönetir. GitHub sürümünde otomatik denetim varsayılan olarak açıktır: açılıştan yaklaşık 15 saniye sonra ve uygulama çalışırken 6 saatte bir GitHub sürüm API'si denetlenir. Genel bölümünden kapatabilirsin; elle denetim kullanılabilir kalır. Bu kontroller yalnızca sürüm bilgisi ister, paket indirmez veya kurmaz. İndir ve güncelle seçildiğinde GitHub indirme altyapısına bağlanılır. Bu bağlantılarda IP adresi ve uygulama sürümünü içeren istemci başlığı gibi normal bağlantı bilgileri karşı tarafa ulaşır. Tercihler, medya bilgileri ve destek raporu eklenmez.
 
 Proje, sürüm veya destek bağlantıları tarayıcını ya da Microsoft Store'u açar. Bu hizmetlerin kendi gizlilik politikaları geçerlidir. Luma hesabı gerekmez. GitHub'da kendi isteğinle oluşturduğun sorun kayıtları ve eklediğin dosyalar herkese açık olabilir.
 

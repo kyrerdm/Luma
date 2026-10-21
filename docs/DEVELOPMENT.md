@@ -18,12 +18,14 @@ The published app is `artifacts/Luma-<project version>/Luma.exe`. Setup, portabl
 
 The default verification does not change physical display brightness. The separate `-NativeBrightness` option performs supported hardware writes and restores the original value; use it only when intending to test the display. Output is written under `artifacts/verification`.
 
+Update-indicator fixtures use in-memory HTTP responses, including the real startup timer, cancellation, offline recovery, five-language badges and tray actions. Diagnostic controllers do not enable live scheduled GitHub checks. Automatic checks in normal GitHub installations request metadata after 15 seconds and every six hours; users can disable them under General. Store builds do not poll GitHub.
+
 Automated checks do not replace real-device validation. Bluetooth/USB hotplug, sleep/resume, laptop Fn controllers, mixed monitor DPI, external DDC/CI, long sessions, Narrator and contrast themes are tracked in [KARARLI_SURUM.md](KARARLI_SURUM.md).
 
 For isolated development preferences:
 
 ```powershell
-./artifacts/Luma-1.0.2/Luma.exe --data-dir ./.local/development-preferences
+./artifacts/Luma-1.0.3/Luma.exe --data-dir ./.local/development-preferences
 ```
 
 Quit the running copy from its tray first; editions intentionally share a single-instance mutex. Do not use a separate data directory to try to run two active controllers at once.

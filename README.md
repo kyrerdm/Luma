@@ -19,6 +19,7 @@ Free, open-source volume, media and brightness flyouts for Windows 11.
 - Six positions, adjustable size and monitor selection.
 - Light, dark and system themes, 12 accent colors and a custom color option.
 - Live settings preview, preference backup and optional startup with Windows.
+- Quiet update indicators and optional automatic release checks in the GitHub edition.
 - English, Turkish, German, Spanish and Italian. New installations start in English; updates keep your language choice.
 
 ## Install
@@ -37,7 +38,9 @@ Press a volume key to display Luma. Standard keyboard play/pause, next, previous
 
 Settings close to the tray. Right-click the tray icon and choose **Exit** to quit. Change language under **General → Language** and startup under **General**.
 
-Use **General → Check for updates**, or run the latest Setup. Quit an old copy before opening a different installation or portable version. Uninstall through **Windows Settings → Apps → Installed apps**. GitHub preferences remain in `%LOCALAPPDATA%\LumaFlyouts` for later use; preference import/export is available in Settings.
+The GitHub edition checks for updates shortly after startup and every six hours by default. A small green dot on the tray icon and an **Update available** badge in Settings lead to the update section. Turn off automatic checks under **General**, or use **Check for updates** manually. **Download and update** starts the download and installation; neither starts automatically.
+
+You can also run the latest Setup. Quit an old copy before opening a different installation or portable version. Uninstall through **Windows Settings → Apps → Installed apps**. GitHub preferences remain in `%LOCALAPPDATA%\LumaFlyouts` for later use; preference import/export is available in Settings.
 
 ## Compatibility
 
@@ -46,7 +49,7 @@ Use **General → Check for updates**, or run the latest Setup. Quit an old copy
 - The mixer shows audio sessions on the selected output; sessions belonging to one app are adjusted together.
 - Native ARM64 packages are not available. Broader hardware, sleep/resume and accessibility validation is tracked in the [validation notes](docs/KARARLI_SURUM.md).
 
-Everyday operation is offline. Requested GitHub update checks/downloads use the network. Luma records no typed text or telemetry, and support reports are saved locally. [Privacy policy](docs/PRIVACY.md).
+Audio, media and brightness features operate locally. Automatic/manual release checks and requested update downloads use GitHub. Luma records no typed text or telemetry, and support reports are saved locally. [Privacy policy](docs/PRIVACY.md).
 
 ## Microsoft Store
 

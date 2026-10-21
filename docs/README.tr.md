@@ -37,7 +37,9 @@ Ses tuşuna basınca Luma görünür. Klavyenin standart oynat/duraklat, sonraki
 
 Ayarları kapatmak uygulamayı tepsiye gizler. Tamamen çıkmak için tepsi simgesine sağ tıklayıp **Çıkış** seç. Türkçe için **General → Language → Türkçe** yolunu kullan. **Windows ile başlat** tercihi Genel bölümündedir.
 
-**Genel → Güncellemeleri denetle** yoluyla veya yeni Setup dosyasıyla güncelle. Farklı bir kurulum ya da taşınabilir sürüm açmadan önce eski kopyadan çık. **Windows Ayarları → Uygulamalar → Yüklü uygulamalar** üzerinden kaldırabilirsin. GitHub sürümünün tercihleri sonraki kullanım için `%LOCALAPPDATA%\LumaFlyouts` klasöründe kalır; içe/dışa aktarma ayarlarda bulunur.
+GitHub sürümü varsayılan olarak açılıştan kısa süre sonra ve 6 saatte bir güncellemeleri denetler. Yeni sürüm bulunduğunda tepsi simgesindeki küçük yeşil nokta ve ayarlardaki **Güncelleme var** işareti güncelleme bölümünü açar. Otomatik denetimi **Genel** bölümünden kapatabilir veya **Güncellemeleri denetle** ile elle kontrol edebilirsin. İndirme ve kurulum **İndir ve güncelle** seçildiğinde başlar.
+
+Yeni Setup dosyasını da çalıştırabilirsin. Farklı bir kurulum ya da taşınabilir sürüm açmadan önce eski kopyadan çık. **Windows Ayarları → Uygulamalar → Yüklü uygulamalar** üzerinden kaldırabilirsin. GitHub sürümünün tercihleri sonraki kullanım için `%LOCALAPPDATA%\LumaFlyouts` klasöründe kalır; içe/dışa aktarma ayarlarda bulunur.
 
 ## Uyumluluk
 
@@ -46,7 +48,7 @@ Ayarları kapatmak uygulamayı tepsiye gizler. Tamamen çıkmak için tepsi simg
 - Ses karıştırıcı, seçili çıkıştaki oturumları gösterir; aynı uygulamanın oturumları birlikte ayarlanır.
 - Ayrı ARM64 paketi yoktur. Farklı donanım, uyku/uyanma ve erişilebilirlik kontrolleri [doğrulama notlarında](KARARLI_SURUM.md) takip edilir.
 
-Günlük kullanım çevrimdışıdır. İstediğinde yapılan GitHub güncelleme denetimi ve indirmeleri internete bağlanır. Yazdığın metinler ve telemetri kaydedilmez; destek raporları yerel olarak saklanır. [Gizlilik politikası](PRIVACY.md).
+Ses, medya ve parlaklık özellikleri yerel olarak çalışır. Otomatik/elle sürüm denetimleri ve istediğinde yapılan güncelleme indirmeleri GitHub'a bağlanır. Yazdığın metinler ve telemetri kaydedilmez; destek raporları yerel olarak saklanır. [Gizlilik politikası](PRIVACY.md).
 
 ## Microsoft Store
 

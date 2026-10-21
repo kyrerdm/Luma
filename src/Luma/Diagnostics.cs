@@ -97,6 +97,7 @@ internal static partial class Diagnostics
         await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
         await VerifyReleaseFeaturesAsync(directory, Check);
         await VerifyDailyUseAsync(directory, Check);
+        await VerifyUpdateIndicatorsAsync(directory, Check);
         await VerifyLivePreviewAsync(directory, Check);
         await VerifyAudioPopupAsync(Check);
         await VerifyAboutAsync(directory, Check);
@@ -287,7 +288,7 @@ internal static partial class Diagnostics
         }
         Check("Animated dismissal completes", !motion.IsVisible);
         motion.Close();
-        using (var runtime = new AppController(Path.Combine(directory, "runtime-data")))
+        using (var runtime = new AppController(Path.Combine(directory, "runtime-data"), null))
         {
             runtime.ShowSettings();
             var actualAudio = await runtime.AudioReady.WaitAsync(TimeSpan.FromSeconds(5));
