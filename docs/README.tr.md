@@ -37,6 +37,8 @@ Ses tuşuna basınca Luma görünür. Klavyenin standart oynat/duraklat, sonraki
 
 Ayarları kapatmak uygulamayı tepsiye gizler. Tamamen çıkmak için tepsi simgesine sağ tıklayıp **Çıkış** seç. Türkçe için **General → Language → Türkçe** yolunu kullan. **Windows ile başlat** tercihi Genel bölümündedir.
 
+Şarkı geçişinde yeni parça yüklenene kadar medya kartı kısa süre korunur; yeni bilgi geldiğinde gizlenme süresi yeniden başlar. Windows başlangıcı için Luma'yı kur veya taşınabilir kopyayı kalıcı bir klasörde tut; arşivden geçici çıkarılan dosya başlangıca eklenmez. GitHub sürümü geçici arka plan açılış hatalarında sınırlı yeniden deneme yapar ve destek raporuna yerel başlangıç özeti ekler. Gerçek oturum açılışı Windows başlangıç ayarlarına ve cihaza bağlıdır.
+
 GitHub sürümü varsayılan olarak açılıştan kısa süre sonra ve 6 saatte bir güncellemeleri denetler. Yeni sürüm bulunduğunda tepsi simgesindeki küçük yeşil nokta ve ayarlardaki **Güncelleme var** işareti güncelleme bölümünü açar. Otomatik denetimi **Genel** bölümünden kapatabilir veya **Güncellemeleri denetle** ile elle kontrol edebilirsin. İndirme ve kurulum **İndir ve güncelle** seçildiğinde başlar.
 
 Yeni Setup dosyasını da çalıştırabilirsin. Farklı bir kurulum ya da taşınabilir sürüm açmadan önce eski kopyadan çık. **Windows Ayarları → Uygulamalar → Yüklü uygulamalar** üzerinden kaldırabilirsin. GitHub sürümünün tercihleri sonraki kullanım için `%LOCALAPPDATA%\LumaFlyouts` klasöründe kalır; içe/dışa aktarma ayarlarda bulunur.

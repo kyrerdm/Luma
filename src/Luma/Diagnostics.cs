@@ -93,6 +93,7 @@ internal static partial class Diagnostics
         }
         await VerifyMediaSourcesAsync(directory, (name, passed) => Check(name, passed));
         await VerifyMediaKeysAsync(directory, Check);
+        await VerifyTransitionAndStartupAsync(directory, Check);
         await VerifyBrightnessAsync(directory, Check);
         await VerifyNativeOsdAsync((name, passed) => Check(name, passed));
         await VerifyReleaseFeaturesAsync(directory, Check);

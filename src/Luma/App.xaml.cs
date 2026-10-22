@@ -62,13 +62,13 @@ public partial class App : Application
             new InstallWindow(e.Args.Contains("--apply-update"), previousIndex >= 0 && previousIndex + 1 < e.Args.Length ? e.Args[previousIndex + 1] : null).ShowDialog(); Shutdown(); return;
         }
         instanceMutex = new Mutex(true, "Local\\Luma.Flyouts.Instance", out var created);
+        if (!created) created = StartupRecovery.TryAcquire(instanceMutex);
         openSettings = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\Luma.Flyouts.OpenSettings");
-        if (!created && e.Args.Contains("--wait-for-instance"))
+        if (!created && (e.Args.Contains("--wait-for-instance") || e.Args.Contains("--background")))
         {
             for (var attempt = 0; attempt < 100 && !created; attempt++)
             {
-                try { created = instanceMutex.WaitOne(0); }
-                catch (AbandonedMutexException) { created = true; }
+                created = StartupRecovery.TryAcquire(instanceMutex);
                 if (!created) await Task.Delay(100);
             }
         }
@@ -82,6 +82,7 @@ public partial class App : Application
             if (Distribution.IsPackaged && dataIndex < 0) Distribution.TryMigrateSettings(dataDirectory, Distribution.LegacyDataDirectory);
             StartupService.RefreshEnabledPath();
             controller = new AppController(dataDirectory);
+            if (e.Args.Contains("--background")) StartupRecovery.Record(dataDirectory, StartupOutcome.Ready, StartupRecovery.Attempt(e.Args));
             openSettingsRegistration = ThreadPool.RegisterWaitForSingleObject(openSettings,
                 (_, _) => Dispatcher.BeginInvoke(new Action(() => controller?.ShowSettings())), null, Timeout.Infinite, false);
             exitSignal = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\Luma.Flyouts.Exit");
@@ -98,6 +99,20 @@ public partial class App : Application
         catch (Exception ex)
         {
             controller?.Dispose();
+            if (e.Args.Contains("--background"))
+            {
+                var retry = StartupRecovery.Retry(Environment.ProcessPath, e.Args, ex, Distribution.IsPackaged);
+                StartupRecovery.Record(dataDirectory, retry is null ? StartupOutcome.Failed : StartupOutcome.Retrying, StartupRecovery.Attempt(e.Args), ex);
+                if (retry is not null)
+                {
+                    await Task.Delay(retry.Delay);
+                    try { using var process = Process.Start(retry.Start); }
+                    catch (Exception launch) when (launch is System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
+                    { StartupRecovery.Record(dataDirectory, StartupOutcome.RetryLaunchFailed, retry.Attempt, launch); }
+                }
+                Shutdown(1);
+                return;
+            }
             MessageBox.Show(Strings.T("Luma başlatılamadı.") + "\n\n" + ex.Message, "Luma", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }

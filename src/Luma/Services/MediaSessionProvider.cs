@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Luma.Models;
@@ -157,6 +158,7 @@ internal sealed class WindowsMediaSession : IMediaSession
         return new MediaState
         {
             Available = playback.PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Closed && (!string.IsNullOrWhiteSpace(title) || playing),
+            HasTrackMetadata = !string.IsNullOrWhiteSpace(title),
             SessionId = Id, AppName = AppDisplayName(native.SourceAppUserModelId),
             Title = string.IsNullOrWhiteSpace(title) ? "Medya" : title, Artist = artist,
             Artwork = artwork, IsPlaying = playing,
@@ -193,7 +195,8 @@ internal sealed class WindowsMediaSession : IMediaSession
         if (reference is null) return null;
         try
         {
-            using var random = await reference.OpenReadAsync();
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            using var random = await reference.OpenReadAsync().AsTask(timeout.Token);
             if (random.Size == 0 || random.Size > 8 * 1024 * 1024) return null;
             using var stream = random.AsStreamForRead();
             var image = new BitmapImage();

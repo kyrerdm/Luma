@@ -9,6 +9,8 @@ namespace Luma.Services;
 
 public enum VolumeCommand { Down, Up, Mute }
 public readonly record struct VolumeInput(VolumeCommand Command, long Timestamp);
+public enum MediaKeyCommand { Next, Previous, Stop, TogglePlayback }
+public readonly record struct MediaInput(MediaKeyCommand Command, long Timestamp);
 
 public sealed class KeyboardService : IDisposable
 {
@@ -30,7 +32,7 @@ public sealed class KeyboardService : IDisposable
     public event Action<VolumeCommand>? VolumePressed;
     public event Action<VolumeInput>? VolumeInput;
     public event Action<string, bool>? LockPressed;
-    public event Action<long>? MediaKeyPressed;
+    public event Action<MediaInput>? MediaKeyPressed;
 
     public KeyboardService(Dispatcher dispatcher)
     {
@@ -78,9 +80,10 @@ public sealed class KeyboardService : IDisposable
                     if (ObserveMedia)
                     {
                         var timestamp = Stopwatch.GetTimestamp();
+                        var command = key switch { 0xB0 => MediaKeyCommand.Next, 0xB1 => MediaKeyCommand.Previous, 0xB2 => MediaKeyCommand.Stop, _ => MediaKeyCommand.TogglePlayback };
                         dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(() =>
                         {
-                            if (!disposed && ObserveMedia) MediaKeyPressed?.Invoke(timestamp);
+                            if (!disposed && ObserveMedia) MediaKeyPressed?.Invoke(new(command, timestamp));
                         }));
                     }
                 }

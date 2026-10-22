@@ -87,7 +87,7 @@ public sealed partial class AppController : IDisposable
         Microsoft.Win32.SystemEvents.PowerModeChanged += OnResume;
         MonitorCatalog.Changed += OnMonitorChange;
         media = mediaFactory is null ? new(Application.Current.Dispatcher) : new(Application.Current.Dispatcher, mediaFactory);
-        window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count, store.Recovery);
+        window.CreateSupportReport = () => SupportReport.Create(settings, lastState.Available, lastBrightness.Available, routing.State.Outputs.Length, routing.State.Apps.Length, media.State.Sources.Count, store.Recovery, StartupRecovery.Summary(store.DirectoryPath));
         media.Changed += OnMediaChanged;
         flyout.MediaRequested += async (source, command) => flyout.ReportMediaResult(await media.ExecuteAsync(command, source));
         flyout.SeekRequested += async (source, position) => flyout.ReportMediaResult(await media.SeekAsync(position, source));
@@ -209,13 +209,16 @@ public sealed partial class AppController : IDisposable
         else flyout.RefreshVolume(current);
     }
 
-    internal void OnMediaKeyPressed(long timestamp)
+    internal void OnMediaKeyPressed(MediaInput input)
     {
         if (disposed || !settings.ShowMedia) return;
+        var timestamp = input.Timestamp;
+        var transitioning = input.Command is MediaKeyCommand.Next or MediaKeyCommand.Previous && flyout.BeginMediaTransition();
+        if (input.Command is MediaKeyCommand.Stop or MediaKeyCommand.TogglePlayback) flyout.CancelMediaTransition();
         pendingMediaInput = timestamp;
         // Observe the hardware command; sending another command would skip/toggle twice.
         media.RequestRefresh();
-        if (!media.State.Available) return;
+        if (!media.State.Available && !transitioning) return;
         pendingMediaInput = 0;
         flyout.TrackInput(timestamp);
         ShowCurrentVolume();

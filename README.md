@@ -38,6 +38,8 @@ Press a volume key to display Luma. Standard keyboard play/pause, next, previous
 
 Settings close to the tray. Right-click the tray icon and choose **Exit** to quit. Change language under **General → Language** and startup under **General**.
 
+Track skips briefly preserve the media card while the next song loads, then restart its hide timeout. For Windows startup, install Luma or keep the portable app in a permanent folder; temporary archive extractions cannot be used as a startup target. Standalone background launches can retry transient initialization failures, and a local startup summary is included in support reports. Actual logon behavior still depends on Windows startup settings and the device.
+
 The GitHub edition checks for updates shortly after startup and every six hours by default. A small green dot on the tray icon and an **Update available** badge in Settings lead to the update section. Turn off automatic checks under **General**, or use **Check for updates** manually. **Download and update** starts the download and installation; neither starts automatically.
 
 You can also run the latest Setup. Quit an old copy before opening a different installation or portable version. Uninstall through **Windows Settings → Apps → Installed apps**. GitHub preferences remain in `%LOCALAPPDATA%\LumaFlyouts` for later use; preference import/export is available in Settings.

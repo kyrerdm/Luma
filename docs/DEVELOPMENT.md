@@ -22,10 +22,12 @@ Update-indicator fixtures use in-memory HTTP responses, including the real start
 
 Automated checks do not replace real-device validation. Bluetooth/USB hotplug, sleep/resume, laptop Fn controllers, mixed monitor DPI, external DDC/CI, long sessions, Narrator and contrast themes are tracked in [KARARLI_SURUM.md](KARARLI_SURUM.md).
 
+Track-transition checks use empty sessions, placeholder titles, delayed cover loading and the real bounded UI timer. Startup fixtures exercise independent unowned/abandoned named mutexes, retry argument construction, isolated installation paths and sanitized startup-health records. They do not launch a retry process, change the user's startup registration, log off or reboot Windows. Cold-boot validation must be completed on the affected machine.
+
 For isolated development preferences:
 
 ```powershell
-./artifacts/Luma-1.0.3/Luma.exe --data-dir ./.local/development-preferences
+./artifacts/Luma-1.0.4/Luma.exe --data-dir ./.local/development-preferences
 ```
 
 Quit the running copy from its tray first; editions intentionally share a single-instance mutex. Do not use a separate data directory to try to run two active controllers at once.

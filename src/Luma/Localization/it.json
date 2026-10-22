@@ -271,5 +271,6 @@
   "Güncelleme var": "Aggiornamento disponibile",
   "Güncellemeyi aç": "Mostra aggiornamento",
   "Güncellemeleri otomatik denetle": "Cerca aggiornamenti automaticamente",
-  "Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın.": "Controlla dopo l'avvio e ogni 6 ore. Decidi tu quando scaricare e installare."
+  "Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın.": "Controlla dopo l'avvio e ogni 6 ore. Decidi tu quando scaricare e installare.",
+  "Windows ile başlatmak için Luma'yı kur veya kısa, kalıcı bir klasöre çıkar.": "Installa Luma o estrailo in una cartella permanente con un percorso breve per avviarlo con Windows."
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using System.IO;
+using System.Diagnostics;
 using Microsoft.Win32;
 using Windows.ApplicationModel;
 
@@ -26,15 +28,14 @@ public static class StartupService
     public static void SetEnabled(bool enabled)
     {
         if (Distribution.IsPackaged) throw new InvalidOperationException("Use SetEnabledAsync for a packaged application.");
-        using var key = Registry.CurrentUser.CreateSubKey(KeyPath);
         if (enabled)
         {
             var path = Environment.ProcessPath ?? throw new InvalidOperationException("Uygulama yolu bulunamadı.");
             if (System.IO.Path.GetFileNameWithoutExtension(path).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Başlangıç ayarı için Luma.exe dosyasını açın.");
-            key.SetValue(ValueName, $"\"{path}\" --background");
+            SetExecutable(ResolveExecutable(path, InstallService.DefaultRoot));
         }
-        else key.DeleteValue(ValueName, false);
+        else { using var key = Registry.CurrentUser.CreateSubKey(KeyPath); key.DeleteValue(ValueName, false); }
     }
 
     public static async Task RefreshAsync()
@@ -66,6 +67,41 @@ public static class StartupService
         if (!System.IO.Path.IsPathFullyQualified(executable) || executable.Contains('"') || !System.IO.File.Exists(executable)) throw new InvalidOperationException("Başlangıç yolu doğrulanamadı.");
         using var key = Registry.CurrentUser.CreateSubKey(KeyPath);
         key.SetValue(ValueName, $"\"{executable}\" --background");
+    }
+
+    internal static string ResolveExecutable(string currentExecutable, string installRoot)
+    {
+        var current = Path.GetFullPath(currentExecutable);
+        var best = current;
+        var applicationVersion = AppVersion.Current;
+        var bestVersion = ReadVersion(current) ?? new Version(applicationVersion.Major, applicationVersion.Minor, Math.Max(0, applicationVersion.Build));
+        if (Directory.Exists(installRoot) && (File.GetAttributes(installRoot) & FileAttributes.ReparsePoint) == 0)
+        {
+            foreach (var directory in Directory.EnumerateDirectories(installRoot))
+            {
+                if (!Version.TryParse(Path.GetFileName(directory), out var version) || version.Build < 0 || version < bestVersion
+                    || (File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0) continue;
+                var candidate = Path.Combine(directory, "Luma.exe");
+                if (ReadVersion(candidate) != version) continue;
+                best = candidate;
+                bestVersion = version;
+            }
+        }
+        var temporary = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        if (best.StartsWith(temporary, StringComparison.OrdinalIgnoreCase) || ($"\"{best}\" --background").Length > 260)
+            throw new InvalidOperationException(Strings.T("Windows ile başlatmak için Luma'yı kur veya kısa, kalıcı bir klasöre çıkar."));
+        return best;
+    }
+
+    private static Version? ReadVersion(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) || (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0) return null;
+            var info = FileVersionInfo.GetVersionInfo(path);
+            return info.ProductName == "Luma" ? new(info.FileMajorPart, info.FileMinorPart, info.FileBuildPart) : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or System.Security.SecurityException) { return null; }
     }
 
     public static void RefreshEnabledPath()

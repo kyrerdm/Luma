@@ -1,7 +1,7 @@
-Luma 1.0.3 — Windows 11
+Luma 1.0.4 — Windows 11
 
 QUICK START (ENGLISH)
-Windows 11 x64. Run Luma-1.0.3-Setup.exe and choose Install, then Open Luma.
+Windows 11 x64. Run Luma-1.0.4-Setup.exe and choose Install, then Open Luma.
 No administrator or separate .NET installation is needed. Search for Luma
 in Start, or click its system tray icon once to open Settings.
 New installations use English. General > Language offers English, Türkçe,
@@ -10,20 +10,20 @@ Choose General > Check for updates > Download and update to update.
 Automatic checks run shortly after startup and every six hours by default.
 A green tray dot and an Update available badge lead to the update section.
 You can turn automatic checks off in General; downloads start only on request.
-For portable use, extract Luma-1.0.3-win-x64.zip and open Luma.exe.
+For portable use, extract Luma-1.0.4-win-x64.zip and open Luma.exe.
 The executable is currently unsigned. Device/driver support can vary.
-Multilingual guide: https://github.com/kyrerdm/Luma/blob/v1.0.3/docs/QUICKSTART.md
+Multilingual guide: https://github.com/kyrerdm/Luma/blob/v1.0.4/docs/QUICKSTART.md
 
 TÜRKÇE KULLANIM
 
 BAŞLARKEN
 Resmi indirme sayfası: https://github.com/kyrerdm/Luma/releases/latest
-Kurulum için Luma-1.0.3-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
+Kurulum için Luma-1.0.4-Setup.exe dosyasını açın, Kur ve Luma'yı aç seçin.
 Yönetici yetkisi gerekmez. Başlat menüsüne eklenir; Windows'un yüklü
 uygulamalar listesinden kaldırılabilir. Masaüstü kısayolu isteğe bağlıdır.
-Kurulum: %LOCALAPPDATA%\Programs\Luma\1.0.3
+Kurulum: %LOCALAPPDATA%\Programs\Luma\1.0.4
 
-Taşınabilir kullanım için Luma-1.0.3-win-x64.zip dosyasını indirin.
+Taşınabilir kullanım için Luma-1.0.4-win-x64.zip dosyasını indirin.
 ZIP dosyasını bir klasöre çıkarın ve Luma.exe dosyasını açın.
 Ek .NET kurulumu gerekmez. Bu paket Windows x64 içindir.
 
@@ -39,6 +39,9 @@ listede görünmeyebilir. Medya kaynağı seçimi ayrı bir kontroldür.
 Caps Lock, Num Lock ve Scroll Lock değişince küçük bir bildirim görünür.
 
 MEDYA KARTI
+Önceki/sonraki parçada kısa süreli medya boşluğu oluşursa kart korunur.
+Yeni parça bilgisi geldiğinde normal gizlenme süresi yeniden başlar.
+Bekleme en fazla 8 saniyedir; kapatılmış oynatıcı kartı açıkta bırakmaz.
 Klavyenin oynat/duraklat, sonraki, önceki ve durdur tuşları da medya kartını
 açar. Ses tuşu gerekmez; normal oynatma komutu Windows'a iletilir.
 Ayarlar > Medya bölümündeki medya kartı seçeneği açık olmalı ve oynatıcı
@@ -113,6 +116,10 @@ Tepsi simgesine sağ tıklayın → Çıkış: Luma'yı tamamen kapat.
 
 İsterseniz Windows ile başlat seçeneğini açabilirsiniz. Uygulama klasörünü
 taşımadan veya silmeden önce bu seçeneği kapatın.
+Geçici arşiv klasörü başlangıç için kullanılamaz; kalıcı klasöre çıkarın veya
+Luma'yı kurun. Uygun kurulu kopya varsa başlangıçta bu dosya tercih edilir.
+GitHub sürümü geçici arka plan açılış hatalarında en fazla üç kez yeniden
+dener. Sorun sürerse Genel > Destek raporu kaydet ile başlangıç özetini alın.
 
 EKRAN PARLAKLIĞI
 Desteklenen laptoplarda Fn tuşları veya Windows'tan parlaklığı değiştirince

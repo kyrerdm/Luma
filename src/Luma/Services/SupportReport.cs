@@ -10,7 +10,7 @@ namespace Luma.Services;
 // usernames, key presses, or network transmission are included.
 internal static class SupportReport
 {
-    public static string Create(AppSettings settings, bool audioAvailable, bool brightnessAvailable, int outputCount, int appCount, int mediaCount, SettingsRecovery recovery = SettingsRecovery.None)
+    public static string Create(AppSettings settings, bool audioAvailable, bool brightnessAvailable, int outputCount, int appCount, int mediaCount, SettingsRecovery recovery = SettingsRecovery.None, string? startupSummary = null)
     {
         using var process = Process.GetCurrentProcess();
         var report = new StringBuilder();
@@ -18,6 +18,7 @@ internal static class SupportReport
         report.AppendLine($"Version: {AppVersion.Current.ToString(3)}");
         report.AppendLine($"Distribution: {(Distribution.IsPackaged ? "msix" : "standalone")}");
         report.AppendLine($"Preference recovery: {recovery.ToString().ToLowerInvariant()}");
+        if (startupSummary is not null) report.AppendLine(startupSummary);
         report.AppendLine($"Windows build: {Environment.OSVersion.Version}");
         report.AppendLine($"Architecture: {RuntimeInformation.ProcessArchitecture}");
         report.AppendLine($"Working set (MiB): {process.WorkingSet64 / 1048576.0:0.0}");

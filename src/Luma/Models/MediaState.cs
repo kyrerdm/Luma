@@ -10,6 +10,7 @@ public sealed record MediaState
 {
     public static MediaState Empty { get; } = new();
     public bool Available { get; init; }
+    public bool HasTrackMetadata { get; init; } = true;
     public string SessionId { get; init; } = "";
     public string AppName { get; init; } = "";
     public string Title { get; init; } = "";

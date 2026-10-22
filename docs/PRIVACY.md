@@ -1,6 +1,6 @@
 # Luma privacy policy
 
-Last updated: 21 October 2026
+Last updated: 22 October 2026
 
 Luma is an open-source Windows utility maintained by kyrerdm. It displays and controls volume, supported display brightness and media sessions exposed by Windows. This policy covers Luma's Microsoft Store and GitHub editions.
 
@@ -15,6 +15,8 @@ These features operate locally. Luma does not send your media titles, artwork, d
 ## Preferences and files
 
 Luma saves preferences and a recovery copy on your computer. The GitHub edition uses your local application-data folder. The packaged Store edition uses its own Windows application-data folder. On its first launch, the Store edition may copy valid preferences from an existing GitHub installation; it does not change those original preference files.
+
+A background launch replaces a small local startup-health record containing the app version, UTC time, status, retry count and an error category/code. Exception messages, stack traces, file paths and media details are not recorded. A sanitized summary may be included in a support report you choose to save. Nothing is uploaded automatically.
 
 Preference import/export and support reports run only when you choose them. You select where an exported file is saved. A support report contains technical information such as the app version, Windows build, architecture, display sizes, feature availability and resource use. It excludes usernames, file paths, media titles and application/device names. It is saved locally and is not sent automatically. Review a report before choosing to share it.
 
@@ -36,13 +38,15 @@ For privacy questions, open an issue at [github.com/kyrerdm/Luma/issues](https:/
 
 # Luma gizlilik politikası
 
-Son güncelleme: 21 Ekim 2026
+Son güncelleme: 22 Ekim 2026
 
 Luma, kyrerdm tarafından geliştirilen açık kaynaklı bir Windows yardımcı uygulamasıdır. Ses düzeyi, desteklenen ekran parlaklığı ve Windows'un sunduğu medya oturumlarını görüntüler ve kontrol eder. Bu politika Microsoft Store ve GitHub sürümlerini kapsar.
 
 Ses aygıtları, uygulama ses oturumları, oynatıcı adı, parça başlığı, sanatçı, kapak, oynatma konumu ve ekran bilgileri ilgili özellikleri göstermek için bilgisayarında kullanılır. Ses tuşları, standart medya tuşları ile Caps Lock, Num Lock ve Scroll Lock göstergeleri için Windows klavye kancası kullanılır. Yazdığın metin veya tuş geçmişi kaydedilmez; medya tuşları ve normal yazı girişi Windows'a ve diğer uygulamalara iletilir.
 
 Medya bilgileri, kapaklar, aygıt kimlikleri, tuş olayları ve tercihler geliştiriciye gönderilmez. Reklam, analiz, telemetri hizmeti veya otomatik hata raporu yüklemesi bulunmaz.
+
+Arka plan açılışında uygulama sürümü, UTC zamanı, durum, deneme sayısı ve hata kategorisi/kodunu içeren küçük bir yerel başlangıç kaydı yenilenir. Hata mesajları, çağrı yığını, dosya yolları ve medya bilgileri kaydedilmez. Kaydetmeyi seçtiğin destek raporuna güvenli bir özet eklenebilir; otomatik yükleme yapılmaz.
 
 Tercihler ve kurtarma kopyası yerel olarak saklanır. Store sürümü kendine ait Windows uygulama verisi klasörünü kullanır; ilk açılışında mevcut GitHub kurulumundan geçerli tercihleri kopyalayabilir. Orijinal tercih dosyaları değiştirilmez. Store sürümü kaldırıldığında paket tarafından yönetilen veriler Windows tarafından kaldırılır. GitHub sürümü kaldırıldığında tercihler daha sonraki kurulum için kalabilir. Başka bir konuma dışa aktardığın dosyalar sana aittir.
 

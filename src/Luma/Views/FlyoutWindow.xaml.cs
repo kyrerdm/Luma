@@ -74,6 +74,9 @@ public partial class FlyoutWindow : Window
             SetWindowLongPtr(handle, -20, (IntPtr)(style | 0x08000000 | 0x80));
         };
         hideTimer.Tick += (_, _) => HideAnimated();
+        mediaTransitionTimer.Tick += (_, _) => ExpireMediaTransition();
+        Closed += (_, _) => CancelMediaTransition();
+        IsVisibleChanged += (_, _) => { if (!IsVisible) CancelMediaTransition(); };
         hintTimer.Tick += (_, _) => { hintTimer.Stop(); CommandHint.Visibility = Visibility.Collapsed; };
         timelineTimer.Tick += (_, _) => RefreshTimeline();
         MouseEnter += (_, _) => { hideTimer.Stop(); AnimateUtilities(1); };
@@ -157,6 +160,7 @@ public partial class FlyoutWindow : Window
 
     internal void ShowBrightness(BrightnessState state, bool isPreview = false)
     {
+        CancelMediaTransition();
         AudioPopup.IsOpen = false;
         SourceMenu.IsOpen = false;
         if (volumeMode) restorePinnedVolume = pinned && IsVisible;
@@ -218,6 +222,8 @@ public partial class FlyoutWindow : Window
     public void UpdateMedia(MediaState state)
     {
         if (preview) return;
+        var wasTransitioning = MediaTransitionActive;
+        if (HoldMediaTransition(state)) return;
         var changedTrack = media.SessionId != state.SessionId || media.Title != state.Title;
         media = state;
         PaintMedia();
@@ -227,10 +233,12 @@ public partial class FlyoutWindow : Window
             TrackTitleText.BeginAnimation(OpacityProperty, new DoubleAnimation(0.25, 1, TimeSpan.FromMilliseconds(240)));
             ArtworkCover.BeginAnimation(OpacityProperty, new DoubleAnimation(0.3, 1, TimeSpan.FromMilliseconds(300)));
         }
+        if (wasTransitioning && IsVisible && volumeMode) RestartTimer();
     }
 
     public void ApplyPreferences()
     {
+        if (!settings.ShowMedia) CancelMediaTransition();
         if (AudioPopup.IsOpen && (audioPopupPosition != settings.Position || Math.Abs(layoutScale - settings.FlyoutScale) > 0.001)) AudioPopup.IsOpen = false;
         UpdateOutputChevron(false);
         VolumeSlider.MotionEnabled = Motion;
@@ -312,6 +320,7 @@ public partial class FlyoutWindow : Window
 
     public void ShowLock(string name, bool enabled)
     {
+        CancelMediaTransition();
         AudioPopup.IsOpen = false;
         SourceMenu.IsOpen = false;
         if (volumeMode) restorePinnedVolume = pinned && IsVisible;
@@ -368,20 +377,21 @@ public partial class FlyoutWindow : Window
     private void RestartTimer()
     {
         hideTimer.Stop();
-        if (!IsVisible || AudioPopup.IsOpen || (selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) return;
+        if (!IsVisible || AudioPopup.IsOpen || ((selectingSource || MediaTransitionActive) && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) return;
         hideTimer.Interval = TimeSpan.FromSeconds(settings.DurationSeconds); hideTimer.Start();
     }
 
     private void HideAnimated()
     {
         hideTimer.Stop();
-        if (AudioPopup.IsOpen || (selectingSource && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) { RestartTimer(); return; }
+        if (AudioPopup.IsOpen || ((selectingSource || MediaTransitionActive) && volumeMode) || (pinned && volumeMode) || IsMouseOver || IsMouseCaptureWithin || CardStack.ContextMenu.IsOpen || SourceMenu.IsOpen) { RestartTimer(); return; }
         if (!volumeMode && restorePinnedVolume && pinned) { ShowVolume(audioState, preview); return; }
         Dismiss();
     }
 
     public void Dismiss()
     {
+        CancelMediaTransition();
         AudioPopup.IsOpen = false;
         SourceMenu.IsOpen = false;
         restorePinnedVolume = false;
@@ -397,6 +407,7 @@ public partial class FlyoutWindow : Window
     public void ReportMediaResult(bool success)
     {
         if (success) return;
+        if (MediaTransitionActive) ExpireMediaTransition();
         CommandHintText.Text = Strings.T("Bu işlem şu anda kullanılamıyor.");
         CommandHint.Visibility = Visibility.Visible; hintTimer.Stop(); hintTimer.Start();
     }
@@ -471,7 +482,12 @@ public partial class FlyoutWindow : Window
                 : media with { Position = TimeSpan.Zero, SampledAt = DateTimeOffset.UtcNow };
             PaintMedia();
         }
-        else MediaRequested?.Invoke(media.SessionId, command);
+        else
+        {
+            if (command is MediaCommand.Next or MediaCommand.Previous) BeginMediaTransition();
+            else CancelMediaTransition();
+            MediaRequested?.Invoke(media.SessionId, command);
+        }
         RestartTimer();
     }
     private void Play_Click(object sender, RoutedEventArgs e) => SendCommand(MediaCommand.TogglePlayback);
@@ -529,6 +545,7 @@ public partial class FlyoutWindow : Window
 
     private void SelectSource(string? id)
     {
+        CancelMediaTransition();
         SourceMenu.IsOpen = false;
         if (preview)
         {
