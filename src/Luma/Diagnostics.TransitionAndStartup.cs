@@ -66,6 +66,10 @@ internal static partial class Diagnostics
             await Task.Delay(1150);
             check("Canceling a transition for stop or pause restarts normal dismissal even without a session", !flyout.MediaTransitionActive && !flyout.IsVisible, "");
             flyout.ShowVolume(new(true, 40, false, "Fixture")); flyout.UpdateMedia(sample);
+            flyout.UpdateMedia(sample with { IsChanging = true });
+            check("A player-reported track change also holds an already visible card without a keyboard command", flyout.MediaTransitionActive, "");
+            flyout.UpdateMedia(sample with { Title = "Changed by player", IsChanging = false });
+            check("Stable metadata ends a player-reported transition", !flyout.MediaTransitionActive && ((TextBlock)flyout.FindName("TrackTitleText")).Text == "Changed by player", "");
             flyout.BeginMediaTransition(); flyout.ShowLock("Caps Lock", true);
             check("Lock notifications cancel the media hold instead of inheriting it", !flyout.MediaTransitionActive, "");
         }

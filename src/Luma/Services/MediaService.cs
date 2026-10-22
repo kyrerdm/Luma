@@ -128,7 +128,7 @@ public sealed class MediaService : IDisposable
                 if (target is null || selected is null) { Publish(MediaState.Empty); continue; }
                 var sources = Array.AsReadOnly(states.Select(s => new MediaSourceInfo(s.SessionId, s.AppName, s.Title, s.Artist, s.IsPlaying)).ToArray());
                 // Track metadata is useful immediately; slow cover loading must not hide the next song.
-                if (State.SessionId != target.SessionId || State.Title != target.Title || State.Artist != target.Artist || State.HasTrackMetadata != target.HasTrackMetadata)
+                if (State.SessionId != target.SessionId || State.Title != target.Title || State.Artist != target.Artist || State.HasTrackMetadata != target.HasTrackMetadata || State.IsChanging != target.IsChanging)
                     Publish(target with { Sources = sources, AutomaticSource = manualSourceId is null });
                 try { target = await selected.ReadAsync(true); }
                 catch (Exception ex) when (IsMediaError(ex)) { target = target with { Artwork = null }; }

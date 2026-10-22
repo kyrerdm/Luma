@@ -159,6 +159,7 @@ internal sealed class WindowsMediaSession : IMediaSession
         {
             Available = playback.PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Closed && (!string.IsNullOrWhiteSpace(title) || playing),
             HasTrackMetadata = !string.IsNullOrWhiteSpace(title),
+            IsChanging = playback.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Changing,
             SessionId = Id, AppName = AppDisplayName(native.SourceAppUserModelId),
             Title = string.IsNullOrWhiteSpace(title) ? "Medya" : title, Artist = artist,
             Artwork = artwork, IsPlaying = playing,

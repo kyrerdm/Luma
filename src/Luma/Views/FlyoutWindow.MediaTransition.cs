@@ -37,7 +37,7 @@ public partial class FlyoutWindow
         if (transitionOrigin is not { } previous) return false;
         transitionLatest = next;
         // Empty sessions and generic placeholder titles are normal while a player switches tracks.
-        if (!next.Available || !next.HasTrackMetadata || string.IsNullOrWhiteSpace(next.Title)) return true;
+        if (!next.Available || next.IsChanging || !next.HasTrackMetadata || string.IsNullOrWhiteSpace(next.Title)) return true;
         if (next.SessionId == previous.SessionId && next.Title == previous.Title && next.Artist == previous.Artist) return true;
         CancelMediaTransition();
         return false;

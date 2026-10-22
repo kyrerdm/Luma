@@ -222,6 +222,7 @@ public partial class FlyoutWindow : Window
     public void UpdateMedia(MediaState state)
     {
         if (preview) return;
+        if (IsVisible && volumeMode && !MediaTransitionActive && state.IsChanging) BeginMediaTransition();
         var wasTransitioning = MediaTransitionActive;
         if (HoldMediaTransition(state)) return;
         var changedTrack = media.SessionId != state.SessionId || media.Title != state.Title;
