@@ -62,6 +62,10 @@ internal static partial class Diagnostics
             flyout.ShowVolume(new(true, 40, false, "Fixture")); flyout.UpdateMedia(sample); flyout.BeginMediaTransition();
             flyout.ReportMediaResult(false);
             check("A rejected playback command releases its transition hold", !flyout.MediaTransitionActive, "");
+            flyout.BeginMediaTransition(); flyout.UpdateMedia(MediaState.Empty); flyout.CancelMediaTransition();
+            await Task.Delay(1150);
+            check("Canceling a transition for stop or pause restarts normal dismissal even without a session", !flyout.MediaTransitionActive && !flyout.IsVisible, "");
+            flyout.ShowVolume(new(true, 40, false, "Fixture")); flyout.UpdateMedia(sample);
             flyout.BeginMediaTransition(); flyout.ShowLock("Caps Lock", true);
             check("Lock notifications cancel the media hold instead of inheriting it", !flyout.MediaTransitionActive, "");
         }

@@ -25,9 +25,11 @@ public partial class FlyoutWindow
 
     internal void CancelMediaTransition()
     {
+        var wasActive = MediaTransitionActive;
         mediaTransitionTimer.Stop();
         transitionOrigin = null;
         transitionLatest = null;
+        if (wasActive) RestartTimer();
     }
 
     private bool HoldMediaTransition(MediaState next)
