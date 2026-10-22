@@ -169,6 +169,8 @@ internal static partial class Diagnostics
         Check("Media and seek commands route to service", mediaRequests.SequenceEqual(new[] { MediaCommand.Next }) && seekRequests.Count == 1 && Math.Abs(seekRequests[0].TotalSeconds - 105) < 0.1);
         flyout.UpdateMedia(sample with { CanNext = false, CanSeek = false });
         Check("Unsupported player controls are disabled", !((System.Windows.Controls.Button)flyout.FindName("NextButton")).IsEnabled && !timeline.IsEnabled);
+        // The bounded track-change timeout is tested separately; clear an idle card here.
+        flyout.CancelMediaTransition();
         flyout.UpdateMedia(Luma.Models.MediaState.Empty);
         await Task.Delay(280);
         Check("No empty media card remains", ((FrameworkElement)flyout.FindName("MediaCard")).Visibility == Visibility.Collapsed && Math.Abs(flyout.ActualHeight - 80) < 1);

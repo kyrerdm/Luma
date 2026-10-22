@@ -224,7 +224,14 @@ public partial class FlyoutWindow : Window
         if (preview) return;
         if (IsVisible && volumeMode && !MediaTransitionActive && state.IsChanging) BeginMediaTransition();
         var wasTransitioning = MediaTransitionActive;
-        if (HoldMediaTransition(state)) return;
+        if (HoldMediaTransition(state))
+        {
+            // Keep artwork/title stable, but do not leave unsupported or unavailable actions enabled.
+            media = media with { CanNext = state.Available && state.CanNext, CanPrevious = state.Available && state.CanPrevious,
+                CanToggle = state.Available && state.CanToggle, CanSeek = state.Available && state.CanSeek };
+            PaintMedia();
+            return;
+        }
         var changedTrack = media.SessionId != state.SessionId || media.Title != state.Title;
         media = state;
         PaintMedia();
