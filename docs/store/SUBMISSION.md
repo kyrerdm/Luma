@@ -1,6 +1,6 @@
 # Microsoft Store submission preparation
 
-Status: **candidate, not published or certified**. GitHub release: 1.0.4. Store candidate is 1.0.4.0 (x64, Windows 11 22H2 / build 22621 or newer).
+Status: **candidate, not published or certified**. GitHub release: 1.0.5. Store candidate is 1.0.5.0 (x64, Windows 11 22H2 / build 22621 or newer).
 
 ## Account and identity
 
@@ -19,7 +19,7 @@ From PowerShell 7 in an STA session:
 ./scripts/build.ps1 -Publish -SelfContained
 ./scripts/verify.ps1 -Published -TimeoutSeconds 240
 ./scripts/package-store.ps1 -IdentityFile .local/StoreIdentity.json
-./scripts/test-store-package.ps1 -Package artifacts/store/Store/Luma-1.0.4.0-Store-x64.msix -Production
+./scripts/test-store-package.ps1 -Package artifacts/store/Store/Luma-1.0.5.0-Store-x64.msix -Production
 ```
 
 `package-store.ps1` restores a pinned Microsoft Windows SDK BuildTools NuGet package, publishes the included .NET runtime, generates scale and target-size logos from the existing vector artwork, indexes assets with MakePri and validates the MSIX with MakeAppx. Seven license/guide notices are included. It never creates a certificate, trusts a certificate, changes Developer Mode, registers a package or submits to Microsoft Store.

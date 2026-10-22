@@ -49,7 +49,8 @@ public sealed partial class AppController : IDisposable
     public AppController(string dataDirectory) : this(dataDirectory, null, enableAutomaticUpdates: true) { }
 
     internal AppController(string dataDirectory, Func<IAudioDevice>? audioFactory, Func<IBrightnessDevice>? brightnessFactory = null,
-        Func<IMediaSessionProvider>? mediaFactory = null, UpdateMonitor? updateMonitor = null, bool enableAutomaticUpdates = false)
+        Func<IMediaSessionProvider>? mediaFactory = null, UpdateMonitor? updateMonitor = null, bool enableAutomaticUpdates = false,
+        Action<UpdateNotice>? showUpdateNotice = null)
     {
         store = new(dataDirectory);
         settings = store.Load();
@@ -123,8 +124,11 @@ public sealed partial class AppController : IDisposable
         Strings.Changed += OnLanguageChanged;
         updates = updateMonitor ?? new UpdateMonitor(Application.Current.Dispatcher);
         automaticUpdatesAllowed = enableAutomaticUpdates;
+        updateNotification = new UpdateNotification(store.DirectoryPath, showUpdateNotice ?? ShowUpdateNotice);
+        tray.BalloonTipClicked += OnUpdateNoticeClicked;
         window.CheckForUpdates = updates.CheckAsync;
         updates.Changed += OnUpdateChanged;
+        updates.AvailableInBackground += OnBackgroundUpdateAvailable;
         ConfigureAutomaticUpdates();
         _ = media.StartAsync();
     }
@@ -274,6 +278,7 @@ public sealed partial class AppController : IDisposable
         if (disposed) return;
         disposed = true;
         updates.Changed -= OnUpdateChanged;
+        updates.AvailableInBackground -= OnBackgroundUpdateAvailable;
         updates.Dispose();
         Strings.Changed -= OnLanguageChanged;
         Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnAppearanceChanged;
@@ -283,6 +288,7 @@ public sealed partial class AppController : IDisposable
         keyboard?.Dispose();
         media.Changed -= OnMediaChanged; media.Dispose();
         tray.Visible = false;
+        tray.BalloonTipClicked -= OnUpdateNoticeClicked;
         tray.ContextMenuStrip?.Dispose();
         tray.Dispose(); trayIcon.Dispose();
         updateTrayIcon?.Dispose();

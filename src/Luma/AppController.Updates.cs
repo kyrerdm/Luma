@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Linq;
 using Luma.Services;
@@ -10,6 +11,7 @@ public sealed partial class AppController
 {
     private readonly UpdateMonitor updates;
     private readonly bool automaticUpdatesAllowed;
+    private readonly UpdateNotification updateNotification;
     private Icon? updateTrayIcon;
     internal bool DiagnosticUpdateIndicator => updates.Current?.Available == true;
     internal Forms.NotifyIcon DiagnosticTray => tray;
@@ -21,6 +23,20 @@ public sealed partial class AppController
         if (disposed) return;
         window.SetUpdateResult(result);
         RefreshUpdateIndicator();
+    }
+
+    private void OnBackgroundUpdateAvailable(UpdateResult result)
+    {
+        if (!disposed && automaticUpdatesAllowed && settings.AutomaticUpdateChecks) updateNotification.Notify(result);
+    }
+
+    private void ShowUpdateNotice(UpdateNotice notice) => tray.ShowBalloonTip(10000, notice.Title, notice.Body, Forms.ToolTipIcon.Info);
+
+    internal void OnUpdateNoticeClicked(object? sender, EventArgs e)
+    {
+        if (disposed || updates.Current?.Available != true) return;
+        ShowSettings();
+        window.ShowUpdates();
     }
 
     private void RefreshUpdateIndicator()

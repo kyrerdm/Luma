@@ -41,6 +41,8 @@ Ayarları kapatmak uygulamayı tepsiye gizler. Tamamen çıkmak için tepsi simg
 
 GitHub sürümü varsayılan olarak açılıştan kısa süre sonra ve 6 saatte bir güncellemeleri denetler. Yeni sürüm bulunduğunda tepsi simgesindeki küçük yeşil nokta ve ayarlardaki **Güncelleme var** işareti güncelleme bölümünü açar. Otomatik denetimi **Genel** bölümünden kapatabilir veya **Güncellemeleri denetle** ile elle kontrol edebilirsin. İndirme ve kurulum **İndir ve güncelle** seçildiğinde başlar.
 
+Otomatik kontrolde her yeni sürüm için bir kez Windows bildirimi de gönderilir. Tıklayınca güncelleme bölümü açılır. Bildirimin gösterilmesi Windows bildirim ayarlarına bağlıdır; tepsi noktası ve ayarlardaki rozet kullanılabilir kalır. Geçici bağlantı hatalarında daha erken tekrar denenir; ilk başarısız kontrolün ardından hemen 6 saat beklenmez.
+
 Yeni Setup dosyasını da çalıştırabilirsin. Farklı bir kurulum ya da taşınabilir sürüm açmadan önce eski kopyadan çık. **Windows Ayarları → Uygulamalar → Yüklü uygulamalar** üzerinden kaldırabilirsin. GitHub sürümünün tercihleri sonraki kullanım için `%LOCALAPPDATA%\LumaFlyouts` klasöründe kalır; içe/dışa aktarma ayarlarda bulunur.
 
 ## Uyumluluk

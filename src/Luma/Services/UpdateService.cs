@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Luma.Services;
 
 internal sealed record UpdatePackage(Version Version, Uri Download, long Size, string Sha256);
-internal sealed record UpdateResult(bool Available, string Message, Uri? Page, UpdatePackage? Package = null, bool Verified = false);
+internal sealed record UpdateResult(bool Available, string Message, Uri? Page, UpdatePackage? Package = null, bool Verified = false, Version? ReleaseVersion = null);
 internal sealed class UpdateService : IDisposable
 {
     private readonly HttpClient client;
@@ -47,7 +47,7 @@ internal sealed class UpdateService : IDisposable
                 break;
             }
         }
-        return new(true, package is null ? "Yeni sürüm hazır. Kurulum için sürüm sayfasını aç." : "Yeni sürüm hazır. İndirip doğrulayarak kurabilirsin; tercihler korunur.", page, package, Verified: true);
+        return new(true, package is null ? "Yeni sürüm hazır. Kurulum için sürüm sayfasını aç." : "Yeni sürüm hazır. İndirip doğrulayarak kurabilirsin; tercihler korunur.", page, package, Verified: true, ReleaseVersion: version);
     }
 
     internal const long MaxDownloadBytes = 250L * 1024 * 1024;

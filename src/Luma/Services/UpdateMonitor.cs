@@ -16,8 +16,10 @@ internal sealed class UpdateMonitor : IDisposable
     private readonly bool packaged;
     private Task<UpdateResult>? inFlight;
     private bool disposed;
+    private int failedChecks;
     public UpdateResult? Current { get; private set; }
     public event Action<UpdateResult>? Changed;
+    public event Action<UpdateResult>? AvailableInBackground;
     internal bool AutomaticChecksEnabled => timer.IsEnabled;
     internal TimeSpan NextCheckDelay => timer.Interval;
 
@@ -29,7 +31,7 @@ internal sealed class UpdateMonitor : IDisposable
         timer.Tick += async (_, _) =>
         {
             timer.Interval = PollInterval;
-            await CheckAsync();
+            await CheckInBackgroundAsync();
         };
     }
 
@@ -39,6 +41,7 @@ internal sealed class UpdateMonitor : IDisposable
         enabled &= !packaged;
         if (!enabled) { timer.Stop(); return; }
         if (timer.IsEnabled) return;
+        failedChecks = 0;
         timer.Interval = StartupDelay;
         timer.Start();
     }
@@ -51,11 +54,22 @@ internal sealed class UpdateMonitor : IDisposable
         return inFlight = CheckCoreAsync();
     }
 
+    internal async Task CheckInBackgroundAsync()
+    {
+        if (disposed || !timer.IsEnabled) return;
+        var result = await CheckAsync();
+        if (!disposed && timer.IsEnabled && result is { Verified: true, Available: true }) AvailableInBackground?.Invoke(result);
+    }
+
     private async Task<UpdateResult> CheckCoreAsync()
     {
         var result = await service.CheckAsync(cancellation.Token);
         if (disposed) return result;
-        if (timer.IsEnabled) timer.Interval = PollInterval;
+        failedChecks = result.Verified ? 0 : Math.Min(failedChecks + 1, 4);
+        if (timer.IsEnabled) timer.Interval = failedChecks switch
+        {
+            1 => TimeSpan.FromMinutes(1), 2 => TimeSpan.FromMinutes(5), 3 => TimeSpan.FromMinutes(15), _ => PollInterval
+        };
         if (result.Verified)
         {
             Current = result;

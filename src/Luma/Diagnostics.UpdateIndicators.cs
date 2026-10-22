@@ -32,6 +32,25 @@ internal static partial class Diagnostics
         check("Background checks wait fifteen seconds before the first request", automatic.AutomaticChecksEnabled &&
             automatic.NextCheckDelay == TimeSpan.FromSeconds(15) && autoRequests.Requests == 0, "The real dispatcher timer is exercised below.");
 
+        var retries = new UpdateNoticeHandler { Fail = true };
+        using (var recovery = new UpdateMonitor(ui, new UpdateService(retries, packaged: false), packaged: false))
+        {
+            recovery.SetEnabled(true);
+            var delays = new[] { 1, 5, 15, 360 };
+            var bounded = true;
+            foreach (var minutes in delays)
+            {
+                await recovery.CheckInBackgroundAsync();
+                bounded &= recovery.NextCheckDelay == TimeSpan.FromMinutes(minutes);
+            }
+            check("Offline startup checks retry at bounded intervals instead of waiting six hours immediately", bounded && retries.Requests == 4, "");
+            retries.Fail = false;
+            await recovery.CheckInBackgroundAsync();
+            check("A recovered background check resets the normal six-hour schedule", recovery.Current?.Available == true && recovery.NextCheckDelay == UpdateMonitor.PollInterval, "");
+        }
+
+        VerifyUpdateNotifications(directory, check);
+
         var probe = new UpdateNoticeHandler { Gate = new(TaskCreationOptions.RunContinuationsAsynchronously) };
         using (var monitor = new UpdateMonitor(ui, new UpdateService(probe, packaged: false), packaged: false))
         {
@@ -60,10 +79,25 @@ internal static partial class Diagnostics
         var storeRequests = new UpdateNoticeHandler();
         using (var monitor = new UpdateMonitor(ui, new UpdateService(storeRequests, packaged: false), packaged: true))
         {
+            var storeNotices = 0;
+            monitor.AvailableInBackground += _ => storeNotices++;
             monitor.SetEnabled(true);
             await monitor.CheckAsync();
+            await monitor.CheckInBackgroundAsync();
             check("Store update monitoring blocks both scheduled and manual GitHub requests", !monitor.AutomaticChecksEnabled &&
-                monitor.Current is null && storeRequests.Requests == 0, "Microsoft Store continues to manage its own updates.");
+                monitor.Current is null && storeRequests.Requests == 0 && storeNotices == 0, "Microsoft Store continues to manage its own updates.");
+        }
+        var disablingProbe = new UpdateNoticeHandler { Gate = new(TaskCreationOptions.RunContinuationsAsynchronously) };
+        using (var monitor = new UpdateMonitor(ui, new UpdateService(disablingProbe, packaged: false), packaged: false))
+        {
+            var pendingNotices = 0;
+            monitor.AvailableInBackground += _ => pendingNotices++;
+            monitor.SetEnabled(true);
+            var background = monitor.CheckInBackgroundAsync();
+            monitor.SetEnabled(false);
+            disablingProbe.Gate.SetResult();
+            await background;
+            check("Turning automatic checks off during a request prevents a late notification", pendingNotices == 0 && !monitor.AutomaticChecksEnabled, "");
         }
         var cancellationProbe = new UpdateNoticeHandler { Gate = new(TaskCreationOptions.RunContinuationsAsynchronously) };
         var cancellable = new UpdateMonitor(ui, new UpdateService(cancellationProbe, packaged: false), packaged: false);
@@ -75,11 +109,12 @@ internal static partial class Diagnostics
         check("Closing the monitor cancels an in-flight request without a late notification", afterClose == 0 && !cancellable.AutomaticChecksEnabled, "");
 
         var controllerProbe = new UpdateNoticeHandler();
+        var systemNotices = new System.Collections.Generic.List<UpdateNotice>();
         var updates = new UpdateMonitor(ui, new UpdateService(controllerProbe, packaged: false), packaged: false);
         var data = Path.Combine(directory, "update-ui-" + Guid.NewGuid().ToString("N"));
         new SettingsStore(data).Save(new AppSettings { Language = "en", WelcomeCompleted = true, Animations = false });
         using (var runtime = new AppController(data, () => new DelayedAudioDevice(), () => new DiagnosticBrightnessDevice(),
-            () => new FakeMediaProvider(), updates, enableAutomaticUpdates: true))
+            () => new FakeMediaProvider(), updates, enableAutomaticUpdates: true, showUpdateNotice: systemNotices.Add))
         {
             var window = runtime.DiagnosticSettings;
             var badge = (Button)window.FindName("UpdateBadge");
@@ -87,9 +122,18 @@ internal static partial class Diagnostics
             check("No update decoration or extra tray action appears before a release is found", badge.Visibility == Visibility.Collapsed &&
                 menu.Items.Count == 2 && !window.IsVisible, "");
             await updates.CheckAsync();
-            check("A background result decorates the tray and settings without opening a window", runtime.DiagnosticUpdateIndicator &&
+            check("A verified result decorates the tray and settings without opening a window", runtime.DiagnosticUpdateIndicator &&
                 badge.Visibility == Visibility.Visible && menu.Items.Count == 3 && menu.Items[1].Name == "Update" &&
                 runtime.DiagnosticTray.Text.Contains("Update available") && !window.IsVisible, "No toast, forced focus, download or installation.");
+            check("Manual checks keep their result in settings without sending a system notification", systemNotices.Count == 0, "");
+            await updates.CheckInBackgroundAsync();
+            await updates.CheckInBackgroundAsync();
+            check("Background discovery sends one localized notification without focusing settings", systemNotices.Count == 1 &&
+                systemNotices[0].Title.Contains("9.0.0") && systemNotices[0].Body == "Click to review and install the new version." && !window.IsVisible, "The native delivery callback is replaced in this fixture.");
+            runtime.OnUpdateNoticeClicked(null, EventArgs.Empty);
+            await Task.Delay(50);
+            check("Clicking the update notification opens the existing update section", window.IsVisible && window.CurrentSection == "General", "");
+            window.Hide();
             ((System.Windows.Forms.ToolStripMenuItem)menu.Items[1]).PerformClick();
             await Task.Delay(80);
             check("The tray update action opens settings at the update section", window.IsVisible && window.CurrentSection == "General", "");
@@ -123,6 +167,9 @@ internal static partial class Diagnostics
             ((CheckBox)window.FindName("AutomaticUpdatesToggle")).IsChecked = false;
             check("Disabling automatic checks stops the timer and keeps an already found update available", !updates.AutomaticChecksEnabled &&
                 !new SettingsStore(data).Load().AutomaticUpdateChecks && badge.Visibility == Visibility.Visible, "");
+            controllerProbe.Json = UpdateNoticeJson(new(10, 0, 0));
+            await updates.CheckInBackgroundAsync();
+            check("Disabled automatic checks cannot send a later system notification", systemNotices.Count == 1, "");
             controllerProbe.Fail = true;
             ((Button)window.FindName("CheckUpdatesButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Task.Delay(50);
@@ -146,6 +193,44 @@ internal static partial class Diagnostics
         await Task.Delay(50);
         check("Disabling scheduled checks leaves no running timer or new request", !automatic.AutomaticChecksEnabled && autoRequests.Requests == count, "");
         Palette.Apply(new AppSettings());
+        Strings.SetLanguage("tr");
+    }
+
+    private static void VerifyUpdateNotifications(string directory, Action<string, bool, string> check)
+    {
+        var data = Path.Combine(directory, "notification-state-" + Guid.NewGuid().ToString("N"));
+        var notices = new System.Collections.Generic.List<UpdateNotice>();
+        var service = new UpdateNotification(data, notices.Add);
+        var available = UpdateService.Parse(UpdateNoticeJson(new(9, 0, 0)), AppVersion.Current);
+        check("Unverified, invalid and current releases cannot send an update notice", !service.Notify(available with { Verified = false }) &&
+            !service.Notify(available with { ReleaseVersion = new(9, 0) }) && !service.Notify(available with { ReleaseVersion = AppVersion.Current }) &&
+            !service.Notify(available with { Available = false }) && notices.Count == 0, "");
+        check("A verified release is announced once and only its version is saved", service.Notify(available) && !service.Notify(available) &&
+            notices.Count == 1 && File.ReadAllText(Path.Combine(data, "update-notification.txt")) == "9.0.0", "");
+        var restarted = new UpdateNotification(data, notices.Add);
+        check("Restarting and zero-revision version formatting cannot repeat the same notification", !restarted.Notify(available) &&
+            !restarted.Notify(available with { ReleaseVersion = new(9, 0, 0, 0) }) && notices.Count == 1, "");
+        check("A later release gets a new notification but older metadata does not", restarted.Notify(UpdateService.Parse(UpdateNoticeJson(new(10, 0, 0)), AppVersion.Current)) &&
+            !restarted.Notify(available) && notices.Count == 2, "");
+        File.WriteAllText(Path.Combine(data, "update-notification.txt"), "invalid version");
+        check("A damaged notification record does not prevent announcing a real update", new UpdateNotification(data, notices.Add).Notify(available), "");
+        var blocked = Path.Combine(directory, "notification-blocked-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllText(blocked, "not a directory");
+        var readonlyState = new UpdateNotification(blocked, notices.Add);
+        check("Unavailable notification storage does not crash or repeat within the session", readonlyState.Notify(available) && !readonlyState.Notify(available), "");
+        var delivery = new UpdateNotification(Path.Combine(directory, "notification-failure-" + Guid.NewGuid().ToString("N")), _ => throw new System.ComponentModel.Win32Exception());
+        check("A native notification failure does not crash the update monitor", !delivery.Notify(available), "");
+        check("A verified release page can notify even without an installable asset", new UpdateNotification(Path.Combine(directory, "notification-page"), notices.Add)
+            .Notify(available with { Package = null }), "The user can still open its verified release page.");
+        var translated = true;
+        foreach (var language in Strings.Languages.Keys)
+        {
+            Strings.SetLanguage(language);
+            UpdateNotice? notice = null;
+            new UpdateNotification(Path.Combine(directory, "notification-" + language), value => notice = value).Notify(available);
+            translated &= notice is not null && notice.Title == Strings.Format("Luma {0} hazır", "9.0.0") && notice.Body == Strings.T("Yeni sürümü incelemek ve güncellemek için tıkla.") && notice.Title.Length < 64;
+        }
+        check("Update notification title and action translate in all five languages", translated, "");
         Strings.SetLanguage("tr");
     }
 

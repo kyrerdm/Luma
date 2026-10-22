@@ -20,6 +20,8 @@ The default verification does not change physical display brightness. The separa
 
 Update-indicator fixtures use in-memory HTTP responses, including the real startup timer, cancellation, offline recovery, five-language badges and tray actions. Diagnostic controllers do not enable live scheduled GitHub checks. Automatic checks in normal GitHub installations request metadata after 15 seconds and every six hours; users can disable them under General. Store builds do not poll GitHub.
 
+Notification fixtures replace native delivery with a capture callback and exercise version persistence, restart deduplication, translations, activation of the update section and disabled/in-flight cases. They do not send fake update notifications to Windows. Notification delivery uses the existing tray icon's [ShowBalloonTip](https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.notifyicon.showballoontip) and click event; Windows controls actual display. Failed metadata checks retry at one, five and fifteen minutes, then return to six hours.
+
 Automated checks do not replace real-device validation. Bluetooth/USB hotplug, sleep/resume, laptop Fn controllers, mixed monitor DPI, external DDC/CI, long sessions, Narrator and contrast themes are tracked in [KARARLI_SURUM.md](KARARLI_SURUM.md).
 
 Track-transition checks use empty sessions, placeholder titles, delayed cover loading and the real bounded UI timer. Startup fixtures exercise independent unowned/abandoned named mutexes, retry argument construction, isolated installation paths and sanitized startup-health records. They do not launch a retry process, change the user's startup registration, log off or reboot Windows. Cold-boot validation must be completed on the affected machine.
@@ -27,7 +29,7 @@ Track-transition checks use empty sessions, placeholder titles, delayed cover lo
 For isolated development preferences:
 
 ```powershell
-./artifacts/Luma-1.0.4/Luma.exe --data-dir ./.local/development-preferences
+./artifacts/Luma-1.0.5/Luma.exe --data-dir ./.local/development-preferences
 ```
 
 Quit the running copy from its tray first; editions intentionally share a single-instance mutex. Do not use a separate data directory to try to run two active controllers at once.

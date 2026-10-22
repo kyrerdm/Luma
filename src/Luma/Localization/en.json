@@ -272,5 +272,7 @@
   "Güncellemeyi aç": "View update",
   "Güncellemeleri otomatik denetle": "Check for updates automatically",
   "Açılıştan sonra ve 6 saatte bir kontrol eder. İndirme ve kurulumu sen başlatırsın.": "Checks after startup and every 6 hours. You start downloads and installation.",
-  "Windows ile başlatmak için Luma'yı kur veya kısa, kalıcı bir klasöre çıkar.": "Install Luma or extract it to a short, permanent folder to start with Windows."
+  "Windows ile başlatmak için Luma'yı kur veya kısa, kalıcı bir klasöre çıkar.": "Install Luma or extract it to a short, permanent folder to start with Windows.",
+  "Luma {0} hazır": "Luma {0} is available",
+  "Yeni sürümü incelemek ve güncellemek için tıkla.": "Click to review and install the new version."
 }

@@ -19,7 +19,7 @@ Free, open-source volume, media and brightness flyouts for Windows 11.
 - Six positions, adjustable size and monitor selection.
 - Light, dark and system themes, 12 accent colors and a custom color option.
 - Live settings preview, preference backup and optional startup with Windows.
-- Quiet update indicators and optional automatic release checks in the GitHub edition.
+- Update notifications, tray indicators and optional automatic release checks in the GitHub edition.
 - English, Turkish, German, Spanish and Italian. New installations start in English; updates keep your language choice.
 
 ## Install
@@ -41,6 +41,8 @@ Settings close to the tray. Right-click the tray icon and choose **Exit** to qui
 Track skips briefly preserve the media card while the next song loads, then restart its hide timeout. For Windows startup, install Luma or keep the portable app in a permanent folder; temporary archive extractions cannot be used as a startup target. Standalone background launches can retry transient initialization failures, and a local startup summary is included in support reports. Actual logon behavior still depends on Windows startup settings and the device.
 
 The GitHub edition checks for updates shortly after startup and every six hours by default. A small green dot on the tray icon and an **Update available** badge in Settings lead to the update section. Turn off automatic checks under **General**, or use **Check for updates** manually. **Download and update** starts the download and installation; neither starts automatically.
+
+A scheduled check also sends one Windows notification for each new release. Click it to open the update section. Notification display follows Windows notification settings; the tray dot and settings badge remain available. Failed checks retry sooner so a temporary startup connection problem does not immediately postpone discovery for six hours.
 
 You can also run the latest Setup. Quit an old copy before opening a different installation or portable version. Uninstall through **Windows Settings → Apps → Installed apps**. GitHub preferences remain in `%LOCALAPPDATA%\LumaFlyouts` for later use; preference import/export is available in Settings.
 
