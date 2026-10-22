@@ -132,7 +132,7 @@ internal static partial class Diagnostics
         Directory.CreateDirectory(Path.GetDirectoryName(installed)!); File.Copy(exe, installed);
         var invalid = Path.Combine(root, "9.0.0", "Luma.exe"); Directory.CreateDirectory(Path.GetDirectoryName(invalid)!); File.Copy(exe, invalid);
         var temporary = Path.Combine(Path.GetTempPath(), "Luma-in-archive", "Luma.exe");
-        check("A matching installed copy replaces a temporary startup path and rejects mislabeled versions", StartupService.ResolveExecutable(temporary, root) == installed, "Only an isolated install tree is inspected.");
+        check("A matching installed copy replaces a temporary startup path and rejects mislabeled versions", StartupService.ResolveExecutable(temporary, root, new Version(9, 0, 0)) == installed, "Only an isolated install tree is inspected; an invalid registration falls back to the current version.");
         var refused = false;
         try { StartupService.ResolveExecutable(temporary, Path.Combine(root, "missing")); } catch (InvalidOperationException) { refused = true; }
         check("A temporary archive extraction cannot be registered as a permanent startup location", refused, "No Windows startup registry value is changed.");

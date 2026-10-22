@@ -33,7 +33,7 @@ public static class StartupService
             var path = Environment.ProcessPath ?? throw new InvalidOperationException("Uygulama yolu bulunamadı.");
             if (System.IO.Path.GetFileNameWithoutExtension(path).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Başlangıç ayarı için Luma.exe dosyasını açın.");
-            SetExecutable(ResolveExecutable(path, InstallService.DefaultRoot));
+            SetExecutable(ResolveExecutable(path, InstallService.DefaultRoot, RegisteredVersion()));
         }
         else { using var key = Registry.CurrentUser.CreateSubKey(KeyPath); key.DeleteValue(ValueName, false); }
     }
@@ -69,28 +69,43 @@ public static class StartupService
         key.SetValue(ValueName, $"\"{executable}\" --background");
     }
 
-    internal static string ResolveExecutable(string currentExecutable, string installRoot)
+    internal static string ResolveExecutable(string currentExecutable, string installRoot, Version? registeredVersion = null)
     {
         var current = Path.GetFullPath(currentExecutable);
         var best = current;
         var applicationVersion = AppVersion.Current;
-        var bestVersion = ReadVersion(current) ?? new Version(applicationVersion.Major, applicationVersion.Minor, Math.Max(0, applicationVersion.Build));
+        var currentVersion = ReadVersion(current) ?? new Version(applicationVersion.Major, applicationVersion.Minor, Math.Max(0, applicationVersion.Build));
         if (Directory.Exists(installRoot) && (File.GetAttributes(installRoot) & FileAttributes.ReparsePoint) == 0)
         {
-            foreach (var directory in Directory.EnumerateDirectories(installRoot))
+            // Honor the registered installation, including a deliberate update rollback.
+            // Merely finding a higher-version folder does not prove that version started successfully.
+            var preferred = registeredVersion is not null && registeredVersion >= currentVersion ? registeredVersion : currentVersion;
+            foreach (var version in new[] { preferred, currentVersion })
             {
-                if (!Version.TryParse(Path.GetFileName(directory), out var version) || version.Build < 0 || version < bestVersion
-                    || (File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0) continue;
+                var directory = Path.Combine(installRoot, version.ToString(3));
+                if (!Directory.Exists(directory) || (File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0) continue;
                 var candidate = Path.Combine(directory, "Luma.exe");
                 if (ReadVersion(candidate) != version) continue;
                 best = candidate;
-                bestVersion = version;
+                break;
             }
         }
         var temporary = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (best.StartsWith(temporary, StringComparison.OrdinalIgnoreCase) || ($"\"{best}\" --background").Length > 260)
             throw new InvalidOperationException(Strings.T("Windows ile başlatmak için Luma'yı kur veya kısa, kalıcı bir klasöre çıkar."));
         return best;
+    }
+
+    private static Version? RegisteredVersion()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\LumaFlyouts");
+            if (key?.GetValue("InstallLocation") is not string root || !Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar).Equals(
+                    Path.GetFullPath(InstallService.DefaultRoot).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)) return null;
+            return Version.TryParse(key.GetValue("DisplayVersion") as string, out var version) && version.Build >= 0 ? new(version.Major, version.Minor, version.Build) : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException or ArgumentException) { return null; }
     }
 
     private static Version? ReadVersion(string path)
